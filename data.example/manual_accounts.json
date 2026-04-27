@@ -1,0 +1,12 @@
+[
+  {
+    "id": "manual_example",
+    "name": "Fidelity Brokerage",
+    "institution": "Fidelity Investments",
+    "balance": 75000,
+    "currency": "USD",
+    "accountType": "investment",
+    "address": "",
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  }
+]

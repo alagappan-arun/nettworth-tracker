@@ -1,0 +1,19 @@
+{
+  "name": "nett-worth-tracker",
+  "version": "1.0.0",
+  "description": "Personal net worth tracker with Plaid bank integrations",
+  "main": "server.js",
+  "scripts": {
+    "start":           "node server.js",
+    "dev":             "npx nodemon server.js",
+    "demo":            "node server.js --demo",
+    "setup-domain":    "sudo bash scripts/setup-domain.sh",
+    "teardown-domain": "sudo bash scripts/teardown-domain.sh"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "plaid": "^29.0.0"
+  }
+}
