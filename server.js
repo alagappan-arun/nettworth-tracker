@@ -36,21 +36,17 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname)));
 
 // ── Plaid client ──────────────────────────────────────────────────────────────
-const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
-const PLAID_SECRET    = process.env.PLAID_SECRET;
-const PLAID_ENV       = process.env.PLAID_ENV || 'sandbox';
+let PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
+let PLAID_SECRET    = process.env.PLAID_SECRET;
+let PLAID_ENV       = process.env.PLAID_ENV || 'sandbox';
 
-const plaidClient = new PlaidApi(
-  new Configuration({
-    basePath: PlaidEnvironments[PLAID_ENV],
-    baseOptions: {
-      headers: {
-        'PLAID-CLIENT-ID': PLAID_CLIENT_ID,
-        'PLAID-SECRET':    PLAID_SECRET,
-      },
-    },
-  })
-);
+function makePlaidClient(clientId, secret, env) {
+  return new PlaidApi(new Configuration({
+    basePath: PlaidEnvironments[env] || PlaidEnvironments.sandbox,
+    baseOptions: { headers: { 'PLAID-CLIENT-ID': clientId, 'PLAID-SECRET': secret } },
+  }));
+}
+let plaidClient = makePlaidClient(PLAID_CLIENT_ID, PLAID_SECRET, PLAID_ENV);
 
 // ── Token persistence ─────────────────────────────────────────────────────────
 const TOKENS_FILE = path.join(dataDir, 'tokens.json');
@@ -166,6 +162,30 @@ app.get('/api/config', (_req, res) => {
   });
 });
 
+
+// Save Plaid credentials to data/.env and hot-reload the client (no restart needed)
+app.post('/api/setup', (req, res) => {
+  if (demoMode) return res.status(403).json({ error: 'Cannot configure in demo mode.' });
+  const { clientId, secret, environment } = req.body;
+  if (!clientId || !secret) return res.status(400).json({ error: 'Client ID and Secret are required.' });
+
+  const env = ['sandbox', 'development', 'production'].includes(environment) ? environment : 'production';
+
+  // Read existing .env so we preserve any other vars the user may have set
+  let existing = '';
+  try { existing = fs.readFileSync(dataEnvFile, 'utf8'); } catch (_) {}
+  const lines = existing.split('\n').filter(l => !/^PLAID_(CLIENT_ID|SECRET|ENV)\s*=/.test(l));
+  lines.push(`PLAID_CLIENT_ID=${clientId}`, `PLAID_SECRET=${secret}`, `PLAID_ENV=${env}`);
+  fs.writeFileSync(dataEnvFile, lines.join('\n') + '\n');
+
+  // Hot-reload — no server restart required
+  PLAID_CLIENT_ID = clientId;
+  PLAID_SECRET    = secret;
+  PLAID_ENV       = env;
+  plaidClient     = makePlaidClient(clientId, secret, env);
+
+  res.json({ success: true, configured: true, environment: env });
+});
 
 // Step 1 – create a Plaid Link token
 app.post('/api/create_link_token', async (_req, res) => {
