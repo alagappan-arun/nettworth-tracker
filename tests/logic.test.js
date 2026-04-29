@@ -70,7 +70,7 @@ function isAutoExcluded(t) {
 }
 
 // ── isTransferTx ──────────────────────────────────────────────────────────────
-const OWN_ACCOUNT_MASKS = ['8073', '0989'];
+const OWN_ACCOUNT_MASKS = ['1111', '2222'];
 
 // Minimal state stub used by isTransferTx / isExcludedFromSpending
 let _state = { txOverrides: {}, spendingExclusions: {} };
@@ -339,7 +339,7 @@ describe('isTransferTx()', () => {
     assert.equal(isTransferTx(tx({ category: ['Transfer', 'Internal Account Transfer'] })), true));
 
   test('own account mask in name → hard transfer', () =>
-    assert.equal(isTransferTx(tx({ name: 'FROM CHECKING 8073' })), true));
+    assert.equal(isTransferTx(tx({ name: 'FROM CHECKING 1111' })), true));
 
   test('credit card payment keyword → hard transfer', () =>
     assert.equal(isTransferTx(tx({ name: 'AUTOPAY PAYMENT VISA' })), true));
@@ -366,8 +366,8 @@ describe('isTransferTx()', () => {
   test('JP Morgan (with space, no Chase) is NEVER a hard transfer', () =>
     assert.equal(isTransferTx(tx({ name: 'JP MORGAN SAVINGS', personal_finance_category: { primary: 'TRANSFER_OUT' } })), false));
 
-  test('own account mask 0989 → hard transfer', () =>
-    assert.equal(isTransferTx(tx({ name: 'TRANSFER TO SAVINGS 0989' })), true));
+  test('own account mask 2222 → hard transfer', () =>
+    assert.equal(isTransferTx(tx({ name: 'TRANSFER TO SAVINGS 2222' })), true));
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

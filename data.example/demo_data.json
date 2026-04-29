@@ -2,185 +2,2003 @@
   "accounts": [
     {
       "account_id": "demo-chk-001",
-      "name": "Everyday Checking",
+      "name": "Primary Checking",
       "type": "depository",
       "subtype": "checking",
-      "balances": { "current": 8432.17, "available": 8100.00 },
-      "mask": "4821",
-      "institution_name": "Chase",
-      "institution_id": "ins_demo_chase",
-      "item_id": "demo-item-chase"
+      "balances": {
+        "current": 6218.44,
+        "available": 5940
+      },
+      "mask": "3307",
+      "institution_name": "Riverstone Bank",
+      "institution_id": "ins_demo_riverstone",
+      "item_id": "demo-item-riverstone"
     },
     {
-      "account_id": "demo-sav-001",
-      "name": "High-Yield Savings",
+      "account_id": "demo-chk-002",
+      "name": "Joint Checking",
       "type": "depository",
-      "subtype": "savings",
-      "balances": { "current": 32500.00, "available": 32500.00 },
-      "mask": "9103",
-      "institution_name": "Chase",
-      "institution_id": "ins_demo_chase",
-      "item_id": "demo-item-chase"
+      "subtype": "checking",
+      "balances": {
+        "current": 4105.77,
+        "available": 3890
+      },
+      "mask": "7741",
+      "institution_name": "Crestview Credit Union",
+      "institution_id": "ins_demo_crestview",
+      "item_id": "demo-item-crestview"
     },
     {
       "account_id": "demo-cc-001",
-      "name": "Sapphire Reserve",
+      "name": "Apex Rewards Visa",
       "type": "credit",
       "subtype": "credit card",
-      "balances": { "current": -3241.88 },
-      "mask": "7740",
-      "institution_name": "Chase",
-      "institution_id": "ins_demo_chase",
-      "item_id": "demo-item-chase"
+      "balances": {
+        "current": 2187.6
+      },
+      "mask": "5523",
+      "institution_name": "Apex Financial",
+      "institution_id": "ins_demo_apex",
+      "item_id": "demo-item-apex"
+    },
+    {
+      "account_id": "demo-cc-002",
+      "name": "Pinnacle Platinum Card",
+      "type": "credit",
+      "subtype": "credit card",
+      "balances": {
+        "current": 1344.2
+      },
+      "mask": "4418",
+      "institution_name": "Pinnacle Bank",
+      "institution_id": "ins_demo_pinnacle",
+      "item_id": "demo-item-pinnacle"
+    },
+    {
+      "account_id": "demo-cc-003",
+      "name": "Summit Travel Card",
+      "type": "credit",
+      "subtype": "credit card",
+      "balances": {
+        "current": 892.5
+      },
+      "mask": "9902",
+      "institution_name": "Summit One",
+      "institution_id": "ins_demo_summit",
+      "item_id": "demo-item-summit"
+    },
+    {
+      "account_id": "demo-cc-004",
+      "name": "Harborside Cash Back",
+      "type": "credit",
+      "subtype": "credit card",
+      "balances": {
+        "current": 3211.8
+      },
+      "mask": "2267",
+      "institution_name": "Harborside Financial",
+      "institution_id": "ins_demo_harborside",
+      "item_id": "demo-item-harborside"
+    },
+    {
+      "account_id": "demo-cc-005",
+      "name": "Greenfield Everyday Card",
+      "type": "credit",
+      "subtype": "credit card",
+      "balances": {
+        "current": 567.35
+      },
+      "mask": "8834",
+      "institution_name": "Greenfield Bank",
+      "institution_id": "ins_demo_greenfield",
+      "item_id": "demo-item-greenfield"
     },
     {
       "account_id": "demo-inv-001",
-      "name": "Individual Brokerage",
+      "name": "Taxable Brokerage",
       "type": "investment",
       "subtype": "brokerage",
-      "balances": { "current": 94300.00 },
-      "mask": "2280",
-      "institution_name": "Schwab",
-      "institution_id": "ins_demo_schwab",
-      "item_id": "demo-item-schwab"
+      "balances": {
+        "current": 83542.2
+      },
+      "mask": "1190",
+      "institution_name": "Meridian Wealth",
+      "institution_id": "ins_demo_meridian",
+      "item_id": "demo-item-meridian"
     },
     {
       "account_id": "demo-inv-002",
       "name": "Roth IRA",
       "type": "investment",
       "subtype": "brokerage",
-      "balances": { "current": 48750.00 },
-      "mask": "5512",
-      "institution_name": "Schwab",
-      "institution_id": "ins_demo_schwab",
-      "item_id": "demo-item-schwab"
+      "balances": {
+        "current": 41609.8
+      },
+      "mask": "6672",
+      "institution_name": "Meridian Wealth",
+      "institution_id": "ins_demo_meridian",
+      "item_id": "demo-item-meridian"
     },
     {
-      "account_id": "demo-inv-003",
-      "name": "401(k)",
+      "account_id": "demo-inv-004",
+      "name": "Traditional IRA",
       "type": "investment",
-      "subtype": "super",
-      "balances": { "current": 112400.00 },
-      "mask": "0044",
-      "institution_name": "Fidelity (Manual)",
-      "institution_id": "",
-      "item_id": "",
-      "isManual": true,
-      "manualId": "manual-fidelity-401k"
+      "subtype": "brokerage",
+      "balances": {
+        "current": 141986
+      },
+      "mask": "3381",
+      "institution_name": "Cascade Capital",
+      "institution_id": "ins_demo_cascade",
+      "item_id": "demo-item-cascade"
+    },
+    {
+      "account_id": "demo-inv-005",
+      "name": "HSA Investments",
+      "type": "investment",
+      "subtype": "brokerage",
+      "balances": {
+        "current": 18970
+      },
+      "mask": "5509",
+      "institution_name": "Thornbridge Advisors",
+      "institution_id": "ins_demo_thornbridge",
+      "item_id": "demo-item-thornbridge"
+    },
+    {
+      "account_id": "demo-mtg-001",
+      "name": "Birchwood Home Mortgage",
+      "type": "loan",
+      "subtype": "mortgage",
+      "balances": {
+        "current": 287400
+      },
+      "mask": "0042",
+      "institution_name": "Cedar Falls Home Loans",
+      "institution_id": "ins_demo_cedarfalls",
+      "item_id": "demo-item-cedarfalls"
+    }
+  ],
+  "manual_accounts": [
+    {
+      "id": "manual-bluesky-401k",
+      "name": "BlueSky 401(k)",
+      "institution": "BlueSky Benefits",
+      "balance": "98700",
+      "currency": "USD",
+      "accountType": "super",
+      "address": "",
+      "linkedMortgageId": ""
+    },
+    {
+      "id": "manual-re-001",
+      "name": "742 Birchwood Drive",
+      "institution": "Manual",
+      "balance": "485000",
+      "currency": "USD",
+      "accountType": "real_estate",
+      "address": "742 Birchwood Drive, Cedar Falls, TX 78240",
+      "linkedMortgageId": "demo-mtg-001"
     }
   ],
   "history": [
-    { "date": "2024-04-01", "value": 198400,  "investments": 161400 },
-    { "date": "2024-04-15", "value": 201200,  "investments": 163800 },
-    { "date": "2024-05-01", "value": 205800,  "investments": 168200 },
-    { "date": "2024-05-15", "value": 209300,  "investments": 171600 },
-    { "date": "2024-06-01", "value": 214700,  "investments": 177100 },
-    { "date": "2024-06-15", "value": 218500,  "investments": 180400 },
-    { "date": "2024-07-01", "value": 224100,  "investments": 186300 },
-    { "date": "2024-07-15", "value": 231600,  "investments": 193800 },
-    { "date": "2024-08-01", "value": 228900,  "investments": 190500 },
-    { "date": "2024-08-15", "value": 234700,  "investments": 196400 },
-    { "date": "2024-09-01", "value": 238300,  "investments": 200100 },
-    { "date": "2024-09-15", "value": 241800,  "investments": 203600 },
-    { "date": "2024-10-01", "value": 248200,  "investments": 210200 },
-    { "date": "2024-10-15", "value": 253500,  "investments": 215200 },
-    { "date": "2024-11-01", "value": 259100,  "investments": 220800 },
-    { "date": "2024-11-15", "value": 264400,  "investments": 225700 },
-    { "date": "2024-12-01", "value": 270800,  "investments": 232600 },
-    { "date": "2024-12-15", "value": 267300,  "investments": 229000 },
-    { "date": "2025-01-01", "value": 261500,  "investments": 222900 },
-    { "date": "2025-01-15", "value": 268900,  "investments": 229500 },
-    { "date": "2025-02-01", "value": 275200,  "investments": 236100 },
-    { "date": "2025-02-15", "value": 280600,  "investments": 241700 },
-    { "date": "2025-03-01", "value": 284100,  "investments": 245400 },
-    { "date": "2025-03-15", "value": 279800,  "investments": 240800 },
-    { "date": "2025-04-01", "value": 286400,  "investments": 247200 },
-    { "date": "2025-04-15", "value": 292140,  "investments": 252900 },
-    { "date": "2025-05-01", "value": 297800,  "investments": 258200 },
-    { "date": "2025-05-15", "value": 303500,  "investments": 263800 },
-    { "date": "2025-06-01", "value": 309200,  "investments": 269100 },
-    { "date": "2025-06-15", "value": 315600,  "investments": 275400 },
-    { "date": "2025-07-01", "value": 321300,  "investments": 281000 },
-    { "date": "2025-07-15", "value": 328700,  "investments": 288200 },
-    { "date": "2025-08-01", "value": 334400,  "investments": 293800 },
-    { "date": "2025-08-15", "value": 329100,  "investments": 288200 },
-    { "date": "2025-09-01", "value": 338600,  "investments": 297500 },
-    { "date": "2025-09-15", "value": 345200,  "investments": 304000 },
-    { "date": "2025-10-01", "value": 352700,  "investments": 311200 },
-    { "date": "2025-10-15", "value": 358900,  "investments": 317400 },
-    { "date": "2025-11-01", "value": 365400,  "investments": 323800 },
-    { "date": "2025-11-15", "value": 371100,  "investments": 329500 },
-    { "date": "2025-12-01", "value": 378800,  "investments": 337200 },
-    { "date": "2025-12-15", "value": 374200,  "investments": 332800 },
-    { "date": "2026-01-01", "value": 368500,  "investments": 326900 },
-    { "date": "2026-01-15", "value": 376400,  "investments": 334700 },
-    { "date": "2026-02-01", "value": 383200,  "investments": 341600 },
-    { "date": "2026-02-15", "value": 389700,  "investments": 347900 },
-    { "date": "2026-03-01", "value": 395100,  "investments": 353200 },
-    { "date": "2026-03-15", "value": 388600,  "investments": 346400 },
-    { "date": "2026-04-01", "value": 397800,  "investments": 355600 },
-    { "date": "2026-04-15", "value": 404300,  "investments": 362100 },
-    { "date": "2026-04-24", "value": 406450,  "investments": 364100 }
+    {
+      "date": "2024-04-01",
+      "value": 264200,
+      "investments": 212400
+    },
+    {
+      "date": "2024-04-15",
+      "value": 270100,
+      "investments": 217800
+    },
+    {
+      "date": "2024-05-01",
+      "value": 277300,
+      "investments": 224600
+    },
+    {
+      "date": "2024-05-15",
+      "value": 284000,
+      "investments": 230900
+    },
+    {
+      "date": "2024-06-01",
+      "value": 292800,
+      "investments": 239600
+    },
+    {
+      "date": "2024-06-15",
+      "value": 298500,
+      "investments": 245200
+    },
+    {
+      "date": "2024-07-01",
+      "value": 307400,
+      "investments": 253900
+    },
+    {
+      "date": "2024-07-15",
+      "value": 318600,
+      "investments": 265000
+    },
+    {
+      "date": "2024-08-01",
+      "value": 312700,
+      "investments": 258700
+    },
+    {
+      "date": "2024-08-15",
+      "value": 322100,
+      "investments": 268800
+    },
+    {
+      "date": "2024-09-01",
+      "value": 329400,
+      "investments": 276700
+    },
+    {
+      "date": "2024-09-15",
+      "value": 336900,
+      "investments": 284900
+    },
+    {
+      "date": "2024-10-01",
+      "value": 346300,
+      "investments": 294600
+    },
+    {
+      "date": "2024-10-15",
+      "value": 355800,
+      "investments": 303900
+    },
+    {
+      "date": "2024-11-01",
+      "value": 366400,
+      "investments": 314200
+    },
+    {
+      "date": "2024-11-15",
+      "value": 374300,
+      "investments": 322400
+    },
+    {
+      "date": "2024-12-01",
+      "value": 384700,
+      "investments": 332500
+    },
+    {
+      "date": "2024-12-15",
+      "value": 377900,
+      "investments": 325400
+    },
+    {
+      "date": "2025-01-01",
+      "value": 369200,
+      "investments": 316400
+    },
+    {
+      "date": "2025-01-15",
+      "value": 380700,
+      "investments": 328100
+    },
+    {
+      "date": "2025-02-01",
+      "value": 390200,
+      "investments": 338000
+    },
+    {
+      "date": "2025-02-15",
+      "value": 399600,
+      "investments": 347700
+    },
+    {
+      "date": "2025-03-01",
+      "value": 407300,
+      "investments": 355600
+    },
+    {
+      "date": "2025-03-15",
+      "value": 397800,
+      "investments": 345700
+    },
+    {
+      "date": "2025-04-01",
+      "value": 410100,
+      "investments": 358400
+    },
+    {
+      "date": "2025-04-15",
+      "value": 419700,
+      "investments": 367800
+    },
+    {
+      "date": "2025-05-01",
+      "value": 428900,
+      "investments": 376900
+    },
+    {
+      "date": "2025-05-15",
+      "value": 438300,
+      "investments": 386100
+    },
+    {
+      "date": "2025-06-01",
+      "value": 447800,
+      "investments": 395400
+    },
+    {
+      "date": "2025-06-15",
+      "value": 458200,
+      "investments": 405700
+    },
+    {
+      "date": "2025-07-01",
+      "value": 468300,
+      "investments": 415600
+    },
+    {
+      "date": "2025-07-15",
+      "value": 479700,
+      "investments": 426800
+    },
+    {
+      "date": "2025-08-01",
+      "value": 488900,
+      "investments": 436000
+    },
+    {
+      "date": "2025-08-15",
+      "value": 479300,
+      "investments": 426200
+    },
+    {
+      "date": "2025-09-01",
+      "value": 494200,
+      "investments": 441200
+    },
+    {
+      "date": "2025-09-15",
+      "value": 506100,
+      "investments": 453400
+    },
+    {
+      "date": "2025-10-01",
+      "value": 517300,
+      "investments": 464600
+    },
+    {
+      "date": "2025-10-15",
+      "value": 527400,
+      "investments": 474700
+    },
+    {
+      "date": "2025-11-01",
+      "value": 537800,
+      "investments": 485100
+    },
+    {
+      "date": "2025-11-15",
+      "value": 546600,
+      "investments": 493800
+    },
+    {
+      "date": "2025-12-01",
+      "value": 557400,
+      "investments": 504600
+    },
+    {
+      "date": "2025-12-15",
+      "value": 549100,
+      "investments": 496200
+    },
+    {
+      "date": "2026-01-01",
+      "value": 540300,
+      "investments": 487100
+    },
+    {
+      "date": "2026-01-15",
+      "value": 553800,
+      "investments": 500800
+    },
+    {
+      "date": "2026-02-01",
+      "value": 565200,
+      "investments": 512400
+    },
+    {
+      "date": "2026-02-15",
+      "value": 574700,
+      "investments": 521800
+    },
+    {
+      "date": "2026-03-01",
+      "value": 584200,
+      "investments": 531300
+    },
+    {
+      "date": "2026-03-15",
+      "value": 573600,
+      "investments": 520400
+    },
+    {
+      "date": "2026-04-01",
+      "value": 587100,
+      "investments": 534400
+    },
+    {
+      "date": "2026-04-15",
+      "value": 596800,
+      "investments": 543900
+    },
+    {
+      "date": "2026-04-24",
+      "value": 584500,
+      "investments": 384808
+    }
   ],
   "holdings": [
-    { "account_id": "demo-inv-001", "security_id": "sec-voo",  "quantity": 85.4,  "institution_price": 498.20, "institution_value": 42526.28, "cost_basis": 31000.00, "institution_name": "Schwab", "item_id": "demo-item-schwab" },
-    { "account_id": "demo-inv-001", "security_id": "sec-qqq",  "quantity": 42.0,  "institution_price": 468.50, "institution_value": 19677.00, "cost_basis": 15200.00, "institution_name": "Schwab", "item_id": "demo-item-schwab" },
-    { "account_id": "demo-inv-001", "security_id": "sec-nvda", "quantity": 38.0,  "institution_price": 486.00, "institution_value": 18468.00, "cost_basis": 9800.00,  "institution_name": "Schwab", "item_id": "demo-item-schwab" },
-    { "account_id": "demo-inv-001", "security_id": "sec-sgov", "quantity": 136.2, "institution_price": 100.51, "institution_value": 13689.46, "cost_basis": 13600.00, "institution_name": "Schwab", "item_id": "demo-item-schwab" },
-    { "account_id": "demo-inv-002", "security_id": "sec-vti",  "quantity": 64.5,  "institution_price": 270.40, "institution_value": 17440.80, "cost_basis": 10500.00, "institution_name": "Schwab", "item_id": "demo-item-schwab" },
-    { "account_id": "demo-inv-002", "security_id": "sec-vxus", "quantity": 112.0, "institution_price": 60.18,  "institution_value": 6740.16,  "cost_basis": 5600.00,  "institution_name": "Schwab", "item_id": "demo-item-schwab" },
-    { "account_id": "demo-inv-002", "security_id": "sec-bnd",  "quantity": 89.0,  "institution_price": 73.96,  "institution_value": 6582.44,  "cost_basis": 6800.00,  "institution_name": "Schwab", "item_id": "demo-item-schwab" },
-    { "account_id": "demo-inv-002", "security_id": "sec-sgov", "quantity": 179.8, "institution_price": 100.51, "institution_value": 18071.70, "cost_basis": 17900.00, "institution_name": "Schwab", "item_id": "demo-item-schwab" }
+    {
+      "account_id": "demo-inv-001",
+      "security_id": "sec-aapl",
+      "quantity": 62,
+      "institution_price": 214.5,
+      "institution_value": 13299,
+      "cost_basis": 9400,
+      "institution_name": "Meridian Wealth",
+      "item_id": "demo-item-meridian"
+    },
+    {
+      "account_id": "demo-inv-001",
+      "security_id": "sec-msft",
+      "quantity": 48,
+      "institution_price": 422.8,
+      "institution_value": 20294.4,
+      "cost_basis": 15800,
+      "institution_name": "Meridian Wealth",
+      "item_id": "demo-item-meridian"
+    },
+    {
+      "account_id": "demo-inv-001",
+      "security_id": "sec-spy",
+      "quantity": 96,
+      "institution_price": 520.3,
+      "institution_value": 49948.8,
+      "cost_basis": 38200,
+      "institution_name": "Meridian Wealth",
+      "item_id": "demo-item-meridian"
+    },
+    {
+      "account_id": "demo-inv-002",
+      "security_id": "sec-agg",
+      "quantity": 180,
+      "institution_price": 97.4,
+      "institution_value": 17532,
+      "cost_basis": 18100,
+      "institution_name": "Meridian Wealth",
+      "item_id": "demo-item-meridian"
+    },
+    {
+      "account_id": "demo-inv-002",
+      "security_id": "sec-tlt",
+      "quantity": 120,
+      "institution_price": 88.6,
+      "institution_value": 10632,
+      "cost_basis": 11400,
+      "institution_name": "Meridian Wealth",
+      "item_id": "demo-item-meridian"
+    },
+    {
+      "account_id": "demo-inv-002",
+      "security_id": "sec-gld",
+      "quantity": 74,
+      "institution_price": 181.7,
+      "institution_value": 13445.8,
+      "cost_basis": 10200,
+      "institution_name": "Meridian Wealth",
+      "item_id": "demo-item-meridian"
+    },
+    {
+      "account_id": "demo-inv-004",
+      "security_id": "sec-vti",
+      "quantity": 220,
+      "institution_price": 248.5,
+      "institution_value": 54670,
+      "cost_basis": 42000,
+      "institution_name": "Cascade Capital",
+      "item_id": "demo-item-cascade"
+    },
+    {
+      "account_id": "demo-inv-004",
+      "security_id": "sec-bnd",
+      "quantity": 380,
+      "institution_price": 72.8,
+      "institution_value": 27664,
+      "cost_basis": 28900,
+      "institution_name": "Cascade Capital",
+      "item_id": "demo-item-cascade"
+    },
+    {
+      "account_id": "demo-inv-004",
+      "security_id": "sec-vea",
+      "quantity": 580,
+      "institution_price": 47.4,
+      "institution_value": 27492,
+      "cost_basis": 24800,
+      "institution_name": "Cascade Capital",
+      "item_id": "demo-item-cascade"
+    },
+    {
+      "account_id": "demo-inv-004",
+      "security_id": "sec-schd",
+      "quantity": 240,
+      "institution_price": 134,
+      "institution_value": 32160,
+      "cost_basis": 27400,
+      "institution_name": "Cascade Capital",
+      "item_id": "demo-item-cascade"
+    },
+    {
+      "account_id": "demo-inv-005",
+      "security_id": "sec-vmfxx",
+      "quantity": 7420,
+      "institution_price": 1,
+      "institution_value": 7420,
+      "cost_basis": 7420,
+      "institution_name": "Thornbridge Advisors",
+      "item_id": "demo-item-thornbridge"
+    },
+    {
+      "account_id": "demo-inv-005",
+      "security_id": "sec-voo",
+      "quantity": 24,
+      "institution_price": 481.25,
+      "institution_value": 11550,
+      "cost_basis": 9200,
+      "institution_name": "Thornbridge Advisors",
+      "item_id": "demo-item-thornbridge"
+    }
   ],
   "securities": {
-    "sec-voo":  { "security_id": "sec-voo",  "ticker_symbol": "VOO",  "name": "Vanguard S&P 500 ETF",         "type": "etf" },
-    "sec-qqq":  { "security_id": "sec-qqq",  "ticker_symbol": "QQQ",  "name": "Invesco QQQ Trust",            "type": "etf" },
-    "sec-vti":  { "security_id": "sec-vti",  "ticker_symbol": "VTI",  "name": "Vanguard Total Stock Market",  "type": "etf" },
-    "sec-vxus": { "security_id": "sec-vxus", "ticker_symbol": "VXUS", "name": "Vanguard Total Intl Stock",    "type": "etf" },
-    "sec-bnd":  { "security_id": "sec-bnd",  "ticker_symbol": "BND",  "name": "Vanguard Total Bond Market",   "type": "fixed income" },
-    "sec-sgov": { "security_id": "sec-sgov", "ticker_symbol": "SGOV", "name": "iShares 0-3 Month Treasury",   "type": "etf" },
-    "sec-nvda": { "security_id": "sec-nvda", "ticker_symbol": "NVDA", "name": "NVIDIA Corporation",           "type": "equity" }
+    "sec-aapl": {
+      "security_id": "sec-aapl",
+      "ticker_symbol": "AAPL",
+      "name": "Apple Inc.",
+      "type": "equity"
+    },
+    "sec-msft": {
+      "security_id": "sec-msft",
+      "ticker_symbol": "MSFT",
+      "name": "Microsoft Corporation",
+      "type": "equity"
+    },
+    "sec-spy": {
+      "security_id": "sec-spy",
+      "ticker_symbol": "SPY",
+      "name": "SPDR S&P 500 ETF Trust",
+      "type": "etf"
+    },
+    "sec-agg": {
+      "security_id": "sec-agg",
+      "ticker_symbol": "AGG",
+      "name": "iShares Core US Aggregate Bond ETF",
+      "type": "fixed income"
+    },
+    "sec-tlt": {
+      "security_id": "sec-tlt",
+      "ticker_symbol": "TLT",
+      "name": "iShares 20+ Year Treasury Bond ETF",
+      "type": "fixed income"
+    },
+    "sec-gld": {
+      "security_id": "sec-gld",
+      "ticker_symbol": "GLD",
+      "name": "SPDR Gold Shares",
+      "type": "etf"
+    },
+    "sec-vti": {
+      "security_id": "sec-vti",
+      "ticker_symbol": "VTI",
+      "name": "Vanguard Total Stock Market ETF",
+      "type": "etf"
+    },
+    "sec-bnd": {
+      "security_id": "sec-bnd",
+      "ticker_symbol": "BND",
+      "name": "Vanguard Total Bond Market ETF",
+      "type": "fixed income"
+    },
+    "sec-vea": {
+      "security_id": "sec-vea",
+      "ticker_symbol": "VEA",
+      "name": "Vanguard FTSE Developed Markets ETF",
+      "type": "etf"
+    },
+    "sec-schd": {
+      "security_id": "sec-schd",
+      "ticker_symbol": "SCHD",
+      "name": "Schwab US Dividend Equity ETF",
+      "type": "etf"
+    },
+    "sec-vmfxx": {
+      "security_id": "sec-vmfxx",
+      "ticker_symbol": "VMFXX",
+      "name": "Vanguard Federal Money Market Fund",
+      "type": "cash"
+    },
+    "sec-voo": {
+      "security_id": "sec-voo",
+      "ticker_symbol": "VOO",
+      "name": "Vanguard S&P 500 ETF",
+      "type": "etf"
+    }
   },
   "transactions": [
-    { "transaction_id": "demo-tx-001", "date": "2025-04-22", "name": "Whole Foods Market",        "amount": 87.43,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "FOOD_AND_DRINK", "detailed": "GROCERIES" } },
-    { "transaction_id": "demo-tx-002", "date": "2025-04-22", "name": "Shell Gas Station",         "amount": 54.20,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "TRANSPORTATION", "detailed": "GAS" } },
-    { "transaction_id": "demo-tx-003", "date": "2025-04-21", "name": "Netflix",                   "amount": 22.99,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "ENTERTAINMENT",  "detailed": "SUBSCRIPTIONS" } },
-    { "transaction_id": "demo-tx-004", "date": "2025-04-21", "name": "Chipotle Mexican Grill",    "amount": 18.76,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "FOOD_AND_DRINK", "detailed": "RESTAURANTS" } },
-    { "transaction_id": "demo-tx-005", "date": "2025-04-20", "name": "Geico Auto Insurance",      "amount": 142.00,  "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "INSURANCE",      "detailed": "AUTO_INSURANCE" } },
-    { "transaction_id": "demo-tx-006", "date": "2025-04-20", "name": "Amazon",                    "amount": 67.32,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "GENERAL_MERCHANDISE", "detailed": "ONLINE_SHOPPING" } },
-    { "transaction_id": "demo-tx-007", "date": "2025-04-19", "name": "Starbucks",                 "amount": 8.45,    "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "FOOD_AND_DRINK", "detailed": "COFFEE_SHOPS" } },
-    { "transaction_id": "demo-tx-008", "date": "2025-04-19", "name": "Employer Direct Deposit",   "amount": -4250.00,"pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "INCOME",         "detailed": "WAGES" } },
-    { "transaction_id": "demo-tx-009", "date": "2025-04-18", "name": "Con Edison Electric",       "amount": 118.40,  "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "RENT_AND_UTILITIES", "detailed": "UTILITIES" } },
-    { "transaction_id": "demo-tx-010", "date": "2025-04-18", "name": "Trader Joe's",              "amount": 112.65,  "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "FOOD_AND_DRINK", "detailed": "GROCERIES" } },
-    { "transaction_id": "demo-tx-011", "date": "2025-04-17", "name": "Uber",                      "amount": 24.80,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "TRANSPORTATION", "detailed": "RIDESHARE" } },
-    { "transaction_id": "demo-tx-012", "date": "2025-04-17", "name": "Rent Payment - Apr",        "amount": 2800.00, "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "RENT_AND_UTILITIES", "detailed": "RENT" } },
-    { "transaction_id": "demo-tx-013", "date": "2025-04-16", "name": "Sweetgreen",                "amount": 16.25,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "FOOD_AND_DRINK", "detailed": "RESTAURANTS" } },
-    { "transaction_id": "demo-tx-014", "date": "2025-04-16", "name": "Target",                    "amount": 93.17,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "FOOD_AND_DRINK", "detailed": "GROCERIES" } },
-    { "transaction_id": "demo-tx-015", "date": "2025-04-15", "name": "Xfinity Internet",          "amount": 79.99,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "RENT_AND_UTILITIES", "detailed": "UTILITIES" } },
-    { "transaction_id": "demo-tx-016", "date": "2025-04-15", "name": "Apple Store",               "amount": 29.00,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "GENERAL_MERCHANDISE", "detailed": "ELECTRONICS" } },
-    { "transaction_id": "demo-tx-017", "date": "2025-04-14", "name": "DoorDash",                  "amount": 38.92,   "pending": true,  "institution_name": "Chase", "personal_finance_category": { "primary": "FOOD_AND_DRINK", "detailed": "RESTAURANTS" } },
-    { "transaction_id": "demo-tx-018", "date": "2025-04-14", "name": "Costco Wholesale",          "amount": 186.44,  "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "FOOD_AND_DRINK", "detailed": "GROCERIES" } },
-    { "transaction_id": "demo-tx-019", "date": "2025-04-13", "name": "Spotify Premium",           "amount": 10.99,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "ENTERTAINMENT",  "detailed": "SUBSCRIPTIONS" } },
-    { "transaction_id": "demo-tx-020", "date": "2025-04-13", "name": "CVS Pharmacy",              "amount": 34.67,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "GENERAL_MERCHANDISE", "detailed": "PHARMACY" } },
-    { "transaction_id": "demo-tx-021", "date": "2025-04-12", "name": "Lyft",                      "amount": 19.40,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "TRANSPORTATION", "detailed": "RIDESHARE" } },
-    { "transaction_id": "demo-tx-022", "date": "2025-04-11", "name": "Allstate Insurance",        "amount": 98.00,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "INSURANCE",      "detailed": "HOME_INSURANCE" } },
-    { "transaction_id": "demo-tx-023", "date": "2025-04-11", "name": "Whole Foods Market",        "amount": 64.10,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "FOOD_AND_DRINK", "detailed": "GROCERIES" } },
-    { "transaction_id": "demo-tx-024", "date": "2025-04-10", "name": "Chevron Gas",               "amount": 48.90,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "TRANSPORTATION", "detailed": "GAS" } },
-    { "transaction_id": "demo-tx-025", "date": "2025-04-10", "name": "Panera Bread",              "amount": 14.50,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "FOOD_AND_DRINK", "detailed": "RESTAURANTS" } },
-    { "transaction_id": "demo-tx-026", "date": "2025-04-09", "name": "HomeDepot",                 "amount": 245.80,  "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "HOME_IMPROVEMENT", "detailed": "HOME_IMPROVEMENT" } },
-    { "transaction_id": "demo-tx-027", "date": "2025-04-08", "name": "Employer Direct Deposit",   "amount": -4250.00,"pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "INCOME",         "detailed": "WAGES" } },
-    { "transaction_id": "demo-tx-028", "date": "2025-04-08", "name": "Safeway",                   "amount": 98.33,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "FOOD_AND_DRINK", "detailed": "GROCERIES" } },
-    { "transaction_id": "demo-tx-029", "date": "2025-04-07", "name": "McDonald's",                "amount": 12.40,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "FOOD_AND_DRINK", "detailed": "FAST_FOOD" } },
-    { "transaction_id": "demo-tx-030", "date": "2025-04-07", "name": "Parking - City Garage",     "amount": 22.00,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "TRANSPORTATION", "detailed": "PARKING" } },
-    { "transaction_id": "demo-tx-031", "date": "2025-03-31", "name": "Whole Foods Market",        "amount": 74.22,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "FOOD_AND_DRINK", "detailed": "GROCERIES" } },
-    { "transaction_id": "demo-tx-032", "date": "2025-03-30", "name": "Shell Gas Station",         "amount": 51.80,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "TRANSPORTATION", "detailed": "GAS" } },
-    { "transaction_id": "demo-tx-033", "date": "2025-03-29", "name": "Rent Payment - Mar",        "amount": 2800.00, "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "RENT_AND_UTILITIES", "detailed": "RENT" } },
-    { "transaction_id": "demo-tx-034", "date": "2025-03-28", "name": "Employer Direct Deposit",   "amount": -4250.00,"pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "INCOME",         "detailed": "WAGES" } },
-    { "transaction_id": "demo-tx-035", "date": "2025-03-27", "name": "Target",                    "amount": 108.45,  "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "FOOD_AND_DRINK", "detailed": "GROCERIES" } },
-    { "transaction_id": "demo-tx-036", "date": "2025-03-26", "name": "Geico Auto Insurance",      "amount": 142.00,  "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "INSURANCE",      "detailed": "AUTO_INSURANCE" } },
-    { "transaction_id": "demo-tx-037", "date": "2025-03-25", "name": "Chipotle Mexican Grill",    "amount": 21.34,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "FOOD_AND_DRINK", "detailed": "RESTAURANTS" } },
-    { "transaction_id": "demo-tx-038", "date": "2025-03-24", "name": "Amazon",                    "amount": 134.99,  "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "GENERAL_MERCHANDISE", "detailed": "ONLINE_SHOPPING" } },
-    { "transaction_id": "demo-tx-039", "date": "2025-03-22", "name": "Con Edison Electric",       "amount": 122.10,  "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "RENT_AND_UTILITIES", "detailed": "UTILITIES" } },
-    { "transaction_id": "demo-tx-040", "date": "2025-03-20", "name": "Trader Joe's",              "amount": 94.80,   "pending": false, "institution_name": "Chase", "personal_finance_category": { "primary": "FOOD_AND_DRINK", "detailed": "GROCERIES" } }
+    {
+      "transaction_id": "demo-tx-001",
+      "date": "2026-04-23",
+      "name": "Meadow Fresh Market",
+      "amount": 94.28,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "GROCERIES"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-002",
+      "date": "2026-04-22",
+      "name": "Clearfield Fuel Stop",
+      "amount": 61.4,
+      "pending": false,
+      "institution_name": "Harborside Financial",
+      "personal_finance_category": {
+        "primary": "TRANSPORTATION",
+        "detailed": "GAS"
+      },
+      "account_id": "demo-cc-004"
+    },
+    {
+      "transaction_id": "demo-tx-003",
+      "date": "2026-04-21",
+      "name": "Lumenstream",
+      "amount": 19.99,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "ENTERTAINMENT",
+        "detailed": "SUBSCRIPTIONS"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-004",
+      "date": "2026-04-21",
+      "name": "Harbour Noodle Bar",
+      "amount": 28.5,
+      "pending": false,
+      "institution_name": "Pinnacle Bank",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "RESTAURANTS"
+      },
+      "account_id": "demo-cc-002"
+    },
+    {
+      "transaction_id": "demo-tx-005",
+      "date": "2026-04-20",
+      "name": "Verdant Insurance Co",
+      "amount": 138,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "INSURANCE",
+        "detailed": "AUTO_INSURANCE"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-006",
+      "date": "2026-04-20",
+      "name": "Elmwood General Store",
+      "amount": 72.15,
+      "pending": false,
+      "institution_name": "Summit One",
+      "personal_finance_category": {
+        "primary": "GENERAL_MERCHANDISE",
+        "detailed": "ONLINE_SHOPPING"
+      },
+      "account_id": "demo-cc-003"
+    },
+    {
+      "transaction_id": "demo-tx-007",
+      "date": "2026-04-19",
+      "name": "The Blue Sparrow Cafe",
+      "amount": 11.2,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "COFFEE_SHOPS"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-008",
+      "date": "2026-04-19",
+      "name": "Fenwick & Morse Ltd",
+      "amount": -8200,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "INCOME",
+        "detailed": "WAGES"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-009",
+      "date": "2026-04-18",
+      "name": "Northgate Electric Co",
+      "amount": 104.7,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "RENT_AND_UTILITIES",
+        "detailed": "UTILITIES"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-010",
+      "date": "2026-04-18",
+      "name": "Clearwater Co-op",
+      "amount": 126.44,
+      "pending": false,
+      "institution_name": "Greenfield Bank",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "GROCERIES"
+      },
+      "account_id": "demo-cc-005"
+    },
+    {
+      "transaction_id": "demo-tx-011",
+      "date": "2026-04-17",
+      "name": "CityLink Rideshare",
+      "amount": 21.6,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "TRANSPORTATION",
+        "detailed": "RIDESHARE"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-012",
+      "date": "2026-04-17",
+      "name": "Cedar Falls Home Loans",
+      "amount": 2680,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "LOAN_PAYMENTS",
+        "detailed": "MORTGAGE_PAYMENT"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-013",
+      "date": "2026-04-16",
+      "name": "Maple & Thyme Kitchen",
+      "amount": 34.8,
+      "pending": false,
+      "institution_name": "Pinnacle Bank",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "RESTAURANTS"
+      },
+      "account_id": "demo-cc-002"
+    },
+    {
+      "transaction_id": "demo-tx-014",
+      "date": "2026-04-16",
+      "name": "Hartfield's",
+      "amount": 88.92,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "GROCERIES"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-015",
+      "date": "2026-04-15",
+      "name": "Lakewood Internet",
+      "amount": 69.99,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "RENT_AND_UTILITIES",
+        "detailed": "UTILITIES"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-016",
+      "date": "2026-04-15",
+      "name": "Wavesound Music",
+      "amount": 14.99,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "ENTERTAINMENT",
+        "detailed": "SUBSCRIPTIONS"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-017",
+      "date": "2026-04-14",
+      "name": "Grillhouse on Main",
+      "amount": 47.3,
+      "pending": true,
+      "institution_name": "Harborside Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "RESTAURANTS"
+      },
+      "account_id": "demo-cc-004"
+    },
+    {
+      "transaction_id": "demo-tx-018",
+      "date": "2026-04-14",
+      "name": "Pine Ridge Market",
+      "amount": 163.77,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "GROCERIES"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-019",
+      "date": "2026-04-13",
+      "name": "Shieldway Home Protection",
+      "amount": 91,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "INSURANCE",
+        "detailed": "HOME_INSURANCE"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-020",
+      "date": "2026-04-13",
+      "name": "Westbrook Petro",
+      "amount": 57.9,
+      "pending": false,
+      "institution_name": "Harborside Financial",
+      "personal_finance_category": {
+        "primary": "TRANSPORTATION",
+        "detailed": "GAS"
+      },
+      "account_id": "demo-cc-004"
+    },
+    {
+      "transaction_id": "demo-tx-021",
+      "date": "2026-04-12",
+      "name": "Metro Parking Authority",
+      "amount": 18,
+      "pending": false,
+      "institution_name": "Summit One",
+      "personal_finance_category": {
+        "primary": "TRANSPORTATION",
+        "detailed": "PARKING"
+      },
+      "account_id": "demo-cc-003"
+    },
+    {
+      "transaction_id": "demo-tx-022",
+      "date": "2026-04-11",
+      "name": "Pinehurst Hardware",
+      "amount": 212.4,
+      "pending": false,
+      "institution_name": "Greenfield Bank",
+      "personal_finance_category": {
+        "primary": "HOME_IMPROVEMENT",
+        "detailed": "HOME_IMPROVEMENT"
+      },
+      "account_id": "demo-cc-005"
+    },
+    {
+      "transaction_id": "demo-tx-023",
+      "date": "2026-04-10",
+      "name": "Meadow Fresh Market",
+      "amount": 71.55,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "GROCERIES"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-024",
+      "date": "2026-04-08",
+      "name": "Fenwick & Morse Ltd",
+      "amount": -8200,
+      "pending": false,
+      "institution_name": "Crestview Credit Union",
+      "personal_finance_category": {
+        "primary": "INCOME",
+        "detailed": "WAGES"
+      },
+      "account_id": "demo-chk-002"
+    },
+    {
+      "transaction_id": "demo-tx-025",
+      "date": "2026-04-07",
+      "name": "The Blue Sparrow Cafe",
+      "amount": 9.8,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "COFFEE_SHOPS"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-026",
+      "date": "2026-04-07",
+      "name": "Sunbeam Academy",
+      "amount": 320,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "EDUCATION",
+        "detailed": "TUITION"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-027",
+      "date": "2026-04-05",
+      "name": "Metro Auto Care",
+      "amount": 184.5,
+      "pending": false,
+      "institution_name": "Pinnacle Bank",
+      "personal_finance_category": {
+        "primary": "TRANSPORTATION",
+        "detailed": "AUTO_MAINTENANCE"
+      },
+      "account_id": "demo-cc-002"
+    },
+    {
+      "transaction_id": "demo-tx-028",
+      "date": "2026-04-04",
+      "name": "Harbour Noodle Bar",
+      "amount": 31.4,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "RESTAURANTS"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-029",
+      "date": "2026-04-03",
+      "name": "Clearwater Co-op",
+      "amount": 108.2,
+      "pending": false,
+      "institution_name": "Greenfield Bank",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "GROCERIES"
+      },
+      "account_id": "demo-cc-005"
+    },
+    {
+      "transaction_id": "demo-tx-030",
+      "date": "2026-04-02",
+      "name": "Elmwood General Store",
+      "amount": 58.65,
+      "pending": false,
+      "institution_name": "Summit One",
+      "personal_finance_category": {
+        "primary": "GENERAL_MERCHANDISE",
+        "detailed": "ONLINE_SHOPPING"
+      },
+      "account_id": "demo-cc-003"
+    },
+    {
+      "transaction_id": "demo-tx-031",
+      "date": "2026-03-31",
+      "name": "Meadow Fresh Market",
+      "amount": 82.1,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "GROCERIES"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-032",
+      "date": "2026-03-30",
+      "name": "Clearfield Fuel Stop",
+      "amount": 58.2,
+      "pending": false,
+      "institution_name": "Harborside Financial",
+      "personal_finance_category": {
+        "primary": "TRANSPORTATION",
+        "detailed": "GAS"
+      },
+      "account_id": "demo-cc-004"
+    },
+    {
+      "transaction_id": "demo-tx-033",
+      "date": "2026-03-29",
+      "name": "Cedar Falls Home Loans",
+      "amount": 2680,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "LOAN_PAYMENTS",
+        "detailed": "MORTGAGE_PAYMENT"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-034",
+      "date": "2026-03-28",
+      "name": "Fenwick & Morse Ltd",
+      "amount": -8200,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "INCOME",
+        "detailed": "WAGES"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-035",
+      "date": "2026-03-27",
+      "name": "Hartfield's",
+      "amount": 117.3,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "GROCERIES"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-036",
+      "date": "2026-03-26",
+      "name": "Verdant Insurance Co",
+      "amount": 138,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "INSURANCE",
+        "detailed": "AUTO_INSURANCE"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-037",
+      "date": "2026-03-25",
+      "name": "Maple & Thyme Kitchen",
+      "amount": 26.9,
+      "pending": false,
+      "institution_name": "Pinnacle Bank",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "RESTAURANTS"
+      },
+      "account_id": "demo-cc-002"
+    },
+    {
+      "transaction_id": "demo-tx-038",
+      "date": "2026-03-24",
+      "name": "Elmwood General Store",
+      "amount": 149.99,
+      "pending": false,
+      "institution_name": "Summit One",
+      "personal_finance_category": {
+        "primary": "GENERAL_MERCHANDISE",
+        "detailed": "ONLINE_SHOPPING"
+      },
+      "account_id": "demo-cc-003"
+    },
+    {
+      "transaction_id": "demo-tx-039",
+      "date": "2026-03-22",
+      "name": "Northgate Electric Co",
+      "amount": 111.8,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "RENT_AND_UTILITIES",
+        "detailed": "UTILITIES"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-040",
+      "date": "2026-03-20",
+      "name": "Clearwater Co-op",
+      "amount": 99.45,
+      "pending": false,
+      "institution_name": "Greenfield Bank",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "GROCERIES"
+      },
+      "account_id": "demo-cc-005"
+    },
+    {
+      "transaction_id": "demo-tx-041",
+      "date": "2026-03-18",
+      "name": "Fenwick & Morse Ltd",
+      "amount": -8200,
+      "pending": false,
+      "institution_name": "Crestview Credit Union",
+      "personal_finance_category": {
+        "primary": "INCOME",
+        "detailed": "WAGES"
+      },
+      "account_id": "demo-chk-002"
+    },
+    {
+      "transaction_id": "demo-tx-042",
+      "date": "2026-03-17",
+      "name": "The Blue Sparrow Cafe",
+      "amount": 12.4,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "COFFEE_SHOPS"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-043",
+      "date": "2026-03-15",
+      "name": "Lakewood Internet",
+      "amount": 69.99,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "RENT_AND_UTILITIES",
+        "detailed": "UTILITIES"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-044",
+      "date": "2026-03-14",
+      "name": "Harbour Noodle Bar",
+      "amount": 42.1,
+      "pending": false,
+      "institution_name": "Harborside Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "RESTAURANTS"
+      },
+      "account_id": "demo-cc-004"
+    },
+    {
+      "transaction_id": "demo-tx-045",
+      "date": "2026-03-10",
+      "name": "Pine Ridge Market",
+      "amount": 136.62,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "GROCERIES"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-046",
+      "date": "2026-03-08",
+      "name": "Lumenstream",
+      "amount": 19.99,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "ENTERTAINMENT",
+        "detailed": "SUBSCRIPTIONS"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-047",
+      "date": "2026-03-07",
+      "name": "Westbrook Petro",
+      "amount": 62.1,
+      "pending": false,
+      "institution_name": "Harborside Financial",
+      "personal_finance_category": {
+        "primary": "TRANSPORTATION",
+        "detailed": "GAS"
+      },
+      "account_id": "demo-cc-004"
+    },
+    {
+      "transaction_id": "demo-tx-048",
+      "date": "2026-03-04",
+      "name": "Fenwick & Morse Ltd",
+      "amount": -8200,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "INCOME",
+        "detailed": "WAGES"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-049",
+      "date": "2026-03-03",
+      "name": "Meadow Fresh Market",
+      "amount": 78.88,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "GROCERIES"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-050",
+      "date": "2026-03-02",
+      "name": "CityLink Rideshare",
+      "amount": 17.4,
+      "pending": false,
+      "institution_name": "Summit One",
+      "personal_finance_category": {
+        "primary": "TRANSPORTATION",
+        "detailed": "RIDESHARE"
+      },
+      "account_id": "demo-cc-003"
+    },
+    {
+      "transaction_id": "demo-tx-051",
+      "date": "2026-02-28",
+      "name": "Cedar Falls Home Loans",
+      "amount": 2680,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "LOAN_PAYMENTS",
+        "detailed": "MORTGAGE_PAYMENT"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-052",
+      "date": "2026-02-26",
+      "name": "Northgate Electric Co",
+      "amount": 97.3,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "RENT_AND_UTILITIES",
+        "detailed": "UTILITIES"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-053",
+      "date": "2026-02-24",
+      "name": "Fenwick & Morse Ltd",
+      "amount": -8200,
+      "pending": false,
+      "institution_name": "Crestview Credit Union",
+      "personal_finance_category": {
+        "primary": "INCOME",
+        "detailed": "WAGES"
+      },
+      "account_id": "demo-chk-002"
+    },
+    {
+      "transaction_id": "demo-tx-054",
+      "date": "2026-02-22",
+      "name": "Clearwater Co-op",
+      "amount": 115.6,
+      "pending": false,
+      "institution_name": "Greenfield Bank",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "GROCERIES"
+      },
+      "account_id": "demo-cc-005"
+    },
+    {
+      "transaction_id": "demo-tx-055",
+      "date": "2026-02-20",
+      "name": "Verdant Insurance Co",
+      "amount": 138,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "INSURANCE",
+        "detailed": "AUTO_INSURANCE"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-056",
+      "date": "2026-02-18",
+      "name": "Maple & Thyme Kitchen",
+      "amount": 38.7,
+      "pending": false,
+      "institution_name": "Pinnacle Bank",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "RESTAURANTS"
+      },
+      "account_id": "demo-cc-002"
+    },
+    {
+      "transaction_id": "demo-tx-057",
+      "date": "2026-02-16",
+      "name": "Clearfield Fuel Stop",
+      "amount": 55.3,
+      "pending": false,
+      "institution_name": "Harborside Financial",
+      "personal_finance_category": {
+        "primary": "TRANSPORTATION",
+        "detailed": "GAS"
+      },
+      "account_id": "demo-cc-004"
+    },
+    {
+      "transaction_id": "demo-tx-058",
+      "date": "2026-02-14",
+      "name": "Grillhouse on Main",
+      "amount": 62.4,
+      "pending": false,
+      "institution_name": "Harborside Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "RESTAURANTS"
+      },
+      "account_id": "demo-cc-004"
+    },
+    {
+      "transaction_id": "demo-tx-059",
+      "date": "2026-02-12",
+      "name": "Lumenstream",
+      "amount": 19.99,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "ENTERTAINMENT",
+        "detailed": "SUBSCRIPTIONS"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-060",
+      "date": "2026-02-10",
+      "name": "Fenwick & Morse Ltd",
+      "amount": -8200,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "INCOME",
+        "detailed": "WAGES"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-061",
+      "date": "2026-02-08",
+      "name": "Hartfield's",
+      "amount": 103.2,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "GROCERIES"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-062",
+      "date": "2026-02-06",
+      "name": "Pinehurst Hardware",
+      "amount": 87.6,
+      "pending": false,
+      "institution_name": "Greenfield Bank",
+      "personal_finance_category": {
+        "primary": "HOME_IMPROVEMENT",
+        "detailed": "HOME_IMPROVEMENT"
+      },
+      "account_id": "demo-cc-005"
+    },
+    {
+      "transaction_id": "demo-tx-063",
+      "date": "2026-02-04",
+      "name": "Metro Parking Authority",
+      "amount": 24,
+      "pending": false,
+      "institution_name": "Summit One",
+      "personal_finance_category": {
+        "primary": "TRANSPORTATION",
+        "detailed": "PARKING"
+      },
+      "account_id": "demo-cc-003"
+    },
+    {
+      "transaction_id": "demo-tx-064",
+      "date": "2026-02-02",
+      "name": "Pine Ridge Market",
+      "amount": 92.4,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "GROCERIES"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-065",
+      "date": "2026-01-31",
+      "name": "Cedar Falls Home Loans",
+      "amount": 2680,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "LOAN_PAYMENTS",
+        "detailed": "MORTGAGE_PAYMENT"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-066",
+      "date": "2026-01-29",
+      "name": "Northgate Electric Co",
+      "amount": 132.4,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "RENT_AND_UTILITIES",
+        "detailed": "UTILITIES"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-067",
+      "date": "2026-01-27",
+      "name": "Fenwick & Morse Ltd",
+      "amount": -8200,
+      "pending": false,
+      "institution_name": "Crestview Credit Union",
+      "personal_finance_category": {
+        "primary": "INCOME",
+        "detailed": "WAGES"
+      },
+      "account_id": "demo-chk-002"
+    },
+    {
+      "transaction_id": "demo-tx-068",
+      "date": "2026-01-25",
+      "name": "Clearwater Co-op",
+      "amount": 88.7,
+      "pending": false,
+      "institution_name": "Greenfield Bank",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "GROCERIES"
+      },
+      "account_id": "demo-cc-005"
+    },
+    {
+      "transaction_id": "demo-tx-069",
+      "date": "2026-01-23",
+      "name": "The Blue Sparrow Cafe",
+      "amount": 10.6,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "COFFEE_SHOPS"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-070",
+      "date": "2026-01-21",
+      "name": "Verdant Insurance Co",
+      "amount": 138,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "INSURANCE",
+        "detailed": "AUTO_INSURANCE"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-071",
+      "date": "2026-01-19",
+      "name": "Harbour Noodle Bar",
+      "amount": 33.6,
+      "pending": false,
+      "institution_name": "Pinnacle Bank",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "RESTAURANTS"
+      },
+      "account_id": "demo-cc-002"
+    },
+    {
+      "transaction_id": "demo-tx-072",
+      "date": "2026-01-17",
+      "name": "Westbrook Petro",
+      "amount": 64.8,
+      "pending": false,
+      "institution_name": "Harborside Financial",
+      "personal_finance_category": {
+        "primary": "TRANSPORTATION",
+        "detailed": "GAS"
+      },
+      "account_id": "demo-cc-004"
+    },
+    {
+      "transaction_id": "demo-tx-073",
+      "date": "2026-01-15",
+      "name": "Lakewood Internet",
+      "amount": 69.99,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "RENT_AND_UTILITIES",
+        "detailed": "UTILITIES"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-074",
+      "date": "2026-01-13",
+      "name": "Fenwick & Morse Ltd",
+      "amount": -8200,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "INCOME",
+        "detailed": "WAGES"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-075",
+      "date": "2026-01-11",
+      "name": "Meadow Fresh Market",
+      "amount": 107.85,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "GROCERIES"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-076",
+      "date": "2026-01-09",
+      "name": "Lumenstream",
+      "amount": 19.99,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "ENTERTAINMENT",
+        "detailed": "SUBSCRIPTIONS"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-077",
+      "date": "2026-01-07",
+      "name": "CityLink Rideshare",
+      "amount": 23.8,
+      "pending": false,
+      "institution_name": "Summit One",
+      "personal_finance_category": {
+        "primary": "TRANSPORTATION",
+        "detailed": "RIDESHARE"
+      },
+      "account_id": "demo-cc-003"
+    },
+    {
+      "transaction_id": "demo-tx-078",
+      "date": "2026-01-05",
+      "name": "Grillhouse on Main",
+      "amount": 55.2,
+      "pending": false,
+      "institution_name": "Harborside Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "RESTAURANTS"
+      },
+      "account_id": "demo-cc-004"
+    },
+    {
+      "transaction_id": "demo-tx-079",
+      "date": "2025-12-30",
+      "name": "Cedar Falls Home Loans",
+      "amount": 2680,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "LOAN_PAYMENTS",
+        "detailed": "MORTGAGE_PAYMENT"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-080",
+      "date": "2025-12-28",
+      "name": "Hartfield's",
+      "amount": 144.2,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "GROCERIES"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-081",
+      "date": "2025-12-26",
+      "name": "Fenwick & Morse Ltd",
+      "amount": -8200,
+      "pending": false,
+      "institution_name": "Crestview Credit Union",
+      "personal_finance_category": {
+        "primary": "INCOME",
+        "detailed": "WAGES"
+      },
+      "account_id": "demo-chk-002"
+    },
+    {
+      "transaction_id": "demo-tx-082",
+      "date": "2025-12-24",
+      "name": "Pinehurst Hardware",
+      "amount": 63.4,
+      "pending": false,
+      "institution_name": "Greenfield Bank",
+      "personal_finance_category": {
+        "primary": "HOME_IMPROVEMENT",
+        "detailed": "HOME_IMPROVEMENT"
+      },
+      "account_id": "demo-cc-005"
+    },
+    {
+      "transaction_id": "demo-tx-083",
+      "date": "2025-12-22",
+      "name": "Northgate Electric Co",
+      "amount": 128.9,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "RENT_AND_UTILITIES",
+        "detailed": "UTILITIES"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-084",
+      "date": "2025-12-20",
+      "name": "Verdant Insurance Co",
+      "amount": 138,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "INSURANCE",
+        "detailed": "AUTO_INSURANCE"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-085",
+      "date": "2025-12-18",
+      "name": "Clearwater Co-op",
+      "amount": 123.6,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "GROCERIES"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-086",
+      "date": "2025-12-16",
+      "name": "Maple & Thyme Kitchen",
+      "amount": 44.8,
+      "pending": false,
+      "institution_name": "Pinnacle Bank",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "RESTAURANTS"
+      },
+      "account_id": "demo-cc-002"
+    },
+    {
+      "transaction_id": "demo-tx-087",
+      "date": "2025-12-14",
+      "name": "Clearfield Fuel Stop",
+      "amount": 60.1,
+      "pending": false,
+      "institution_name": "Harborside Financial",
+      "personal_finance_category": {
+        "primary": "TRANSPORTATION",
+        "detailed": "GAS"
+      },
+      "account_id": "demo-cc-004"
+    },
+    {
+      "transaction_id": "demo-tx-088",
+      "date": "2025-12-12",
+      "name": "Fenwick & Morse Ltd",
+      "amount": -8200,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "INCOME",
+        "detailed": "WAGES"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-089",
+      "date": "2025-12-10",
+      "name": "Elmwood General Store",
+      "amount": 198.4,
+      "pending": false,
+      "institution_name": "Summit One",
+      "personal_finance_category": {
+        "primary": "GENERAL_MERCHANDISE",
+        "detailed": "ONLINE_SHOPPING"
+      },
+      "account_id": "demo-cc-003"
+    },
+    {
+      "transaction_id": "demo-tx-090",
+      "date": "2025-12-08",
+      "name": "Lumenstream",
+      "amount": 19.99,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "ENTERTAINMENT",
+        "detailed": "SUBSCRIPTIONS"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-091",
+      "date": "2025-11-29",
+      "name": "Cedar Falls Home Loans",
+      "amount": 2680,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "LOAN_PAYMENTS",
+        "detailed": "MORTGAGE_PAYMENT"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-092",
+      "date": "2025-11-27",
+      "name": "Clearwater Co-op",
+      "amount": 98.3,
+      "pending": false,
+      "institution_name": "Greenfield Bank",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "GROCERIES"
+      },
+      "account_id": "demo-cc-005"
+    },
+    {
+      "transaction_id": "demo-tx-093",
+      "date": "2025-11-25",
+      "name": "Fenwick & Morse Ltd",
+      "amount": -8200,
+      "pending": false,
+      "institution_name": "Crestview Credit Union",
+      "personal_finance_category": {
+        "primary": "INCOME",
+        "detailed": "WAGES"
+      },
+      "account_id": "demo-chk-002"
+    },
+    {
+      "transaction_id": "demo-tx-094",
+      "date": "2025-11-23",
+      "name": "Northgate Electric Co",
+      "amount": 109.2,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "RENT_AND_UTILITIES",
+        "detailed": "UTILITIES"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-095",
+      "date": "2025-11-21",
+      "name": "Verdant Insurance Co",
+      "amount": 138,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "INSURANCE",
+        "detailed": "AUTO_INSURANCE"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-096",
+      "date": "2025-11-19",
+      "name": "Grillhouse on Main",
+      "amount": 51.6,
+      "pending": false,
+      "institution_name": "Harborside Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "RESTAURANTS"
+      },
+      "account_id": "demo-cc-004"
+    },
+    {
+      "transaction_id": "demo-tx-097",
+      "date": "2025-11-17",
+      "name": "Westbrook Petro",
+      "amount": 59.4,
+      "pending": false,
+      "institution_name": "Harborside Financial",
+      "personal_finance_category": {
+        "primary": "TRANSPORTATION",
+        "detailed": "GAS"
+      },
+      "account_id": "demo-cc-004"
+    },
+    {
+      "transaction_id": "demo-tx-098",
+      "date": "2025-11-15",
+      "name": "Lakewood Internet",
+      "amount": 69.99,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "RENT_AND_UTILITIES",
+        "detailed": "UTILITIES"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-099",
+      "date": "2025-11-13",
+      "name": "Fenwick & Morse Ltd",
+      "amount": -8200,
+      "pending": false,
+      "institution_name": "Riverstone Bank",
+      "personal_finance_category": {
+        "primary": "INCOME",
+        "detailed": "WAGES"
+      },
+      "account_id": "demo-chk-001"
+    },
+    {
+      "transaction_id": "demo-tx-100",
+      "date": "2025-11-11",
+      "name": "Pine Ridge Market",
+      "amount": 86.55,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "GROCERIES"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-101",
+      "date": "2025-11-09",
+      "name": "The Blue Sparrow Cafe",
+      "amount": 13.4,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "COFFEE_SHOPS"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-102",
+      "date": "2025-11-07",
+      "name": "Lumenstream",
+      "amount": 19.99,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "ENTERTAINMENT",
+        "detailed": "SUBSCRIPTIONS"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-103",
+      "date": "2025-11-05",
+      "name": "CityLink Rideshare",
+      "amount": 19.2,
+      "pending": false,
+      "institution_name": "Summit One",
+      "personal_finance_category": {
+        "primary": "TRANSPORTATION",
+        "detailed": "RIDESHARE"
+      },
+      "account_id": "demo-cc-003"
+    },
+    {
+      "transaction_id": "demo-tx-104",
+      "date": "2025-11-03",
+      "name": "Meadow Fresh Market",
+      "amount": 91.7,
+      "pending": false,
+      "institution_name": "Apex Financial",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "GROCERIES"
+      },
+      "account_id": "demo-cc-001"
+    },
+    {
+      "transaction_id": "demo-tx-105",
+      "date": "2025-11-01",
+      "name": "Harbour Noodle Bar",
+      "amount": 29.8,
+      "pending": false,
+      "institution_name": "Pinnacle Bank",
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "RESTAURANTS"
+      },
+      "account_id": "demo-cc-002"
+    }
   ]
 }

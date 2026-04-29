@@ -1,8 +1,8 @@
 [
   {
     "id": "manual_example",
-    "name": "Fidelity Brokerage",
-    "institution": "Fidelity Investments",
+    "name": "Clearfield Brokerage",
+    "institution": "Clearfield Investments",
     "balance": 75000,
     "currency": "USD",
     "accountType": "investment",

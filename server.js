@@ -1,23 +1,30 @@
 const path = require('path');
 const fs   = require('fs');
 
+// Activated only at startup via: node server.js --demo  (or npm run demo)
+// Demo mode must never read live user data or write to data/.
+const demoMode = process.argv.includes('--demo');
+
 // ── Bootstrap: create data/ and seed .env before anything else loads ─────────
 const dataDir = path.join(__dirname, 'data');
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+if (!demoMode && !fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 const dataEnvFile    = path.join(dataDir, '.env');
 const exampleEnvFile = path.join(__dirname, 'data.example', '.env');
-if (!fs.existsSync(dataEnvFile) && fs.existsSync(exampleEnvFile)) {
+if (!demoMode && !fs.existsSync(dataEnvFile) && fs.existsSync(exampleEnvFile)) {
   fs.copyFileSync(exampleEnvFile, dataEnvFile);
   console.log('  Created data/.env from data.example/.env — fill in your Plaid credentials.');
 }
 
 // Load .env from data/ first, fall back to root .env (backwards-compatible)
-require('dotenv').config({ path: dataEnvFile });
-if (!process.env.PLAID_CLIENT_ID) require('dotenv').config(); // root fallback
+if (!demoMode) {
+  require('dotenv').config({ path: dataEnvFile });
+  if (!process.env.PLAID_CLIENT_ID) require('dotenv').config(); // root fallback
+}
 
-const express = require('express');
-const cors    = require('cors');
-const https   = require('https');
+const express   = require('express');
+const cors      = require('cors');
+const https     = require('https');
+const Anthropic = require('@anthropic-ai/sdk').default;
 const {
   Configuration,
   PlaidApi,
@@ -25,13 +32,24 @@ const {
 } = require('plaid');
 
 const app = express();
-app.use(cors());
+app.use(cors({ origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://myfinance.local'] }));
 app.use(express.json());
 app.use((req, res, next) => {
   if (req.path.endsWith('.html') || req.path === '/') {
     res.setHeader('Cache-Control', 'public, max-age=60');
   }
   next();
+});
+app.use((req, res, next) => {
+  // Never expose local finance data through the root static file server.
+  if (req.path === '/data' || req.path.startsWith('/data/') ||
+      req.path === '/data.example' || req.path.startsWith('/data.example/')) {
+    return res.status(404).send('Not found');
+  }
+  next();
+});
+app.get(['/', '/dashboard', '/investments', '/spending', '/transactions', '/recurring'], (_req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 app.use(express.static(path.join(__dirname)));
 
@@ -42,17 +60,20 @@ let PLAID_ENV       = process.env.PLAID_ENV || 'sandbox';
 
 function makePlaidClient(clientId, secret, env) {
   return new PlaidApi(new Configuration({
-    basePath: PlaidEnvironments[env] || PlaidEnvironments.sandbox,
+    basePath: PlaidEnvironments[env],
     baseOptions: { headers: { 'PLAID-CLIENT-ID': clientId, 'PLAID-SECRET': secret } },
   }));
 }
 let plaidClient = makePlaidClient(PLAID_CLIENT_ID, PLAID_SECRET, PLAID_ENV);
 
+// ── Anthropic / Claude ────────────────────────────────────────────────────────
+let ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || '';
+
 // ── Token persistence ─────────────────────────────────────────────────────────
 const TOKENS_FILE = path.join(dataDir, 'tokens.json');
 let items = [];
 try {
-  if (fs.existsSync(TOKENS_FILE)) items = JSON.parse(fs.readFileSync(TOKENS_FILE, 'utf8'));
+  if (!demoMode && fs.existsSync(TOKENS_FILE)) items = JSON.parse(fs.readFileSync(TOKENS_FILE, 'utf8'));
 } catch (_) { items = []; }
 function saveItems() { fs.writeFileSync(TOKENS_FILE, JSON.stringify(items, null, 2)); }
 
@@ -60,7 +81,7 @@ function saveItems() { fs.writeFileSync(TOKENS_FILE, JSON.stringify(items, null,
 const HISTORY_FILE = path.join(dataDir, 'history.json');
 let netWorthHistory = [];
 try {
-  if (fs.existsSync(HISTORY_FILE)) netWorthHistory = JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf8'));
+  if (!demoMode && fs.existsSync(HISTORY_FILE)) netWorthHistory = JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf8'));
 } catch (_) { netWorthHistory = []; }
 function persistHistory() { fs.writeFileSync(HISTORY_FILE, JSON.stringify(netWorthHistory, null, 2)); }
 
@@ -68,7 +89,7 @@ function persistHistory() { fs.writeFileSync(HISTORY_FILE, JSON.stringify(netWor
 const MANUAL_FILE = path.join(dataDir, 'manual_accounts.json');
 let manualAccountsDb = [];
 try {
-  if (fs.existsSync(MANUAL_FILE)) manualAccountsDb = JSON.parse(fs.readFileSync(MANUAL_FILE, 'utf8'));
+  if (!demoMode && fs.existsSync(MANUAL_FILE)) manualAccountsDb = JSON.parse(fs.readFileSync(MANUAL_FILE, 'utf8'));
 } catch (_) { manualAccountsDb = []; }
 function persistManual() { fs.writeFileSync(MANUAL_FILE, JSON.stringify(manualAccountsDb, null, 2)); }
 
@@ -77,7 +98,7 @@ function persistManual() { fs.writeFileSync(MANUAL_FILE, JSON.stringify(manualAc
 const TX_OVERRIDES_FILE = path.join(dataDir, 'tx_overrides.json');
 let txOverrides = {};
 try {
-  if (fs.existsSync(TX_OVERRIDES_FILE)) txOverrides = JSON.parse(fs.readFileSync(TX_OVERRIDES_FILE, 'utf8'));
+  if (!demoMode && fs.existsSync(TX_OVERRIDES_FILE)) txOverrides = JSON.parse(fs.readFileSync(TX_OVERRIDES_FILE, 'utf8'));
 } catch (_) { txOverrides = {}; }
 function persistOverrides() { fs.writeFileSync(TX_OVERRIDES_FILE, JSON.stringify(txOverrides, null, 2)); }
 
@@ -86,7 +107,7 @@ function persistOverrides() { fs.writeFileSync(TX_OVERRIDES_FILE, JSON.stringify
 const CUSTOM_CATS_FILE = path.join(dataDir, 'custom_categories.json');
 let customCatsDb = [];
 try {
-  if (fs.existsSync(CUSTOM_CATS_FILE)) customCatsDb = JSON.parse(fs.readFileSync(CUSTOM_CATS_FILE, 'utf8'));
+  if (!demoMode && fs.existsSync(CUSTOM_CATS_FILE)) customCatsDb = JSON.parse(fs.readFileSync(CUSTOM_CATS_FILE, 'utf8'));
 } catch (_) { customCatsDb = []; }
 function persistCustomCats() { fs.writeFileSync(CUSTOM_CATS_FILE, JSON.stringify(customCatsDb, null, 2)); }
 
@@ -95,7 +116,7 @@ function persistCustomCats() { fs.writeFileSync(CUSTOM_CATS_FILE, JSON.stringify
 const SPEND_EXCL_FILE = path.join(dataDir, 'spending_exclusions.json');
 let spendExclDb = {};
 try {
-  if (fs.existsSync(SPEND_EXCL_FILE)) spendExclDb = JSON.parse(fs.readFileSync(SPEND_EXCL_FILE, 'utf8'));
+  if (!demoMode && fs.existsSync(SPEND_EXCL_FILE)) spendExclDb = JSON.parse(fs.readFileSync(SPEND_EXCL_FILE, 'utf8'));
 } catch (_) { spendExclDb = {}; }
 function persistSpendExcl() { fs.writeFileSync(SPEND_EXCL_FILE, JSON.stringify(spendExclDb, null, 2)); }
 
@@ -104,7 +125,7 @@ function persistSpendExcl() { fs.writeFileSync(SPEND_EXCL_FILE, JSON.stringify(s
 const CSV_ACCOUNTS_FILE = path.join(dataDir, 'csv_accounts.json');
 let csvAccountsDb = [];
 try {
-  if (fs.existsSync(CSV_ACCOUNTS_FILE)) csvAccountsDb = JSON.parse(fs.readFileSync(CSV_ACCOUNTS_FILE, 'utf8'));
+  if (!demoMode && fs.existsSync(CSV_ACCOUNTS_FILE)) csvAccountsDb = JSON.parse(fs.readFileSync(CSV_ACCOUNTS_FILE, 'utf8'));
 } catch (_) { csvAccountsDb = []; }
 function persistCsvAccounts() { fs.writeFileSync(CSV_ACCOUNTS_FILE, JSON.stringify(csvAccountsDb, null, 2)); }
 
@@ -113,7 +134,7 @@ function persistCsvAccounts() { fs.writeFileSync(CSV_ACCOUNTS_FILE, JSON.stringi
 const COST_BASIS_FILE = path.join(dataDir, 'cost_basis_overrides.json');
 let costBasisDb = {};
 try {
-  if (fs.existsSync(COST_BASIS_FILE)) costBasisDb = JSON.parse(fs.readFileSync(COST_BASIS_FILE, 'utf8'));
+  if (!demoMode && fs.existsSync(COST_BASIS_FILE)) costBasisDb = JSON.parse(fs.readFileSync(COST_BASIS_FILE, 'utf8'));
 } catch (_) { costBasisDb = {}; }
 function persistCostBasis() { fs.writeFileSync(COST_BASIS_FILE, JSON.stringify(costBasisDb, null, 2)); }
 
@@ -126,7 +147,7 @@ const priceCache = {}; // { "VOO": { price: 520.23, ts: 1714000000000 }, ... }
 const TX_CACHE_FILE = path.join(dataDir, 'transactions_cache.json');
 let txCache = { last_synced: null, transactions: [] };
 try {
-  if (fs.existsSync(TX_CACHE_FILE)) txCache = JSON.parse(fs.readFileSync(TX_CACHE_FILE, 'utf8'));
+  if (!demoMode && fs.existsSync(TX_CACHE_FILE)) txCache = JSON.parse(fs.readFileSync(TX_CACHE_FILE, 'utf8'));
 } catch (_) { txCache = { last_synced: null, transactions: [] }; }
 function persistTxCache() { fs.writeFileSync(TX_CACHE_FILE, JSON.stringify(txCache, null, 2)); }
 
@@ -135,15 +156,13 @@ function persistTxCache() { fs.writeFileSync(TX_CACHE_FILE, JSON.stringify(txCac
 const INV_CACHE_FILE = path.join(dataDir, 'investments_cache.json');
 let invCache = { last_synced: null, holdings: [], securities: {}, needs_reconnect: [] };
 try {
-  if (fs.existsSync(INV_CACHE_FILE)) invCache = JSON.parse(fs.readFileSync(INV_CACHE_FILE, 'utf8'));
+  if (!demoMode && fs.existsSync(INV_CACHE_FILE)) invCache = JSON.parse(fs.readFileSync(INV_CACHE_FILE, 'utf8'));
 } catch (_) { invCache = { last_synced: null, holdings: [], securities: {}, needs_reconnect: [] }; }
 function persistInvCache() { fs.writeFileSync(INV_CACHE_FILE, JSON.stringify(invCache, null, 2)); }
 
 // ── Demo mode ─────────────────────────────────────────────────────────────────
-// Activated only at startup via: node server.js --demo  (or npm run demo)
 // Never stored to disk — zero risk of demo data leaking into production files.
 const DEMO_DATA_FILE = path.join(__dirname, 'data.example', 'demo_data.json');
-const demoMode = process.argv.includes('--demo');
 
 function loadDemoData() {
   try { return JSON.parse(fs.readFileSync(DEMO_DATA_FILE, 'utf8')); }
@@ -210,6 +229,7 @@ app.post('/api/create_link_token', async (_req, res) => {
 
 // Step 2 – exchange public token for access token
 app.post('/api/exchange_token', async (req, res) => {
+  if (demoMode) return res.status(403).json({ error: 'Cannot connect accounts in demo mode. Restart with npm start.' });
   const { public_token, institution_name, institution_id } = req.body;
   if (!public_token) return res.status(400).json({ error: 'public_token is required' });
   try {
@@ -359,13 +379,37 @@ app.post('/api/investments/sync', async (_req, res) => {
   res.json({ holdings: allHoldings, securities: allSecurities, needs_reconnect: needsReconnect, last_synced: invCache.last_synced });
 });
 
-// Remove a connected institution
+// Remove a connected institution and scrub all associated data from every cache.
 app.delete('/api/items/:item_id', async (req, res) => {
+  if (demoMode) return res.json({ success: true, demo_mode: true });
   const item = items.find(i => i.item_id === req.params.item_id);
   if (item) {
     try { await plaidClient.itemRemove({ access_token: item.access_token }); } catch (_) {}
     items = items.filter(i => i.item_id !== req.params.item_id);
     saveItems();
+
+    // Purge this institution's transactions from the cache and collect their IDs
+    // so we can scrub overrides that reference them.
+    const removedTxIds = new Set(
+      (txCache.transactions || [])
+        .filter(t => t.institution_name === item.institution_name)
+        .map(t => t.transaction_id)
+    );
+    if (removedTxIds.size > 0) {
+      txCache.transactions = (txCache.transactions || []).filter(t => !removedTxIds.has(t.transaction_id));
+      persistTxCache();
+      let overrideDirty = false;
+      for (const id of removedTxIds) {
+        if (id in txOverrides) { delete txOverrides[id]; overrideDirty = true; }
+        if (id in spendExclDb) { delete spendExclDb[id]; overrideDirty = true; }
+      }
+      if (overrideDirty) { persistOverrides(); persistSpendExcl(); }
+    }
+
+    // Purge this institution's holdings from the investments cache.
+    const prevHoldings = (invCache.holdings || []).length;
+    invCache.holdings = (invCache.holdings || []).filter(h => h.item_id !== req.params.item_id);
+    if (invCache.holdings.length !== prevHoldings) persistInvCache();
   }
   res.json({ success: true });
 });
@@ -393,6 +437,7 @@ app.post('/api/history/snapshot', (req, res) => {
 
 // ── Manual accounts endpoints ─────────────────────────────────────────────────
 app.get('/api/manual-accounts', (_req, res) => {
+  if (demoMode) return res.json({ accounts: loadDemoData().manual_accounts || [], demo_mode: true });
   res.json({ accounts: manualAccountsDb });
 });
 
@@ -405,6 +450,7 @@ app.put('/api/manual-accounts', (req, res) => {
 
 // ── CSV account endpoints ─────────────────────────────────────────────────────
 app.get('/api/csv-accounts', (_req, res) => {
+  if (demoMode) return res.json({ accounts: loadDemoData().csv_accounts || [], demo_mode: true });
   res.json({ accounts: csvAccountsDb });
 });
 
@@ -417,6 +463,7 @@ app.put('/api/csv-accounts', (req, res) => {
 
 // Add investments consent to an existing item (no disconnect needed)
 app.post('/api/update_consent/:item_id', async (req, res) => {
+  if (demoMode) return res.status(403).json({ error: 'Cannot update Plaid consent in demo mode.' });
   const item = items.find(i => i.item_id === req.params.item_id);
   if (!item) return res.status(404).json({ error: 'Item not found' });
   try {
@@ -437,36 +484,47 @@ app.post('/api/update_consent/:item_id', async (req, res) => {
 
 // ── Transaction category override endpoints ───────────────────────────────────
 app.get('/api/tx-overrides', (_req, res) => {
+  if (demoMode) return res.json({ overrides: loadDemoData().tx_overrides || {}, demo_mode: true });
   res.json({ overrides: txOverrides });
 });
 
 app.put('/api/tx-overrides', (req, res) => {
+  if (demoMode) return res.json({ success: true, demo_mode: true });
   txOverrides = req.body.overrides || {};
   persistOverrides();
   res.json({ success: true });
 });
 
 // ── Spending exclusion endpoints ──────────────────────────────────────────────
-app.get('/api/spending-exclusions', (_req, res) => res.json({ exclusions: spendExclDb }));
+app.get('/api/spending-exclusions', (_req, res) => {
+  if (demoMode) return res.json({ exclusions: loadDemoData().spending_exclusions || {}, demo_mode: true });
+  res.json({ exclusions: spendExclDb });
+});
 app.put('/api/spending-exclusions', (req, res) => {
+  if (demoMode) return res.json({ success: true, demo_mode: true });
   spendExclDb = req.body.exclusions || {};   // always update in-memory so GET returns fresh data
-  if (!demoMode) persistSpendExcl();         // only write to disk in non-demo mode
+  persistSpendExcl();
   res.json({ success: true });
 });
 
 // ── Custom category endpoints ─────────────────────────────────────────────────
 app.get('/api/custom-categories', (_req, res) => {
+  if (demoMode) return res.json({ categories: loadDemoData().custom_categories || [], demo_mode: true });
   res.json({ categories: customCatsDb });
 });
 
 app.put('/api/custom-categories', (req, res) => {
+  if (demoMode) return res.json({ success: true, demo_mode: true });
   customCatsDb = req.body.categories || [];
   persistCustomCats();
   res.json({ success: true });
 });
 
 // ── Cost basis override endpoints ─────────────────────────────────────────────
-app.get('/api/cost-basis', (_req, res) => res.json({ overrides: costBasisDb }));
+app.get('/api/cost-basis', (_req, res) => {
+  if (demoMode) return res.json({ overrides: loadDemoData().cost_basis_overrides || {}, demo_mode: true });
+  res.json({ overrides: costBasisDb });
+});
 app.put('/api/cost-basis', (req, res) => {
   if (demoMode) return res.json({ success: true, demo_mode: true });
   costBasisDb = req.body.overrides || {};
@@ -474,13 +532,15 @@ app.put('/api/cost-basis', (req, res) => {
   res.json({ success: true });
 });
 
-// ── Live ticker prices (Yahoo Finance unofficial API) ─────────────────────────
-function httpsGetJson(url) {
+// ── Live ticker prices ────────────────────────────────────────────────────────
+
+function httpsGetJson(url, extraHeaders = {}) {
   return new Promise((resolve, reject) => {
     https.get(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible)',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
         'Accept': 'application/json',
+        ...extraHeaders,
       },
     }, (r) => {
       let data = '';
@@ -491,6 +551,88 @@ function httpsGetJson(url) {
       });
     }).on('error', reject);
   });
+}
+
+// Ticker aliases: map stored CSV symbols to the correct Yahoo Finance query symbol.
+// Yahoo Finance uses hyphens for dot-suffixed tickers (BRK.B → BRK-B).
+const TICKER_ALIASES = {
+  'BRKB': 'BRK-B',
+};
+
+// Proxy tickers: plan-specific fund codes (e.g. NH Deferred Compensation Plan via Fidelity)
+// that have no public API. We fetch the equivalent public fund's daily % change and apply
+// it to the last known price from the most recent CSV import to give a live estimate.
+const TICKER_PROXIES = {
+  'NHFSMKX98': 'FXAIX',  // NH Fidelity 500 Index → Fidelity 500 Index Fund
+  'NHFSTMX97': 'FSKAX',  // NH Total Market Index  → Fidelity Total Market Index Fund
+  'NHXINT906': 'FSPSX',  // NH International Index → Fidelity International Index Fund
+};
+
+// Return the most recently imported institution_price for a ticker from in-memory CSV holdings.
+function getLastKnownCsvPrice(ticker) {
+  for (const account of csvAccountsDb) {
+    const securities = account.securities || {};
+    for (const [secId, sec] of Object.entries(securities)) {
+      if (sec.ticker_symbol === ticker) {
+        const holding = (account.holdings || []).find(h => h.security_id === secId);
+        if (holding?.institution_price != null) return Number(holding.institution_price);
+      }
+    }
+  }
+  return null;
+}
+
+// For proxy-mapped tickers: apply the proxy fund's daily % change to the last known price.
+async function fetchProxyPrice(ticker) {
+  const proxyTicker = TICKER_PROXIES[ticker];
+  if (!proxyTicker) return null;
+  const base = getLastKnownCsvPrice(ticker);
+  if (base == null) return null;
+  let proxy = await fetchYahooV8(proxyTicker);
+  if (!proxy) proxy = await fetchYahooV1(proxyTicker);
+  if (!proxy || proxy.changePct == null) return null;
+  const price = base * (1 + proxy.changePct / 100);
+  return { price, change: price - base, changePct: proxy.changePct };
+}
+
+// Extract { price, change, changePct } from a Yahoo Finance v8 chart result.
+// meta.chartPreviousClose is the close BEFORE the chart window (e.g. 5+ days ago),
+// NOT yesterday's close — using it produces multi-day changes, not daily ones.
+// The correct previous close is the second-to-last daily close in the chart data.
+function parseYahooResult(result) {
+  const meta = result?.meta;
+  if (!meta) return null;
+  const price = meta.regularMarketPrice ?? meta.previousClose;
+  if (price == null) return null;
+  // Build a list of non-null closes from the daily candles.
+  const closes = (result?.indicators?.quote?.[0]?.close || []).filter(v => v != null);
+  // Second-to-last close = yesterday's session close (last entry is today's ongoing session).
+  const prev = closes.length >= 2 ? closes[closes.length - 2] : price;
+  const change    = price - prev;
+  const changePct = prev > 0 ? (change / prev) * 100 : null;
+  return { price, change, changePct };
+}
+
+// Primary: Yahoo Finance v8 chart API (stable, no auth required)
+async function fetchYahooV8(ticker) {
+  try {
+    const url = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=5d`;
+    const data = await httpsGetJson(url);
+    return parseYahooResult(data?.chart?.result?.[0]);
+  } catch {
+    return null;
+  }
+}
+
+// Fallback: Yahoo Finance v1 (quote summary)
+async function fetchYahooV1(ticker) {
+  try {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=5d`;
+    const data = await httpsGetJson(url);
+    return parseYahooResult(data?.chart?.result?.[0]);
+  } catch {
+    return null;
+  }
 }
 
 app.get('/api/prices', async (req, res) => {
@@ -517,33 +659,94 @@ app.get('/api/prices', async (req, res) => {
   });
 
   if (stale.length) {
-    try {
-      const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(stale.join(','))}&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent`;
-      const data = await httpsGetJson(url);
-      const quotes = data?.quoteResponse?.result || [];
-      quotes.forEach(q => {
-        const t = (q.symbol || '').toUpperCase();
-        const p = q.regularMarketPrice;
-        if (t && p != null) {
-          priceCache[t] = {
-            price:     p,
-            change:    q.regularMarketChange           ?? null,
-            changePct: q.regularMarketChangePercent    ?? null,
-            ts:        now,
-          };
-          fresh[t] = p;
-          priceDetails[t] = { price: p, change: priceCache[t].change, changePct: priceCache[t].changePct };
-        }
-      });
-    } catch (err) {
-      console.error('[Yahoo Finance]', err.message);
-    }
+    // Fetch stale tickers in parallel:
+    //   1. Yahoo Finance v8 (query2), with alias applied for dot-tickers like BRK-B
+    //   2. Yahoo Finance v1 fallback
+    //   3. Proxy estimate for plan-specific fund codes (NHFSMKX98 etc.) —
+    //      applies the equivalent public fund's daily % change to last CSV-imported price.
+    await Promise.all(stale.map(async (ticker) => {
+      const yahooTicker = TICKER_ALIASES[ticker] || ticker;
+      let result = await fetchYahooV8(yahooTicker);
+      if (!result) result = await fetchYahooV1(yahooTicker);
+      if (!result) result = await fetchProxyPrice(ticker);
+      if (result) {
+        priceCache[ticker] = { price: result.price, change: result.change ?? null, changePct: result.changePct ?? null, ts: now };
+        fresh[ticker] = result.price;
+        priceDetails[ticker] = { price: result.price, change: result.change ?? null, changePct: result.changePct ?? null };
+        const alias  = TICKER_ALIASES[ticker]  ? ` (alias ${yahooTicker})`  : '';
+        const proxy  = TICKER_PROXIES[ticker]  ? ` (proxy ${TICKER_PROXIES[ticker]})` : '';
+        console.log(`[Prices] ${ticker}${alias}${proxy} → $${result.price.toFixed(4)} (${result.changePct?.toFixed(2) ?? '—'}%)`);
+      } else {
+        console.warn(`[Prices] Could not fetch price for ${ticker}`);
+      }
+    }));
   }
 
   res.json({ prices: fresh, details: priceDetails, fetched_at: new Date().toISOString(), cached_count: tickers.length - stale.length });
 });
 
 // (Property estimate via Redfin/Rentcast removed — property values are entered manually)
+
+// ── Claude / Anthropic endpoints ──────────────────────────────────────────────
+app.get('/api/claude/status', (req, res) => {
+  if (demoMode) return res.json({ configured: false, demo_mode: true });
+  res.json({ configured: !!ANTHROPIC_API_KEY });
+});
+
+app.post('/api/claude/setup', (req, res) => {
+  if (demoMode) return res.status(403).json({ error: 'Cannot configure in demo mode.' });
+  const { apiKey } = req.body;
+  if (!apiKey || !apiKey.startsWith('sk-ant-')) {
+    return res.status(400).json({ error: 'Invalid API key format. Should start with sk-ant-' });
+  }
+  let existing = '';
+  try { existing = fs.readFileSync(dataEnvFile, 'utf8'); } catch (_) {}
+  const lines = existing.split('\n').filter(l => !/^ANTHROPIC_API_KEY\s*=/.test(l));
+  lines.push(`ANTHROPIC_API_KEY=${apiKey}`);
+  fs.writeFileSync(dataEnvFile, lines.join('\n') + '\n');
+  ANTHROPIC_API_KEY = apiKey;
+  res.json({ success: true });
+});
+
+app.post('/api/claude/chat', async (req, res) => {
+  if (demoMode) return res.status(403).json({ error: 'Cannot use Claude API chat in demo mode.' });
+  if (!ANTHROPIC_API_KEY) return res.status(401).json({ error: 'Claude API key not configured.' });
+  const { message, portfolioData } = req.body;
+  if (!message) return res.status(400).json({ error: 'message is required' });
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
+  const systemPrompt = `You are a personal finance and investment portfolio analyst. The user is sharing their real portfolio data with you for analysis.
+
+Portfolio Data:
+${JSON.stringify(portfolioData || {}, null, 2)}
+
+Provide clear, actionable insights. Format your response with markdown — use headers, bullet points, and bold text where helpful. Focus on what is most useful to this specific investor based on their actual holdings.`;
+
+  try {
+    const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
+    const stream = anthropic.messages.stream({
+      model: 'claude-opus-4-7',
+      max_tokens: 2048,
+      thinking: { type: 'adaptive' },
+      system: systemPrompt,
+      messages: [{ role: 'user', content: message }],
+    });
+
+    stream.on('text', (text) => {
+      res.write(`data: ${JSON.stringify({ type: 'text', text })}\n\n`);
+    });
+
+    await stream.finalMessage();
+    res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
+    res.end();
+  } catch (err) {
+    res.write(`data: ${JSON.stringify({ type: 'error', error: err.message })}\n\n`);
+    res.end();
+  }
+});
 
 // ── Start ──────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;

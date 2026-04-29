@@ -153,6 +153,9 @@ data/
 tokens.json
 history.json
 
+# AI agent instruction files (local use only)
+AGENTS.md
+
 # macOS metadata
 .DS_Store
 **/.DS_Store
