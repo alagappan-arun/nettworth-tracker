@@ -95,18 +95,18 @@
     /* ── Sidebar collapse button (inside sidebar header) ── */
     .sidebar-collapse-btn {
       margin-left: auto;
-      width: 28px; height: 28px;
+      width: 32px; height: 32px;
       border-radius: 7px;
       border: 1px solid var(--border);
       background: transparent;
-      color: var(--t3);
-      font-size: 14px;
+      color: #fff;
+      font-size: 20px;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
-      transition: background .12s, color .12s, border-color .12s;
+      transition: background .12s, border-color .12s;
     }
-    .sidebar-collapse-btn:hover { background: var(--card-hover); color: var(--accent); border-color: var(--accent); }
+    .sidebar-collapse-btn:hover { background: var(--card-hover); border-color: var(--accent); }
 
     /* ── Sidebar open button (floating, shown when sidebar is hidden) ── */
     .sidebar-open-btn {
@@ -116,15 +116,15 @@
       border-radius: 9px;
       border: 1px solid var(--border);
       background: var(--card);
-      color: var(--t2);
-      font-size: 16px;
+      color: #fff;
+      font-size: 20px;
       cursor: pointer; z-index: 300;
       display: none;
       align-items: center; justify-content: center;
       box-shadow: 0 2px 8px rgba(0,0,0,.18);
-      transition: background .12s, color .12s, box-shadow .12s;
+      transition: background .12s, box-shadow .12s;
     }
-    .sidebar-open-btn:hover { background: var(--card-hover); color: var(--accent); box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+    .sidebar-open-btn:hover { background: var(--card-hover); box-shadow: 0 4px 14px rgba(0,0,0,.25); }
     .sidebar-open-btn.visible { display: flex; }
     .sidebar-logo {
       padding: 22px 20px 16px;
