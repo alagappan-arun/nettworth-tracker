@@ -6,7 +6,7 @@ const fs   = require('fs');
 const demoMode = process.argv.includes('--demo');
 
 // ── Bootstrap: create data/ and seed .env before anything else loads ─────────
-const dataDir = path.join(__dirname, 'data');
+const dataDir = path.join(process.cwd(), 'data');
 if (!demoMode && !fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 const dataEnvFile    = path.join(dataDir, '.env');
 const exampleEnvFile = path.join(__dirname, 'data.example', '.env');
