@@ -8,6 +8,7 @@ const demoMode = process.argv.includes('--demo');
 // ── Bootstrap: create data/ and seed .env before anything else loads ─────────
 const dataDir = path.join(process.cwd(), 'data');
 if (!demoMode && !fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+console.log(`  Data directory: ${dataDir}`);
 const dataEnvFile    = path.join(dataDir, '.env');
 const exampleEnvFile = path.join(__dirname, 'data.example', '.env');
 if (!demoMode && !fs.existsSync(dataEnvFile) && fs.existsSync(exampleEnvFile)) {
@@ -48,7 +49,7 @@ app.use((req, res, next) => {
   }
   next();
 });
-app.get(['/', '/dashboard', '/investments', '/spending', '/transactions', '/recurring'], (_req, res) => {
+app.get(['/', '/dashboard', '/investments', '/spending', '/transactions', '/recurring', '/accounts', '/settings'], (_req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 app.use(express.static(path.join(__dirname)));
