@@ -8,6 +8,7 @@ const demoMode = process.argv.includes('--demo');
 // ── Bootstrap: create data/ and seed .env before anything else loads ─────────
 const dataDir = path.join(process.cwd(), 'data');
 if (!demoMode && !fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+console.log(`  Data directory: ${dataDir}`);
 const dataEnvFile    = path.join(dataDir, '.env');
 const exampleEnvFile = path.join(__dirname, 'data.example', '.env');
 if (!demoMode && !fs.existsSync(dataEnvFile) && fs.existsSync(exampleEnvFile)) {
