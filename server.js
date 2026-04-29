@@ -49,7 +49,7 @@ app.use((req, res, next) => {
   }
   next();
 });
-app.get(['/', '/dashboard', '/investments', '/spending', '/transactions', '/recurring'], (_req, res) => {
+app.get(['/', '/dashboard', '/investments', '/spending', '/transactions', '/recurring', '/accounts', '/settings'], (_req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 app.use(express.static(path.join(__dirname)));
@@ -259,14 +259,32 @@ app.get('/api/accounts', async (_req, res) => {
   for (const item of items) {
     try {
       const resp = await plaidClient.accountsGet({ access_token: item.access_token });
-      resp.data.accounts.forEach(acc =>
-        allAccounts.push({
-          ...acc,
-          institution_name: item.institution_name,
-          institution_id:   item.institution_id,
-          item_id:          item.item_id,
-        })
-      );
+      const accounts = resp.data.accounts.map(acc => ({
+        ...acc,
+        institution_name: item.institution_name,
+        institution_id:   item.institution_id,
+        item_id:          item.item_id,
+      }));
+
+      // Attempt to fetch credit-card liability data (requires Liabilities product).
+      // Gracefully skip if the product isn't enabled for this item.
+      try {
+        const liabResp = await plaidClient.liabilitiesGet({ access_token: item.access_token });
+        const creditCards = liabResp.data.liabilities?.credit || [];
+        const liabMap = {};
+        for (const cc of creditCards) liabMap[cc.account_id] = cc;
+        for (const acc of accounts) {
+          const cc = liabMap[acc.account_id];
+          if (cc) {
+            acc.next_payment_due_date     = cc.next_payment_due_date     || null;
+            acc.minimum_payment_amount    = cc.minimum_payment_amount    ?? null;
+          }
+        }
+      } catch (_liabErr) {
+        // Liabilities product not enabled — credit card due dates unavailable
+      }
+
+      accounts.forEach(acc => allAccounts.push(acc));
     } catch (err) {
       console.error(`accounts [${item.institution_name}]:`, err.message);
     }

@@ -95,18 +95,18 @@
     /* ── Sidebar collapse button (inside sidebar header) ── */
     .sidebar-collapse-btn {
       margin-left: auto;
-      width: 28px; height: 28px;
+      width: 32px; height: 32px;
       border-radius: 7px;
       border: 1px solid var(--border);
       background: transparent;
-      color: var(--t3);
-      font-size: 14px;
+      color: #fff;
+      font-size: 20px;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
-      transition: background .12s, color .12s, border-color .12s;
+      transition: background .12s, border-color .12s;
     }
-    .sidebar-collapse-btn:hover { background: var(--card-hover); color: var(--accent); border-color: var(--accent); }
+    .sidebar-collapse-btn:hover { background: var(--card-hover); border-color: var(--accent); }
 
     /* ── Sidebar open button (floating, shown when sidebar is hidden) ── */
     .sidebar-open-btn {
@@ -116,15 +116,15 @@
       border-radius: 9px;
       border: 1px solid var(--border);
       background: var(--card);
-      color: var(--t2);
-      font-size: 16px;
+      color: #fff;
+      font-size: 20px;
       cursor: pointer; z-index: 300;
       display: none;
       align-items: center; justify-content: center;
       box-shadow: 0 2px 8px rgba(0,0,0,.18);
-      transition: background .12s, color .12s, box-shadow .12s;
+      transition: background .12s, box-shadow .12s;
     }
-    .sidebar-open-btn:hover { background: var(--card-hover); color: var(--accent); box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+    .sidebar-open-btn:hover { background: var(--card-hover); box-shadow: 0 4px 14px rgba(0,0,0,.25); }
     .sidebar-open-btn.visible { display: flex; }
     .sidebar-logo {
       padding: 22px 20px 16px;
@@ -159,11 +159,14 @@
     .nav-item.active { background: rgba(124,106,247,.15); color: var(--accent2); }
     .nav-icon { font-size: 15px; width: 20px; text-align: center; }
 
-    .sidebar-section-title {
-      font-size: 10px; font-weight: 700; letter-spacing: .8px;
-      text-transform: uppercase; color: var(--t3);
-      padding: 18px 22px 8px;
+    .sidebar-accounts-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 22px 8px; cursor: pointer; user-select: none;
     }
+    .sidebar-accounts-hdr:hover .acct-toggle-icon { color: var(--t1); }
+    .acct-toggle-label { font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--t3); }
+    .acct-toggle-icon { font-size: 10px; color: var(--t3); transition: transform .2s; line-height: 1; }
+    .acct-toggle-icon.collapsed { transform: rotate(-90deg); }
 
     .sidebar-accounts { flex: 1; overflow-y: auto; padding: 0 10px; }
     .account-item {
@@ -205,14 +208,53 @@
     }
     .add-account-btn.manual:hover { background: rgba(234,179,8,.16); }
 
-    .sidebar-footer {
-      border-top: 1px solid var(--border);
-      padding: 14px 20px;
-    }
-    .footer-label { font-size: 10px; color: var(--t3); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 2px; }
-    .footer-value { font-size: 20px; font-weight: 800; letter-spacing: -.5px; }
-    .footer-value.positive { color: var(--green); }
-    .footer-value.negative { color: var(--red); }
+    /* ── Accounts page ───────────────────────────────────────────────────── */
+    .accts-page { padding: 24px 28px; max-width: 860px; }
+    .accts-action-bar { display: flex; gap: 10px; margin-bottom: 28px; flex-wrap: wrap; }
+    .accts-section { margin-bottom: 20px; }
+    .accts-section-title { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--t3); margin-bottom: 12px; }
+    .acct-card-row { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--border); }
+    .acct-card-row:last-child { border-bottom: none; }
+    .acct-card-icon { width: 38px; height: 38px; border-radius: 9px; background: var(--card-hover); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .acct-card-info { flex: 1; min-width: 0; }
+    .acct-card-name { font-size: 13.5px; font-weight: 600; color: var(--t1); }
+    .acct-card-sub { font-size: 12px; color: var(--t3); margin-top: 2px; }
+    .acct-card-bal { font-size: 14px; font-weight: 700; color: var(--t1); flex-shrink: 0; }
+    .acct-card-actions { display: flex; gap: 6px; flex-shrink: 0; margin-left: 10px; }
+    .acct-card-btn { padding: 5px 11px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-hover); color: var(--t2); font-size: 12px; cursor: pointer; transition: all .15s; }
+    .acct-card-btn:hover { border-color: var(--t3); color: var(--t1); }
+    .acct-card-btn.danger:hover { border-color: var(--red); color: var(--red); background: rgba(248,113,113,.08); }
+    .accts-empty { padding: 20px 0; color: var(--t3); font-size: 13px; }
+    .acct-detail-bar { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 6px; }
+    .acct-detail-item { font-size: 12px; color: var(--t2); }
+    .acct-detail-lbl { color: var(--t3); margin-right: 3px; }
+    .env-tag { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; background: rgba(124,106,247,.14); color: var(--accent2); margin-left: 6px; vertical-align: middle; }
+
+    /* ── Settings page ───────────────────────────────────────────────────── */
+    .settings-page { padding: 24px 28px; max-width: 680px; }
+    .settings-section { margin-bottom: 20px; }
+    .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .settings-row:last-child { border-bottom: none; }
+    .settings-row-left { min-width: 0; }
+    .settings-row-label { font-size: 13.5px; font-weight: 500; color: var(--t1); }
+    .settings-row-sub { font-size: 12px; color: var(--t3); margin-top: 2px; }
+    .theme-pill { display: flex; background: var(--card-hover); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; flex-shrink: 0; }
+    .theme-pill-opt { padding: 7px 16px; font-size: 12.5px; cursor: pointer; color: var(--t2); transition: all .15s; border: none; background: none; }
+    .theme-pill-opt.active { background: var(--accent); color: #fff; }
+    .settings-form { margin-top: 4px; }
+    .settings-field { margin-bottom: 14px; }
+    .settings-field label { display: block; font-size: 11px; color: var(--t3); text-transform: uppercase; letter-spacing: .08em; font-weight: 600; margin-bottom: 6px; }
+    .settings-field input, .settings-field select { width: 100%; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 13px; color: var(--t1); font-family: inherit; box-sizing: border-box; }
+    .settings-field input:focus, .settings-field select:focus { border-color: var(--accent); outline: none; }
+    .settings-pw-wrap { position: relative; }
+    .settings-pw-wrap input { padding-right: 38px; }
+    .settings-pw-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 14px; color: var(--t3); padding: 0; }
+    .settings-save-btn { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 9px 22px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .15s; }
+    .settings-save-btn:hover { background: var(--accent2); }
+    .settings-save-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .settings-msg { font-size: 12px; margin-top: 10px; display: none; }
+    .settings-msg.error { color: var(--red); }
+    .settings-msg.success { color: var(--green); }
 
     /* ── Main content ─────────────────────────────────────────────────────── */
     .main {
@@ -1656,16 +1698,21 @@
     <div class="nav-item" data-tab="transactions" onclick="showTab('transactions',this)">
       <span class="nav-icon">📋</span> Transactions
     </div>
+    <div style="border-top:1px solid var(--border);margin:8px 10px;"></div>
+    <div class="nav-item" data-tab="accounts" onclick="showTab('accounts',this)">
+      <span class="nav-icon">🏦</span> Accounts
+    </div>
+    <div class="nav-item" data-tab="settings" onclick="showTab('settings',this)">
+      <span class="nav-icon">⚙️</span> Settings
+    </div>
   </div>
 
-  <div class="sidebar-section-title">Accounts</div>
+  <div class="sidebar-accounts-hdr" onclick="toggleAccountsList()">
+    <span class="acct-toggle-label">Accounts</span>
+    <span class="acct-toggle-icon" id="acctToggleIcon">▾</span>
+  </div>
   <div class="sidebar-accounts" id="sidebarAccounts">
     <div style="padding:10px 12px;font-size:12px;color:var(--t3)">Loading…</div>
-  </div>
-
-  <div class="sidebar-footer">
-    <div class="footer-label">Net Worth</div>
-    <div class="footer-value neutral" id="footerNetWorth">—</div>
   </div>
 </aside>
 
@@ -2037,6 +2084,96 @@
       <div id="txList"></div>
     </div><!-- /transactions -->
 
+    <!-- ═══════════ ACCOUNTS TAB ═══════════ -->
+    <div id="tab-accounts" class="tab-content">
+      <div class="accts-page">
+
+        <div class="accts-action-bar">
+          <button class="btn btn-primary add-account-btn plaid" id="acctPageConnectBtn" onclick="openPlaidLink()" style="border-style:solid;font-size:13px;padding:9px 16px">🔗 Connect via Plaid</button>
+          <button class="btn btn-ghost add-account-btn manual" id="acctPageAddBtn" onclick="openAddAcctModal()" style="border-style:solid;font-size:13px;padding:9px 16px;color:var(--t1)">+ Add / Import</button>
+          <button class="btn btn-ghost" onclick="syncAll()" style="font-size:13px;padding:9px 16px">↺ Sync All</button>
+        </div>
+
+        <div id="acctPageGroups"></div>
+
+      </div>
+    </div><!-- /accounts -->
+
+    <!-- ═══════════ SETTINGS TAB ═══════════ -->
+    <div id="tab-settings" class="tab-content">
+      <div class="settings-page">
+
+        <!-- Appearance -->
+        <div class="settings-section card">
+          <div class="card-title">Appearance</div>
+          <div class="settings-row">
+            <div class="settings-row-left">
+              <div class="settings-row-label">Theme</div>
+              <div class="settings-row-sub">Choose dark or light mode</div>
+            </div>
+            <div class="theme-pill">
+              <button class="theme-pill-opt" id="themePillDark"  onclick="setTheme('dark')">🌙 Dark</button>
+              <button class="theme-pill-opt" id="themePillLight" onclick="setTheme('light')">☀️ Light</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Plaid credentials -->
+        <div class="settings-section card">
+          <div class="card-title">Plaid Connection</div>
+          <div class="settings-row" style="padding-bottom:16px;border-bottom:1px solid var(--border);margin-bottom:16px">
+            <div class="settings-row-left">
+              <div class="settings-row-label">Status</div>
+              <div class="settings-row-sub" id="settingsPlaidStatus">—</div>
+            </div>
+            <div id="settingsEnvTag"></div>
+          </div>
+          <div class="settings-form">
+            <div class="settings-field">
+              <label>Plaid Client ID</label>
+              <input id="settingsClientId" type="text" placeholder="5f3e4a2b1c0d…" autocomplete="off" spellcheck="false" />
+            </div>
+            <div class="settings-field">
+              <label>Plaid Secret</label>
+              <div class="settings-pw-wrap">
+                <input id="settingsSecret" type="password" placeholder="••••••••••••••••••••••••" autocomplete="off" />
+                <button class="settings-pw-toggle" type="button" onclick="settingsTogglePw()" title="Show/hide">👁</button>
+              </div>
+            </div>
+            <div class="settings-field">
+              <label>Environment</label>
+              <select id="settingsEnv">
+                <option value="Development">Development — real bank accounts (recommended)</option>
+                <option value="sandbox">Sandbox — test with fake data</option>
+              </select>
+            </div>
+            <button class="settings-save-btn" id="settingsSaveBtn" onclick="saveSettings()">Save credentials</button>
+            <div class="settings-msg error"   id="settingsError"></div>
+            <div class="settings-msg success"  id="settingsSuccess">✓ Credentials saved successfully.</div>
+          </div>
+        </div>
+
+        <!-- Data & Sync -->
+        <div class="settings-section card">
+          <div class="card-title">Data &amp; Sync</div>
+          <div class="settings-row">
+            <div class="settings-row-left">
+              <div class="settings-row-label">Sync all accounts</div>
+              <div class="settings-row-sub">Fetch latest transactions and holdings from Plaid</div>
+            </div>
+            <button class="btn btn-ghost" onclick="syncAll()" style="flex-shrink:0">↺ Sync now</button>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-left">
+              <div class="settings-row-label">Last synced</div>
+              <div class="settings-row-sub" id="settingsLastSynced">—</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /settings -->
+
   </div><!-- /content -->
 </div><!-- /main -->
 
@@ -2308,6 +2445,7 @@ const state = {
   livePriceDetails:      {},    // { "VOO": { price, change, changePct }, ... } — full daily move data
   costBasisOverrides:    {},    // { "VOO": 12345.67, ... } — user-editable per-ticker cost basis
   pricesFetchedAt:       null,  // ISO string — when live prices were last fetched
+  accountInvStats:       {},    // { [account_id]: { todayGain, overallGain } } — cached after price fetch
   spendingExclusions:    {},    // { transaction_id: true } — user-excluded from spending
   selectedSpendCat:      null,  // string | null — category key with drawer open
   hoverSpendCat:         null,  // string | null — hovered row (dims chart segments)
@@ -2786,6 +2924,7 @@ async function loadInvestments(silent = false) {
     };
     if (data.last_synced) { state.lastSyncedInv = data.last_synced; if (!silent) renderSyncInfo(); }
   } catch { state.investments = { holdings: [], securities: {}, needsReconnect: [] }; }
+  buildAccountInvStats();
   if (!silent) {
     renderInvestments();
     fetchLivePrices();
@@ -3194,7 +3333,9 @@ async function removeItem(itemId, name) {
   if (!confirm(`Permanently disconnect ${name}?\n\nThis will remove all cached transactions, investment holdings, and any category or spending overrides you set for this institution. This cannot be undone.`)) return;
   await apiFetch(`/items/${itemId}`, { method: 'DELETE' });
   await loadAll();
+  renderAccountsPage();
 }
+const deleteItem = removeItem;
 
 // Open Plaid in update-mode to grant investments consent on an existing item
 async function grantInvestmentsConsent(itemId, name, btn) {
@@ -3381,10 +3522,10 @@ async function deleteManualAccount() {
 function renderSidebarAccounts() {
   const el  = document.getElementById('sidebarAccounts');
   const all = allAccounts();
+  if (document.getElementById('tab-accounts')?.classList.contains('active')) renderAccountsPage();
 
   if (!all.length) {
     el.innerHTML = `<div style="padding:10px 12px;font-size:12px;color:var(--t3)">No accounts yet — connect or add manually</div>`;
-    document.getElementById('footerNetWorth').textContent = '—';
     return;
   }
 
@@ -3477,10 +3618,6 @@ function renderSidebarAccounts() {
   });
   el.innerHTML = html;
 
-  const { netWorth } = calcNetWorth(all);
-  const nwEl = document.getElementById('footerNetWorth');
-  nwEl.textContent = fmt(netWorth);
-  nwEl.className   = `footer-value ${netWorth >= 0 ? 'positive' : 'negative'}`;
 }
 
 function quickDeleteManual(id) {
@@ -4783,6 +4920,7 @@ async function fetchLivePrices() {
     state.livePrices        = data.prices  || {};
     state.livePriceDetails  = data.details || {};
     state.pricesFetchedAt   = data.fetched_at || null;
+    buildAccountInvStats();
     renderInvestments();
     if (btn) {
       btn.disabled    = false;
@@ -6740,8 +6878,8 @@ function renderTransactions() {
 // ════════════════════════════════════════════════════════════════════════════
 //  TAB NAVIGATION
 // ════════════════════════════════════════════════════════════════════════════
-const TAB_TITLES = { dashboard: 'Dashboard', investments: 'Investments', spending: 'Spending', recurring: 'Recurring', transactions: 'Transactions' };
-const TAB_PATHS = { dashboard: '/dashboard', investments: '/investments', spending: '/spending', recurring: '/recurring', transactions: '/transactions' };
+const TAB_TITLES = { dashboard: 'Dashboard', investments: 'Investments', spending: 'Spending', recurring: 'Recurring', transactions: 'Transactions', accounts: 'Accounts', settings: 'Settings' };
+const TAB_PATHS = { dashboard: '/dashboard', investments: '/investments', spending: '/spending', recurring: '/recurring', transactions: '/transactions', accounts: '/accounts', settings: '/settings' };
 const PATH_TABS = Object.fromEntries(Object.entries(TAB_PATHS).map(([tab, route]) => [route, tab]));
 
 function tabFromLocation() {
@@ -6753,6 +6891,272 @@ function routeForTab(name) {
   return TAB_PATHS[name] || '/dashboard';
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+//  SIDEBAR ACCOUNTS TOGGLE
+// ════════════════════════════════════════════════════════════════════════════
+function toggleAccountsList() {
+  const el   = document.getElementById('sidebarAccounts');
+  const icon = document.getElementById('acctToggleIcon');
+  const hide = el.style.display !== 'none';
+  el.style.display = hide ? 'none' : '';
+  icon.classList.toggle('collapsed', hide);
+  localStorage.setItem('nwt-accts-hidden', hide ? '1' : '');
+}
+
+function applyStoredAccountsState() {
+  if (localStorage.getItem('nwt-accts-hidden') === '1') {
+    const el   = document.getElementById('sidebarAccounts');
+    const icon = document.getElementById('acctToggleIcon');
+    if (el)   el.style.display = 'none';
+    if (icon) icon.classList.add('collapsed');
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  ACCOUNTS PAGE
+// ════════════════════════════════════════════════════════════════════════════
+
+// Build per-account investment stats using the same logic as the investments tab.
+// Stores results in state.accountInvStats so the accounts page reads pre-computed values.
+function buildAccountInvStats() {
+  const { holdings } = allHoldings();
+  const securities   = state.investments.securities || {};
+
+  // Accumulate per-account buckets — mirrors renderInvestments() computation exactly
+  const buckets = {}; // { [account_id]: { todayGain, costTotal, valueOfCostHoldings } }
+
+  holdings.forEach(h => {
+    const id = h.account_id;
+    if (!id) return;
+    if (!buckets[id]) buckets[id] = { todayGain: null, costTotal: null, valueOfCostHoldings: 0 };
+    const b         = buckets[id];
+    const sec       = securities[h.security_id] || {};
+    const rawTicker = (sec.ticker_symbol || '').toUpperCase();
+    const isCash    = !rawTicker || rawTicker.startsWith('CUR:') || sec.type === 'cash';
+
+    // Today's P&L — same as investments tab line: detail.change * h.quantity
+    if (!isCash) {
+      const detail = state.livePriceDetails[rawTicker] ?? null;
+      if (detail?.change != null && h.quantity != null)
+        b.todayGain = (b.todayGain ?? 0) + detail.change * h.quantity;
+    }
+
+    // Overall P&L — same as investments tab: valueOfCostHoldings - totalCost
+    // uses effectiveValue (live price aware) and only includes holdings with known cost
+    const cost = effectiveTotalCost(h, sec);
+    if (cost != null) {
+      b.costTotal = (b.costTotal ?? 0) + cost;
+      b.valueOfCostHoldings += effectiveValue(h, sec);
+    }
+  });
+
+  const stats = {};
+  for (const [id, b] of Object.entries(buckets)) {
+    stats[id] = {
+      todayGain:   b.todayGain,
+      overallGain: b.costTotal != null ? b.valueOfCostHoldings - b.costTotal : null,
+    };
+  }
+
+  state.accountInvStats = stats;
+  if (document.getElementById('tab-accounts')?.classList.contains('active')) renderAccountsPage();
+}
+
+function acctInvestmentStats(accountId) {
+  return state.accountInvStats[accountId] || { todayGain: null, overallGain: null };
+}
+
+function renderAccountsPage() {
+  const isDemo     = state.config?.demo_mode;
+  const all        = allAccounts();
+  const securities = state.investments.securities || {};
+
+  // ── Action buttons demo-mode dimming ──────────────────────────────────────
+  const demoTip = 'Not available in demo mode';
+  ['acctPageConnectBtn','acctPageAddBtn'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    btn.style.opacity       = isDemo ? '0.35' : '';
+    btn.style.pointerEvents = isDemo ? 'none'  : '';
+    btn.title               = isDemo ? demoTip  : '';
+  });
+
+  // ── Account row builder ────────────────────────────────────────────────────
+  function acctRow(a) {
+    const meta  = getAccountMeta(a);
+    const type  = (a.type || '').toLowerCase();
+    const bal   = a.balances?.current ?? (a.manualData ? parseFloat(a.manualData.balance) : 0);
+    const mask  = a.mask ? ` ···${a.mask}` : '';
+    const cur   = a.currency || 'USD';
+
+    // Actions
+    let actions = '';
+    if (a.isCsvAccount) {
+      actions = `<button class="acct-card-btn" onclick="openCsvModal('${a.csvId}')">↑ Re-upload</button>
+                 <button class="acct-card-btn danger" onclick="quickDeleteCsv('${a.csvId}')">✕ Delete</button>`;
+    } else if (a.isManual) {
+      actions = `<button class="acct-card-btn" onclick="openManualModal('${a.manualData?.id}')">✎ Edit</button>
+                 <button class="acct-card-btn danger" onclick="quickDeleteManual('${a.manualData?.id}')">✕ Delete</button>`;
+    } else {
+      actions = `<button class="acct-card-btn danger" onclick="deleteItem('${a.item_id}','${esc(a.institution_name||'')}')">✕ Disconnect</button>`;
+    }
+
+    // Extra detail rows based on account type
+    let extraRows = '';
+
+    if (type === 'credit') {
+      const limit     = a.balances?.limit;
+      const available = a.balances?.available;
+      const dueDate   = a.next_payment_due_date || a.balances?.payment_due_date || a.payment_due_date || null;
+      const minPay    = a.minimum_payment_amount ?? a.balances?.minimum_payment_amount ?? null;
+
+      const parts = [];
+      if (dueDate) parts.push(`<span class="acct-detail-item"><span class="acct-detail-lbl">Due</span> <span style="color:var(--red);font-weight:600">${dueDate}</span></span>`);
+      if (minPay  != null) parts.push(`<span class="acct-detail-item"><span class="acct-detail-lbl">Min payment</span> ${fmt(minPay, cur)}</span>`);
+      if (limit   != null) parts.push(`<span class="acct-detail-item"><span class="acct-detail-lbl">Limit</span> ${fmt(limit, cur)}</span>`);
+      if (available != null) parts.push(`<span class="acct-detail-item"><span class="acct-detail-lbl">Available</span> ${fmt(available, cur)}</span>`);
+
+      if (parts.length) extraRows = `<div class="acct-detail-bar">${parts.join('')}</div>`;
+    }
+
+    if (type === 'investment' || type === 'brokerage') {
+      const { todayGain, overallGain } = acctInvestmentStats(a.account_id);
+      const parts = [];
+
+      if (todayGain != null) {
+        const col = todayGain >= 0 ? 'var(--green)' : 'var(--red)';
+        const sign = todayGain >= 0 ? '+' : '';
+        parts.push(`<span class="acct-detail-item"><span class="acct-detail-lbl">Today's P&amp;L</span> <span style="color:${col};font-weight:600">${sign}${fmt(todayGain, cur)}</span></span>`);
+      }
+
+      if (overallGain != null) {
+        const col  = overallGain >= 0 ? 'var(--green)' : 'var(--red)';
+        const sign = overallGain >= 0 ? '+' : '';
+        parts.push(`<span class="acct-detail-item"><span class="acct-detail-lbl">Overall P&amp;L</span> <span style="color:${col};font-weight:600">${sign}${fmt(overallGain, cur)}</span></span>`);
+      }
+
+      if (parts.length) extraRows = `<div class="acct-detail-bar">${parts.join('')}</div>`;
+    }
+
+    const balColor = meta.isAsset ? 'var(--green)' : 'var(--red)';
+    return `
+      <div class="acct-card-row">
+        <div class="acct-card-icon" style="background:${meta.color}22">${meta.icon}</div>
+        <div class="acct-card-info">
+          <div class="acct-card-name">${esc(a.name)}${mask ? `<span style="color:var(--t3);font-weight:400"> ${mask}</span>` : ''}</div>
+          <div class="acct-card-sub">${esc(a.institution_name || a.manualData?.institution || '')} · ${esc(meta.label)}</div>
+          ${extraRows}
+        </div>
+        <div class="acct-card-bal" style="color:${balColor}">${fmt(bal, cur)}</div>
+        <div class="acct-card-actions">${actions}</div>
+      </div>`;
+  }
+
+  // ── Group accounts by product type ────────────────────────────────────────
+  const groups = [
+    { key: 'bank',        title: 'Bank Accounts',        icon: '🏦', match: a => (a.type||'').toLowerCase() === 'depository' },
+    { key: 'credit',      title: 'Credit Cards',          icon: '💳', match: a => (a.type||'').toLowerCase() === 'credit' },
+    { key: 'investment',  title: 'Investment Accounts',   icon: '📈', match: a => ['investment','brokerage'].includes((a.type||'').toLowerCase()) && (a.subtype||a.manualData?.accountType||'').toLowerCase() !== 'real_estate' },
+    { key: 'real_estate', title: 'Real Estate',           icon: '🏠', match: a => (a.subtype||a.manualData?.accountType||'').toLowerCase() === 'real_estate' },
+    { key: 'loan',        title: 'Loans & Mortgages',     icon: '🏡', match: a => (a.type||'').toLowerCase() === 'loan' },
+    { key: 'other',       title: 'Other Accounts',        icon: '💰', match: () => true },
+  ];
+
+  const used    = new Set();
+  const buckets = groups.map(g => {
+    const accts = all.filter(a => !used.has(a.account_id) && g.match(a));
+    accts.forEach(a => used.add(a.account_id));
+    return { ...g, accts };
+  }).filter(g => g.accts.length > 0);
+
+  const container = document.getElementById('acctPageGroups');
+  if (!container) return;
+
+  if (!buckets.length) {
+    container.innerHTML = `<div class="card"><div class="accts-empty" style="padding:24px;text-align:center">No accounts yet — connect or add one above.</div></div>`;
+    return;
+  }
+
+  container.innerHTML = buckets.map(g => `
+    <div class="accts-section">
+      <div class="accts-section-title">${g.icon} ${g.title}</div>
+      <div class="card">${g.accts.map(acctRow).join('')}</div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  SETTINGS PAGE
+// ════════════════════════════════════════════════════════════════════════════
+function renderSettingsPage() {
+  const cfg = state.config || {};
+  const isLight = document.body.classList.contains('light-mode');
+  document.getElementById('themePillDark').classList.toggle('active',  !isLight);
+  document.getElementById('themePillLight').classList.toggle('active', isLight);
+
+  const configured = cfg.configured;
+  const env = cfg.environment || 'Development';
+  document.getElementById('settingsPlaidStatus').textContent = configured ? 'Connected' : 'Not configured';
+  document.getElementById('settingsPlaidStatus').style.color = configured ? 'var(--green)' : 'var(--t3)';
+  document.getElementById('settingsEnvTag').innerHTML = configured
+    ? `<span class="env-tag">${esc(env)}</span>` : '';
+  document.getElementById('settingsEnv').value = env;
+
+  const lastTx  = state.lastSyncedTx  || null;
+  const lastInv = state.lastSyncedInv || null;
+  const last = lastTx || lastInv;
+  document.getElementById('settingsLastSynced').textContent = last
+    ? new Date(last).toLocaleString() : 'Never';
+
+  document.getElementById('settingsError').style.display   = 'none';
+  document.getElementById('settingsSuccess').style.display = 'none';
+}
+
+function setTheme(mode) {
+  const isLight = mode === 'light';
+  document.body.classList.toggle('light-mode', isLight);
+  localStorage.setItem('nwt-theme', isLight ? 'light' : 'dark');
+  document.getElementById('themeToggle').textContent = isLight ? '☀️' : '🌙';
+  document.getElementById('themePillDark').classList.toggle('active',  !isLight);
+  document.getElementById('themePillLight').classList.toggle('active', isLight);
+}
+
+function settingsTogglePw() {
+  const inp = document.getElementById('settingsSecret');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+async function saveSettings() {
+  const clientId = document.getElementById('settingsClientId').value.trim();
+  const secret   = document.getElementById('settingsSecret').value.trim();
+  const env      = document.getElementById('settingsEnv').value;
+  const errEl    = document.getElementById('settingsError');
+  const okEl     = document.getElementById('settingsSuccess');
+  const btn      = document.getElementById('settingsSaveBtn');
+
+  errEl.style.display = 'none';
+  okEl.style.display  = 'none';
+
+  if (!clientId) { errEl.textContent = 'Client ID is required.'; errEl.style.display = 'block'; return; }
+  if (!secret)   { errEl.textContent = 'Secret is required.';    errEl.style.display = 'block'; return; }
+
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const res = await apiFetch('/setup', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientId, secret, environment: env }),
+    });
+    state.config.configured  = true;
+    state.config.environment = res.environment;
+    okEl.style.display = 'block';
+    renderSettingsPage();
+  } catch (e) {
+    errEl.textContent = e.message || 'Failed to save credentials.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save credentials';
+  }
+}
+
 function showTab(name, navEl, opts = {}) {
   if (!TAB_TITLES[name]) name = 'dashboard';
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -6760,7 +7164,10 @@ function showTab(name, navEl, opts = {}) {
   document.getElementById(`tab-${name}`).classList.add('active');
   (navEl || document.querySelector(`.nav-item[data-tab="${name}"]`))?.classList.add('active');
   document.getElementById('topbarTitle').textContent = TAB_TITLES[name] || name;
+  document.querySelector('.content')?.scrollTo({ top: 0, behavior: 'instant' });
   if (name === 'recurring') renderRecurringTransactions();
+  if (name === 'accounts')  renderAccountsPage();
+  if (name === 'settings')  renderSettingsPage();
 
   const route = routeForTab(name);
   if (window.location.pathname !== route) {
@@ -6790,6 +7197,7 @@ async function init() {
   // Apply saved theme and sidebar state before anything renders
   applyStoredTheme();
   applyStoredSidebarState();
+  applyStoredAccountsState();
   applyRouteFromLocation();
 
   // Config first — determines demo mode UI and whether to show onboarding

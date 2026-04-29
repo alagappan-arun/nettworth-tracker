@@ -34,12 +34,16 @@
       "type": "credit",
       "subtype": "credit card",
       "balances": {
-        "current": 2187.6
+        "current": 2187.6,
+        "limit": 10000,
+        "available": 7812.4,
+        "minimum_payment_amount": 35
       },
       "mask": "5523",
       "institution_name": "Apex Financial",
       "institution_id": "ins_demo_apex",
-      "item_id": "demo-item-apex"
+      "item_id": "demo-item-apex",
+      "payment_due_date": "2026-05-15"
     },
     {
       "account_id": "demo-cc-002",
@@ -47,12 +51,16 @@
       "type": "credit",
       "subtype": "credit card",
       "balances": {
-        "current": 1344.2
+        "current": 1344.2,
+        "limit": 8000,
+        "available": 5340,
+        "minimum_payment_amount": 25
       },
       "mask": "4418",
       "institution_name": "Pinnacle Bank",
       "institution_id": "ins_demo_pinnacle",
-      "item_id": "demo-item-pinnacle"
+      "item_id": "demo-item-pinnacle",
+      "payment_due_date": "2026-05-18"
     },
     {
       "account_id": "demo-cc-003",
@@ -60,12 +68,16 @@
       "type": "credit",
       "subtype": "credit card",
       "balances": {
-        "current": 892.5
+        "current": 892.5,
+        "limit": 15000,
+        "available": 11820,
+        "minimum_payment_amount": 55
       },
       "mask": "9902",
       "institution_name": "Summit One",
       "institution_id": "ins_demo_summit",
-      "item_id": "demo-item-summit"
+      "item_id": "demo-item-summit",
+      "payment_due_date": "2026-05-22"
     },
     {
       "account_id": "demo-cc-004",
@@ -73,12 +85,16 @@
       "type": "credit",
       "subtype": "credit card",
       "balances": {
-        "current": 3211.8
+        "current": 3211.8,
+        "limit": 5000,
+        "available": 3140,
+        "minimum_payment_amount": 20
       },
       "mask": "2267",
       "institution_name": "Harborside Financial",
       "institution_id": "ins_demo_harborside",
-      "item_id": "demo-item-harborside"
+      "item_id": "demo-item-harborside",
+      "payment_due_date": "2026-05-10"
     },
     {
       "account_id": "demo-cc-005",
@@ -86,12 +102,16 @@
       "type": "credit",
       "subtype": "credit card",
       "balances": {
-        "current": 567.35
+        "current": 567.35,
+        "limit": 6000,
+        "available": 4100,
+        "minimum_payment_amount": 30
       },
       "mask": "8834",
       "institution_name": "Greenfield Bank",
       "institution_id": "ins_demo_greenfield",
-      "item_id": "demo-item-greenfield"
+      "item_id": "demo-item-greenfield",
+      "payment_due_date": "2026-05-28"
     },
     {
       "account_id": "demo-inv-001",
