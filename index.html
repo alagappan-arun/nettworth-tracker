@@ -2445,6 +2445,7 @@ const state = {
   livePriceDetails:      {},    // { "VOO": { price, change, changePct }, ... } — full daily move data
   costBasisOverrides:    {},    // { "VOO": 12345.67, ... } — user-editable per-ticker cost basis
   pricesFetchedAt:       null,  // ISO string — when live prices were last fetched
+  accountInvStats:       {},    // { [account_id]: { todayGain, overallGain } } — cached after price fetch
   spendingExclusions:    {},    // { transaction_id: true } — user-excluded from spending
   selectedSpendCat:      null,  // string | null — category key with drawer open
   hoverSpendCat:         null,  // string | null — hovered row (dims chart segments)
@@ -2923,6 +2924,7 @@ async function loadInvestments(silent = false) {
     };
     if (data.last_synced) { state.lastSyncedInv = data.last_synced; if (!silent) renderSyncInfo(); }
   } catch { state.investments = { holdings: [], securities: {}, needsReconnect: [] }; }
+  buildAccountInvStats();
   if (!silent) {
     renderInvestments();
     fetchLivePrices();
@@ -4918,6 +4920,7 @@ async function fetchLivePrices() {
     state.livePrices        = data.prices  || {};
     state.livePriceDetails  = data.details || {};
     state.pricesFetchedAt   = data.fetched_at || null;
+    buildAccountInvStats();
     renderInvestments();
     if (btn) {
       btn.disabled    = false;
@@ -6913,31 +6916,54 @@ function applyStoredAccountsState() {
 //  ACCOUNTS PAGE
 // ════════════════════════════════════════════════════════════════════════════
 
-// Compute today's and overall gain/loss for an investment account
-function acctInvestmentStats(accountId) {
+// Build per-account investment stats using the same logic as the investments tab.
+// Stores results in state.accountInvStats so the accounts page reads pre-computed values.
+function buildAccountInvStats() {
   const { holdings } = allHoldings();
   const securities   = state.investments.securities || {};
-  const acctHoldings = holdings.filter(h => h.account_id === accountId);
-  let totalValue = 0, todayGain = null, overallGain = null;
 
-  acctHoldings.forEach(h => {
+  // Accumulate per-account buckets — mirrors renderInvestments() computation exactly
+  const buckets = {}; // { [account_id]: { todayGain, costTotal, valueOfCostHoldings } }
+
+  holdings.forEach(h => {
+    const id = h.account_id;
+    if (!id) return;
+    if (!buckets[id]) buckets[id] = { todayGain: null, costTotal: null, valueOfCostHoldings: 0 };
+    const b         = buckets[id];
     const sec       = securities[h.security_id] || {};
     const rawTicker = (sec.ticker_symbol || '').toUpperCase();
-    const detail    = rawTicker ? (state.livePrices || {})[rawTicker] : null;
-    const livePrice = detail?.price;
-    const value     = livePrice != null && h.quantity != null
-      ? livePrice * h.quantity : (h.institution_value ?? 0);
-    totalValue += value;
+    const isCash    = !rawTicker || rawTicker.startsWith('CUR:') || sec.type === 'cash';
 
-    if (detail?.change != null && h.quantity != null)
-      todayGain = (todayGain ?? 0) + detail.change * h.quantity;
+    // Today's P&L — same as investments tab line: detail.change * h.quantity
+    if (!isCash) {
+      const detail = state.livePriceDetails[rawTicker] ?? null;
+      if (detail?.change != null && h.quantity != null)
+        b.todayGain = (b.todayGain ?? 0) + detail.change * h.quantity;
+    }
 
+    // Overall P&L — same as investments tab: valueOfCostHoldings - totalCost
+    // uses effectiveValue (live price aware) and only includes holdings with known cost
     const cost = effectiveTotalCost(h, sec);
-    if (cost != null)
-      overallGain = (overallGain ?? 0) + (value - cost);
+    if (cost != null) {
+      b.costTotal = (b.costTotal ?? 0) + cost;
+      b.valueOfCostHoldings += effectiveValue(h, sec);
+    }
   });
 
-  return { totalValue, todayGain, overallGain };
+  const stats = {};
+  for (const [id, b] of Object.entries(buckets)) {
+    stats[id] = {
+      todayGain:   b.todayGain,
+      overallGain: b.costTotal != null ? b.valueOfCostHoldings - b.costTotal : null,
+    };
+  }
+
+  state.accountInvStats = stats;
+  if (document.getElementById('tab-accounts')?.classList.contains('active')) renderAccountsPage();
+}
+
+function acctInvestmentStats(accountId) {
+  return state.accountInvStats[accountId] || { todayGain: null, overallGain: null };
 }
 
 function renderAccountsPage() {
@@ -6981,8 +7007,8 @@ function renderAccountsPage() {
     if (type === 'credit') {
       const limit     = a.balances?.limit;
       const available = a.balances?.available;
-      const dueDate   = a.balances?.payment_due_date || a.payment_due_date || null;
-      const minPay    = a.balances?.minimum_payment_amount ?? null;
+      const dueDate   = a.next_payment_due_date || a.balances?.payment_due_date || a.payment_due_date || null;
+      const minPay    = a.minimum_payment_amount ?? a.balances?.minimum_payment_amount ?? null;
 
       const parts = [];
       if (dueDate) parts.push(`<span class="acct-detail-item"><span class="acct-detail-lbl">Due</span> <span style="color:var(--red);font-weight:600">${dueDate}</span></span>`);
@@ -6994,22 +7020,19 @@ function renderAccountsPage() {
     }
 
     if (type === 'investment' || type === 'brokerage') {
-      const { totalValue, todayGain, overallGain } = acctInvestmentStats(a.account_id);
+      const { todayGain, overallGain } = acctInvestmentStats(a.account_id);
       const parts = [];
-
-      if (totalValue > 0)
-        parts.push(`<span class="acct-detail-item"><span class="acct-detail-lbl">Value</span> ${fmt(totalValue, cur)}</span>`);
 
       if (todayGain != null) {
         const col = todayGain >= 0 ? 'var(--green)' : 'var(--red)';
         const sign = todayGain >= 0 ? '+' : '';
-        parts.push(`<span class="acct-detail-item"><span class="acct-detail-lbl">Today</span> <span style="color:${col};font-weight:600">${sign}${fmt(todayGain, cur)}</span></span>`);
+        parts.push(`<span class="acct-detail-item"><span class="acct-detail-lbl">Today's P&amp;L</span> <span style="color:${col};font-weight:600">${sign}${fmt(todayGain, cur)}</span></span>`);
       }
 
       if (overallGain != null) {
         const col  = overallGain >= 0 ? 'var(--green)' : 'var(--red)';
         const sign = overallGain >= 0 ? '+' : '';
-        parts.push(`<span class="acct-detail-item"><span class="acct-detail-lbl">Overall</span> <span style="color:${col};font-weight:600">${sign}${fmt(overallGain, cur)}</span></span>`);
+        parts.push(`<span class="acct-detail-item"><span class="acct-detail-lbl">Overall P&amp;L</span> <span style="color:${col};font-weight:600">${sign}${fmt(overallGain, cur)}</span></span>`);
       }
 
       if (parts.length) extraRows = `<div class="acct-detail-bar">${parts.join('')}</div>`;
@@ -7031,11 +7054,12 @@ function renderAccountsPage() {
 
   // ── Group accounts by product type ────────────────────────────────────────
   const groups = [
-    { key: 'bank',       title: 'Bank Accounts',        icon: '🏦', match: a => (a.type||'').toLowerCase() === 'depository' },
-    { key: 'credit',     title: 'Credit Cards',          icon: '💳', match: a => (a.type||'').toLowerCase() === 'credit' },
-    { key: 'investment', title: 'Investment Accounts',   icon: '📈', match: a => ['investment','brokerage'].includes((a.type||'').toLowerCase()) },
-    { key: 'loan',       title: 'Loans & Mortgages',     icon: '🏡', match: a => (a.type||'').toLowerCase() === 'loan' },
-    { key: 'other',      title: 'Other Accounts',        icon: '💰', match: () => true },
+    { key: 'bank',        title: 'Bank Accounts',        icon: '🏦', match: a => (a.type||'').toLowerCase() === 'depository' },
+    { key: 'credit',      title: 'Credit Cards',          icon: '💳', match: a => (a.type||'').toLowerCase() === 'credit' },
+    { key: 'investment',  title: 'Investment Accounts',   icon: '📈', match: a => ['investment','brokerage'].includes((a.type||'').toLowerCase()) && (a.subtype||a.manualData?.accountType||'').toLowerCase() !== 'real_estate' },
+    { key: 'real_estate', title: 'Real Estate',           icon: '🏠', match: a => (a.subtype||a.manualData?.accountType||'').toLowerCase() === 'real_estate' },
+    { key: 'loan',        title: 'Loans & Mortgages',     icon: '🏡', match: a => (a.type||'').toLowerCase() === 'loan' },
+    { key: 'other',       title: 'Other Accounts',        icon: '💰', match: () => true },
   ];
 
   const used    = new Set();
@@ -7140,6 +7164,7 @@ function showTab(name, navEl, opts = {}) {
   document.getElementById(`tab-${name}`).classList.add('active');
   (navEl || document.querySelector(`.nav-item[data-tab="${name}"]`))?.classList.add('active');
   document.getElementById('topbarTitle').textContent = TAB_TITLES[name] || name;
+  document.querySelector('.content')?.scrollTo({ top: 0, behavior: 'instant' });
   if (name === 'recurring') renderRecurringTransactions();
   if (name === 'accounts')  renderAccountsPage();
   if (name === 'settings')  renderSettingsPage();
