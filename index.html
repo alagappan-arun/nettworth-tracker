@@ -4274,16 +4274,37 @@ function toggleNwProjection() {
 
 function computeNwProjections(fullHistory, monthsAhead = 12) {
   if (fullHistory.length < 3) return null;
-  const first = fullHistory[0];
-  const last  = fullHistory[fullHistory.length - 1];
+
+  // Exclude leading data skewed by account-addition jumps.
+  // A step is a "jump" if it exceeds 5× the median step size — those are
+  // onboarding events (connecting a bank/brokerage), not real growth.
+  const stepSizes = [];
+  for (let i = 1; i < fullHistory.length; i++)
+    stepSizes.push(Math.abs(fullHistory[i].value - fullHistory[i - 1].value));
+  stepSizes.sort((a, b) => a - b);
+  const medianStep = stepSizes[Math.floor(stepSizes.length / 2)] || 0;
+  const jumpThreshold = Math.max(medianStep * 5, 1000);
+
+  let stableStart = 0;
+  for (let i = 1; i < fullHistory.length; i++) {
+    if (fullHistory[i].value - fullHistory[i - 1].value > jumpThreshold)
+      stableStart = i;
+  }
+
+  const stable = fullHistory.slice(stableStart);
+  // Need at least 3 stable points spanning 14+ days for a meaningful trend
+  if (stable.length < 3) return null;
+  const spanDays = (new Date(stable[stable.length - 1].date) - new Date(stable[0].date)) / 86400000;
+  if (spanDays < 14) return null;
+
+  const first = stable[0], last = stable[stable.length - 1];
   const firstVal = first.value, lastVal = last.value;
   if (firstVal <= 0 || lastVal <= 0) return null;
-  const monthsDiff = (new Date(last.date) - new Date(first.date)) / (1000 * 60 * 60 * 24 * 30.44);
-  if (monthsDiff < 1) return null;
+  const monthsDiff = spanDays / 30.44;
 
-  // Linear: constant $/month based on overall trend
+  // Linear: constant $/month from stable trend
   const monthlyDelta = (lastVal - firstVal) / monthsDiff;
-  // Aggressive: compound monthly growth rate (same history, exponential model)
+  // Aggressive: compound monthly growth rate from stable trend
   const cmgr = Math.pow(lastVal / firstVal, 1 / monthsDiff) - 1;
 
   const futureLabels = [], linear = [], aggressive = [];
@@ -4344,7 +4365,10 @@ function renderNwChart() {
 
   // Sync toggle button appearance with persisted state
   const projBtn = document.getElementById('nwProjectionToggle');
-  if (projBtn) projBtn.classList.toggle('active', _nwProjection);
+  if (projBtn) {
+    projBtn.classList.toggle('active', _nwProjection);
+    projBtn.title = _nwProjection ? 'Hide forecast' : 'Show forecast';
+  }
 
   if (!history.length) {
     nwWrap.innerHTML = `<div class="empty-state" style="padding:30px"><div class="e-icon">📈</div><p>Add accounts to see your net worth trend</p></div>`;
@@ -4354,6 +4378,10 @@ function renderNwChart() {
   const histLabels  = history.map(h => new Date(h.date).toLocaleDateString('en-AU', { month: 'short', day: 'numeric' }));
   const histValues  = history.map(h => h.value);
   const proj        = _nwProjection ? computeNwProjections(fullHistory) : null;
+
+  // If forecast is on but we don't have enough stable data yet, explain why
+  if (_nwProjection && !proj && projBtn)
+    projBtn.title = 'Forecast needs 14+ days of stable data after account setup';
 
   // Labels = history + future months (when projection is on)
   const labels   = proj ? [...histLabels, ...proj.futureLabels] : histLabels;
