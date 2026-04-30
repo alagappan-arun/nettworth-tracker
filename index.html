@@ -2530,10 +2530,10 @@ function parseUnifiedSearch(raw) {
 
 // Investment grouping mode
 let invGroupBy       = (localStorage.getItem('invGroupBy') || 'institution').replace('category','institution'); // 'institution' | 'ticker'
-let invCategoryGroup = localStorage.getItem('invCategoryGroup') === 'true'; // on/off: group by ETF/Stock/Cash within each mode
-let invSortCol       = 'value'; // active sort column key
-let invSortDir       = 'desc';  // 'asc' | 'desc'
-let invViewMode      = localStorage.getItem('invViewMode') || 'detailed'; // 'compact' | 'detailed'
+let invCategoryGroup = localStorage.getItem('invCategoryGroup') !== 'false'; // default ON; false only when explicitly saved as 'false'
+let invSortCol       = localStorage.getItem('invSortCol') || 'ticker'; // default sort by ticker A→Z
+let invSortDir       = localStorage.getItem('invSortDir') || 'asc';
+let invViewMode      = localStorage.getItem('invViewMode') || 'compact'; // default compact
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('invBtnCompact')?.classList.toggle('active', invViewMode === 'compact');
   document.getElementById('invBtnDetailed')?.classList.toggle('active', invViewMode === 'detailed');
@@ -5086,6 +5086,8 @@ function invColHeadsHtml(withSort) {
 function setInvSort(col) {
   if (invSortCol === col) invSortDir = invSortDir === 'desc' ? 'asc' : 'desc';
   else { invSortCol = col; invSortDir = 'desc'; }
+  localStorage.setItem('invSortCol', invSortCol);
+  localStorage.setItem('invSortDir', invSortDir);
   renderInvestments();
 }
 
