@@ -590,6 +590,10 @@
     .db-period-tab { padding: 5px 11px; border-radius: 6px; font-size: 12px; font-weight: 500; border: 1px solid var(--border); background: transparent; color: var(--t2); cursor: pointer; transition: all .15s; }
     .db-period-tab:hover { background: var(--card-hover); color: var(--t1); }
     .db-period-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .db-chart-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .db-proj-toggle { padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; border: 1px solid var(--border); background: transparent; color: var(--t3); cursor: pointer; transition: all .15s; white-space: nowrap; }
+    .db-proj-toggle:hover { background: var(--card-hover); color: var(--t2); }
+    .db-proj-toggle.active { border-color: var(--accent); color: var(--accent); background: rgba(139,124,255,.10); }
     .db-acct-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
     .db-acct-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--border); }
     .db-acct-row:last-child { border-bottom: none; }
@@ -1834,12 +1838,15 @@
             <div class="card-title" style="margin-bottom:0">Net worth over time</div>
             <div class="db-chart-subtitle" id="nwChartSubtitle"></div>
           </div>
-          <div class="db-period-tabs">
-            <button class="db-period-tab" onclick="setNwPeriod('1M',this)">1M</button>
-            <button class="db-period-tab" onclick="setNwPeriod('3M',this)">3M</button>
-            <button class="db-period-tab" onclick="setNwPeriod('6M',this)">6M</button>
-            <button class="db-period-tab active" id="nwPeriodBtn1Y" onclick="setNwPeriod('1Y',this)">1Y</button>
-            <button class="db-period-tab" onclick="setNwPeriod('All',this)">All</button>
+          <div class="db-chart-controls">
+            <button class="db-proj-toggle" id="nwProjectionToggle" onclick="toggleNwProjection()" title="Toggle forecast lines">~ Forecast</button>
+            <div class="db-period-tabs">
+              <button class="db-period-tab" onclick="setNwPeriod('1M',this)">1M</button>
+              <button class="db-period-tab" onclick="setNwPeriod('3M',this)">3M</button>
+              <button class="db-period-tab" onclick="setNwPeriod('6M',this)">6M</button>
+              <button class="db-period-tab active" id="nwPeriodBtn1Y" onclick="setNwPeriod('1Y',this)">1Y</button>
+              <button class="db-period-tab" onclick="setNwPeriod('All',this)">All</button>
+            </div>
           </div>
         </div>
         <div class="chart-wrap" style="height:240px" id="netWorthChartWrap"><canvas id="netWorthChart"></canvas></div>
@@ -2546,6 +2553,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Picker state
 let pickerTxId = null;
+let pickerMode = 'single'; // 'single' | 'recurring'
 
 // Add-category color palette
 const SWATCH_COLORS = ['#3b82f6','#f97316','#22c55e','#8b5cf6','#06b6d4','#ec4899',
@@ -4248,12 +4256,68 @@ async function scrubCsvAccountOverrides(accountId) {
 //  RENDER – DASHBOARD
 // ════════════════════════════════════════════════════════════════════════════
 let _nwPeriod = '1Y';
+let _nwProjection = localStorage.getItem('nwt-projection') !== 'false'; // default on
 
 function setNwPeriod(period, btn) {
   _nwPeriod = period;
   document.querySelectorAll('.db-period-tab').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   renderNwChart();
+}
+
+function toggleNwProjection() {
+  _nwProjection = !_nwProjection;
+  localStorage.setItem('nwt-projection', _nwProjection);
+  const btn = document.getElementById('nwProjectionToggle');
+  if (btn) btn.classList.toggle('active', _nwProjection);
+  renderNwChart();
+}
+
+function computeNwProjections(fullHistory, monthsAhead = 12) {
+  if (fullHistory.length < 3) return null;
+
+  // Exclude leading data skewed by account-addition jumps.
+  // A step is a "jump" if it exceeds 5× the median step size — those are
+  // onboarding events (connecting a bank/brokerage), not real growth.
+  const stepSizes = [];
+  for (let i = 1; i < fullHistory.length; i++)
+    stepSizes.push(Math.abs(fullHistory[i].value - fullHistory[i - 1].value));
+  stepSizes.sort((a, b) => a - b);
+  const medianStep = stepSizes[Math.floor(stepSizes.length / 2)] || 0;
+  const jumpThreshold = Math.max(medianStep * 5, 1000);
+
+  let stableStart = 0;
+  for (let i = 1; i < fullHistory.length; i++) {
+    if (fullHistory[i].value - fullHistory[i - 1].value > jumpThreshold)
+      stableStart = i;
+  }
+
+  const stable = fullHistory.slice(stableStart);
+  // Need at least 3 stable points spanning 14+ days for a meaningful trend
+  if (stable.length < 3) return null;
+  const spanDays = (new Date(stable[stable.length - 1].date) - new Date(stable[0].date)) / 86400000;
+  if (spanDays < 14) return null;
+
+  const first = stable[0], last = stable[stable.length - 1];
+  const firstVal = first.value, lastVal = last.value;
+  if (firstVal <= 0 || lastVal <= 0) return null;
+  const monthsDiff = spanDays / 30.44;
+
+  // Linear: constant $/month from stable trend
+  const monthlyDelta = (lastVal - firstVal) / monthsDiff;
+  // Aggressive: compound monthly growth rate from stable trend
+  const cmgr = Math.pow(lastVal / firstVal, 1 / monthsDiff) - 1;
+
+  const futureLabels = [], linear = [], aggressive = [];
+  const lastDate = new Date(last.date);
+  for (let i = 1; i <= monthsAhead; i++) {
+    const d = new Date(lastDate);
+    d.setMonth(d.getMonth() + i);
+    futureLabels.push(d.toLocaleDateString('en-AU', { month: 'short', day: 'numeric' }));
+    linear.push(Math.round(lastVal + monthlyDelta * i));
+    aggressive.push(Math.round(lastVal * Math.pow(1 + cmgr, i)));
+  }
+  return { futureLabels, linear, aggressive, lastVal };
 }
 
 function filterHistoryByPeriod(history, period) {
@@ -4300,27 +4364,81 @@ function renderNwChart() {
     subtitleEl.textContent = '';
   }
 
+  // Sync toggle button appearance with persisted state
+  const projBtn = document.getElementById('nwProjectionToggle');
+  if (projBtn) {
+    projBtn.classList.toggle('active', _nwProjection);
+    projBtn.title = _nwProjection ? 'Hide forecast' : 'Show forecast';
+  }
+
   if (!history.length) {
     nwWrap.innerHTML = `<div class="empty-state" style="padding:30px"><div class="e-icon">📈</div><p>Add accounts to see your net worth trend</p></div>`;
     return;
   }
+
+  const histLabels  = history.map(h => new Date(h.date).toLocaleDateString('en-AU', { month: 'short', day: 'numeric' }));
+  const histValues  = history.map(h => h.value);
+  const proj        = _nwProjection ? computeNwProjections(fullHistory) : null;
+
+  // If forecast is on but we don't have enough stable data yet, explain why
+  if (_nwProjection && !proj && projBtn)
+    projBtn.title = 'Forecast needs 14+ days of stable data after account setup';
+
+  // Labels = history + future months (when projection is on)
+  const labels   = proj ? [...histLabels, ...proj.futureLabels] : histLabels;
+  // Projection datasets start with nulls for all history points, then their values
+  // They share the last actual data point so the lines connect visually
+  const nullPad  = Array(histValues.length - 1).fill(null);
+  const datasets = [
+    {
+      label: 'Net Worth',
+      data: histValues,
+      borderColor: '#8b7cff', backgroundColor: 'rgba(139,124,255,.10)',
+      fill: true, tension: 0.4,
+      pointRadius: history.length < 20 ? 3 : 0, pointHoverRadius: 6,
+      pointBackgroundColor: '#8b7cff', borderWidth: 2,
+    },
+  ];
+  if (proj) {
+    datasets.push({
+      label: 'Linear growth',
+      data: [...nullPad, proj.lastVal, ...proj.linear],
+      borderColor: '#34d399', backgroundColor: 'transparent',
+      borderDash: [5, 4], tension: 0.3, fill: false,
+      pointRadius: 0, pointHoverRadius: 5,
+      pointBackgroundColor: '#34d399', borderWidth: 1.5,
+    });
+    datasets.push({
+      label: 'Aggressive growth',
+      data: [...nullPad, proj.lastVal, ...proj.aggressive],
+      borderColor: '#f97316', backgroundColor: 'transparent',
+      borderDash: [5, 4], tension: 0.3, fill: false,
+      pointRadius: 0, pointHoverRadius: 5,
+      pointBackgroundColor: '#f97316', borderWidth: 1.5,
+    });
+  }
+
   netWorthChart = new Chart(nwCtx, {
     type: 'line',
-    data: {
-      labels: history.map(h => new Date(h.date).toLocaleDateString('en-AU', { month: 'short', day: 'numeric' })),
-      datasets: [{
-        data: history.map(h => h.value),
-        borderColor: '#8b7cff', backgroundColor: 'rgba(139,124,255,.10)',
-        fill: true, tension: 0.4,
-        pointRadius: history.length < 20 ? 3 : 0, pointHoverRadius: 6,
-        pointBackgroundColor: '#8b7cff', borderWidth: 2,
-      }],
-    },
+    data: { labels, datasets },
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: {
-        legend: { display: false },
-        tooltip: { backgroundColor: themeColor('--card-hover'), borderColor: themeColor('--border'), borderWidth: 1, callbacks: { label: ctx => ' ' + fmtFull(ctx.raw) } },
+        legend: {
+          display: !!proj,
+          position: 'bottom',
+          labels: { color: themeColor('--t2'), font: { size: 11 }, boxWidth: 24, padding: 14,
+            generateLabels: chart => chart.data.datasets.map((ds, i) => ({
+              text: ds.label, strokeStyle: ds.borderColor, fillStyle: 'transparent',
+              lineWidth: 2, lineDash: ds.borderDash || [], datasetIndex: i,
+              fontColor: themeColor('--t2'),
+            }))
+          },
+        },
+        tooltip: {
+          backgroundColor: themeColor('--card-hover'), borderColor: themeColor('--border'), borderWidth: 1,
+          callbacks: { label: ctx => ctx.raw != null ? ` ${ctx.dataset.label}: ${fmtFull(ctx.raw)}` : null },
+        },
       },
       scales: {
         x: { grid: { display: false }, ticks: { color: themeColor('--t3'), font: { size: 11 } } },
@@ -6716,6 +6834,7 @@ function clearAllFilters() {
 function openCategoryPicker(txId, event) {
   event.stopPropagation();
   pickerTxId = txId;
+  pickerMode = 'single';
 
   const picker  = document.getElementById('catPicker');
   const rect    = event.currentTarget.getBoundingClientRect();
@@ -6736,6 +6855,50 @@ function openCategoryPicker(txId, event) {
     </div>`).join('');
 
   document.getElementById('catPickerReset').style.display = hasOverride ? 'flex' : 'none';
+}
+
+function openRecurringCatPicker(event) {
+  event.stopPropagation();
+  pickerMode = 'recurring';
+
+  const picker = document.getElementById('catPicker');
+  const rect   = event.currentTarget.getBoundingClientRect();
+  const left   = Math.min(rect.left, window.innerWidth - 270);
+  const top    = Math.min(rect.bottom + 6, window.innerHeight - 340);
+  picker.style.left    = left + 'px';
+  picker.style.top     = top  + 'px';
+  picker.style.display = 'block';
+
+  document.querySelector('#catPicker .cat-picker-title').textContent = 'Apply Category to All';
+  document.getElementById('catPickerGrid').innerHTML = allCats().map(c => `
+    <div class="cat-picker-item"
+         onclick="setRecurringCategoryAll('${c.key}')">
+      <span>${c.icon}</span><span>${c.label}</span>
+    </div>`).join('');
+
+  document.getElementById('catPickerReset').style.display = 'none';
+}
+
+function setRecurringCategoryAll(catKey) {
+  const ids = txFilters.bulkIds ? [...txFilters.bulkIds] : [];
+  ids.forEach(txId => saveTxOverride(txId, catKey));
+  persistTxOverrides();
+  closeCategoryPicker();
+  renderTransactions();
+  renderSpending();
+}
+
+function excludeAllRecurring() {
+  const ids = txFilters.bulkIds ? [...txFilters.bulkIds] : [];
+  const allTxs = allTransactions();
+  ids.forEach(txId => {
+    const tx = allTxs.find(t => t.transaction_id === txId);
+    const autoEx = tx ? isAutoExcluded(tx) : false;
+    applySpendOverride(txId, 'excluded', autoEx);
+  });
+  persistSpendExclusions();
+  renderTransactions();
+  renderSpending();
 }
 
 function setCategoryOverride(txId, catKey) {
@@ -6765,7 +6928,9 @@ function clearCategoryOverride() {
 
 function closeCategoryPicker() {
   document.getElementById('catPicker').style.display = 'none';
+  document.querySelector('#catPicker .cat-picker-title').textContent = 'Change Category';
   pickerTxId = null;
+  pickerMode = 'single';
 }
 
 // Close picker on outside click
@@ -6868,6 +7033,8 @@ function renderTransactions() {
           <em>${esc(f.cadence)}</em> · estimated <strong>${fmt(f.monthlyEstimate)}/mo</strong>.
         </div>
         <div class="bulk-banner-actions">
+          ${txs.length > 0 ? `<button class="bulk-banner-apply" onclick="openRecurringCatPicker(event)">Categorize all</button>` : ''}
+          ${txs.length > 0 ? `<button class="bulk-banner-apply" style="background:var(--t3)" onclick="excludeAllRecurring()">Exclude all from spending</button>` : ''}
           <button class="bulk-banner-cancel" onclick="clearRecurringTransactionFilter(true)">← Back to Recurring</button>
           <button class="bulk-banner-cancel" onclick="clearRecurringTransactionFilter(false)">Clear filter</button>
         </div>
