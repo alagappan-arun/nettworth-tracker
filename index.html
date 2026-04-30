@@ -1229,6 +1229,9 @@
     }
     .inv-group-btn:hover  { border-color: var(--t3); color: var(--t1); }
     .inv-group-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .inv-sort-hdr { cursor: pointer; user-select: none; }
+    .inv-sort-hdr:hover { color: var(--t1); }
+    .inv-sort-hdr.active { color: var(--accent2); }
 
     /* ── Claude AI button ─────────────────────────────────── */
     .claude-btn {
@@ -1911,6 +1914,9 @@
           <button class="inv-group-btn" id="invBtnTicker" onclick="setInvGroupBy('ticker')">
             📋 By Ticker
           </button>
+          <button class="inv-group-btn" id="invBtnCategory" onclick="setInvGroupBy('category')">
+            ⊡ By Category
+          </button>
           <div style="width:1px;background:var(--border);margin:0 2px"></div>
           <button class="inv-group-btn" id="invBtnCompact"  onclick="setInvViewMode('compact')">⊟ Compact</button>
           <button class="inv-group-btn active" id="invBtnDetailed" onclick="setInvViewMode('detailed')">⊞ Detailed</button>
@@ -2517,11 +2523,16 @@ function parseUnifiedSearch(raw) {
 }
 
 // Investment grouping mode
-let invGroupBy  = 'institution'; // 'institution' | 'ticker'
+let invGroupBy  = localStorage.getItem('invGroupBy') || 'institution'; // 'institution' | 'ticker' | 'category'
+let invSortCol  = 'value'; // active sort column key (for institution/ticker modes)
+let invSortDir  = 'desc';  // 'asc' | 'desc'
 let invViewMode = localStorage.getItem('invViewMode') || 'detailed'; // 'compact' | 'detailed'
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('invBtnCompact')?.classList.toggle('active', invViewMode === 'compact');
   document.getElementById('invBtnDetailed')?.classList.toggle('active', invViewMode === 'detailed');
+  document.getElementById('invBtnInstitution')?.classList.toggle('active', invGroupBy === 'institution');
+  document.getElementById('invBtnTicker')?.classList.toggle('active', invGroupBy === 'ticker');
+  document.getElementById('invBtnCategory')?.classList.toggle('active', invGroupBy === 'category');
   updateTickerSiteBtn();
 });
 
@@ -5004,6 +5015,72 @@ function effectiveTotalCost(h, sec) {
 // ════════════════════════════════════════════════════════════════════════════
 //  RENDER – INVESTMENTS
 // ════════════════════════════════════════════════════════════════════════════
+// ── Investment sort/column helpers ───────────────────────────────────────────
+function holdingSortVal(h, sec, col) {
+  switch (col) {
+    case 'ticker':   return (sec.ticker_symbol || '').toUpperCase();
+    case 'name':     return securityName(sec).toLowerCase();
+    case 'qty':      return h.quantity ?? -Infinity;
+    case 'price':    return effectivePrice(h, sec) ?? -Infinity;
+    case 'dailyDol': { const t = (sec.ticker_symbol||'').toUpperCase(); const d = state.livePriceDetails[t]; return d?.change != null && h.quantity != null ? d.change * h.quantity : -Infinity; }
+    case 'dailyPct': return state.livePriceDetails[(sec.ticker_symbol||'').toUpperCase()]?.changePct ?? -Infinity;
+    case 'gl':       { const c = effectiveTotalCost(h, sec); return c != null ? effectiveValue(h, sec) - c : -Infinity; }
+    case 'glPct':    { const v = effectiveValue(h, sec), c = effectiveTotalCost(h, sec); return c != null && c > 0 ? (v - c) / c : -Infinity; }
+    default:         return effectiveValue(h, sec);
+  }
+}
+
+function tickerSortVal(a, col) {
+  switch (col) {
+    case 'ticker':   return a.rawTicker;
+    case 'name':     return a.name.toLowerCase();
+    case 'qty':      return a.totalQty ?? -Infinity;
+    case 'price':    return a.price ?? -Infinity;
+    case 'dailyDol': return a.dayChgPos ?? -Infinity;
+    case 'dailyPct': return a.dayPct ?? -Infinity;
+    case 'gl':       return a.gl ?? -Infinity;
+    case 'glPct':    return a.gl != null && a.totalCost > 0 ? a.gl / a.totalCost : -Infinity;
+    default:         return a.totalValue;
+  }
+}
+
+function invColHeadsHtml(withSort) {
+  function hdr(col, label, style) {
+    const active = invSortCol === col;
+    const ind = active ? (invSortDir === 'desc' ? ' ▼' : ' ▲') : '';
+    const sa = style ? ` style="${style}"` : '';
+    return withSort
+      ? `<span${sa} class="inv-sort-hdr${active ? ' active' : ''}" onclick="setInvSort('${col}')">${label}${ind}</span>`
+      : `<span${sa}>${label}</span>`;
+  }
+  if (invViewMode === 'compact') {
+    return `<div class="inv-col-heads compact">
+      ${hdr('ticker','Ticker')}${hdr('name','Name')}
+      ${hdr('value','Value','text-align:right')}
+      ${hdr('gl','Gain $','text-align:right')}
+      ${hdr('glPct','Gain %','text-align:right')}
+    </div>`;
+  }
+  return `<div class="inv-col-heads detailed">
+    ${hdr('ticker','Ticker')}${hdr('name','Name')}
+    ${hdr('qty','Qty','text-align:right')}
+    ${hdr('price','Price','text-align:right')}
+    ${hdr('dailyDol','Daily $','text-align:right')}
+    ${hdr('dailyPct','Daily %','text-align:right')}
+    <span style="text-align:right" title="Cost per share — click to edit">Cost/Share ✎</span>
+    ${hdr('value','Value','text-align:right')}
+    ${hdr('gl','Gain $','text-align:right')}
+    ${hdr('glPct','Gain %','text-align:right')}
+    <span style="text-align:right" title="% of total portfolio">Weight</span>
+  </div>`;
+}
+
+function setInvSort(col) {
+  if (invSortCol === col) invSortDir = invSortDir === 'desc' ? 'asc' : 'desc';
+  else { invSortCol = col; invSortDir = 'desc'; }
+  renderInvestments();
+}
+
 function renderInvestments() {
   // Merge Plaid holdings with CSV-imported holdings
   const csvHoldingsFlat = state.csvAccounts
@@ -5269,6 +5346,11 @@ function renderInvestments() {
     return;
   }
 
+  if (invGroupBy === 'category') {
+    renderInvestmentsByCategory(holdings, securities, filterHtml + bannerHtml);
+    return;
+  }
+
   // ── Group by institution → then by holding type ────────────────────────
   const byInst = {};
   holdings.forEach(h => {
@@ -5350,8 +5432,12 @@ function renderInvestments() {
       const meta      = INV_TYPE_META[type] || INV_TYPE_META.other;
       const typeTotal = group.reduce((s, { h, sec }) => s + effectiveValue(h, sec), 0);
 
-      // Sort holdings within group by value desc
-      group.sort((a, b) => effectiveValue(b.h, b.sec) - effectiveValue(a.h, a.sec));
+      group.sort((a, b) => {
+        const av = holdingSortVal(a.h, a.sec, invSortCol);
+        const bv = holdingSortVal(b.h, b.sec, invSortCol);
+        if (typeof av === 'string') return invSortDir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+        return invSortDir === 'asc' ? av - bv : bv - av;
+      });
 
       const groupId = `inv-group-${inst}-${type}`.replace(/\s+/g,'_');
 
@@ -5371,25 +5457,7 @@ function renderInvestments() {
             </div>
           </div>
           <div id="${groupId}">
-            <div class="inv-col-heads ${invViewMode}">
-              ${invViewMode === 'compact' ? `
-              <span>Ticker</span><span>Name</span>
-              <span style="text-align:right">Value</span>
-              <span style="text-align:right">Gain $</span>
-              <span style="text-align:right">Gain %</span>
-              ` : `
-              <span>Ticker</span><span>Name</span>
-              <span style="text-align:right">Qty</span>
-              <span style="text-align:right">Price</span>
-              <span style="text-align:right" title="Today's dollar change">Daily $</span>
-              <span style="text-align:right" title="Today's percent change">Daily %</span>
-              <span style="text-align:right" title="Cost per share — click to edit">Cost/Share ✎</span>
-              <span style="text-align:right">Value</span>
-              <span style="text-align:right">Gain $</span>
-              <span style="text-align:right">Gain %</span>
-              <span style="text-align:right" title="% of total portfolio">Weight</span>
-              `}
-            </div>`;
+            ${invColHeadsHtml(true)}`;
 
       group.forEach(({ h, sec }) => {
         const rawTicker = (sec.ticker_symbol || '').toUpperCase();
@@ -5486,10 +5554,119 @@ function renderInvestments() {
   el.innerHTML = filterHtml + bannerHtml + html;
 }
 
+function renderInvestmentsByCategory(holdings, securities, bannerHtml) {
+  const el = document.getElementById('invList');
+  const portfolioTotal = holdings.reduce((s, h) => s + effectiveValue(h, securities[h.security_id] || {}), 0);
+
+  const byType = {};
+  holdings.forEach(h => {
+    const sec  = securities[h.security_id] || {};
+    const type = classifyHolding(h, sec);
+    if (!byType[type]) byType[type] = [];
+    byType[type].push({ h, sec });
+  });
+
+  const typeOrder = ['cash','etf','stock','fixed_income','mutual_fund','crypto','other'];
+  const sortedTypes = Object.keys(byType).sort((a, b) =>
+    (typeOrder.indexOf(a) + 1 || 99) - (typeOrder.indexOf(b) + 1 || 99)
+  );
+
+  let html = '';
+  sortedTypes.forEach(type => {
+    const group    = byType[type].sort((a, b) => effectiveValue(b.h, b.sec) - effectiveValue(a.h, a.sec));
+    const meta     = INV_TYPE_META[type] || INV_TYPE_META.other;
+    const typeTotal = group.reduce((s, { h, sec }) => s + effectiveValue(h, sec), 0);
+    const groupId  = `inv-cat-${type}`;
+
+    html += `
+      <div class="inv-type-group" style="border-radius:var(--radius);margin-bottom:12px;border:1px solid var(--border)">
+        <div class="inv-type-header" onclick="toggleInvGroup('${groupId}')">
+          <div class="inv-type-label">
+            <span>${meta.icon}</span>
+            <span style="color:${meta.color}">${meta.label}</span>
+            <span style="color:var(--t3);font-weight:400;text-transform:none;letter-spacing:0">
+              · ${group.length} holding${group.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="inv-type-total">${fmt(typeTotal)}</div>
+            <span style="color:var(--t3);font-size:11px" id="${groupId}-chevron">▲</span>
+          </div>
+        </div>
+        <div id="${groupId}">
+          ${invColHeadsHtml(false)}`;
+
+    group.forEach(({ h, sec }) => {
+      const rawTicker  = (sec.ticker_symbol || '').toUpperCase();
+      const isCash     = rawTicker.startsWith('CUR:') || sec.type === 'cash';
+      const ticker     = isCash ? '💵' : (rawTicker || sec.name?.slice(0,6) || '—');
+      const name       = isCash ? `Cash (${rawTicker.replace('CUR:','')})` : securityName(sec);
+      const qty        = h.quantity != null ? (+h.quantity).toLocaleString('en-AU', { maximumFractionDigits: 4 }) : '—';
+      const liveP      = rawTicker && !isCash ? state.livePrices[rawTicker] : null;
+      const priceVal   = effectivePrice(h, sec);
+      const priceBadge = liveP != null ? '<span class="inv-live-badge">live</span>' : '';
+      const priceStr   = priceVal != null ? fmtFull(priceVal) + priceBadge : '—';
+      const val        = effectiveValue(h, sec);
+      const value      = val != null ? fmt(val) : '—';
+      const costPS     = perShareCostDisplay(h, sec);
+      const totalCost  = effectiveTotalCost(h, sec);
+      const costStr    = costPS != null ? costPS.toFixed(2) : '—';
+      const hasOverride = rawTicker && state.costBasisOverrides[rawTicker] != null;
+      const costTitle  = hasOverride ? 'User override — click to edit' : 'From Plaid/CSV — click to override';
+      const gl         = totalCost != null ? val - totalCost : null;
+      const glPct      = gl != null && totalCost > 0 ? (gl / totalCost) * 100 : null;
+      const glStr      = gl != null ? (gl >= 0 ? '+' : '') + fmt(gl) : '—';
+      const glPctStr   = glPct != null ? `${glPct >= 0 ? '+' : ''}${glPct.toFixed(2)}%` : '';
+      const glClass    = gl == null ? '' : gl >= 0 ? 'pos' : 'neg';
+      const editFn     = !isCash && rawTicker ? `onclick="editCostBasis('${rawTicker.replace(/'/g,"\\'")}', ${costPS ?? 'null'}, this)"` : '';
+      const costClass  = !isCash && rawTicker ? 'inv-cost-edit' : 'inv-num';
+      const detail     = rawTicker && !isCash ? (state.livePriceDetails[rawTicker] || null) : null;
+      const dayChgPos  = detail?.change != null && h.quantity != null ? detail.change * h.quantity : null;
+      const dayPct     = detail?.changePct ?? null;
+      const dayDolStr  = dayChgPos != null ? `${dayChgPos >= 0 ? '+' : ''}${fmt(dayChgPos)}` : '—';
+      const dayPctStr  = dayPct    != null ? `${dayPct    >= 0 ? '+' : ''}${dayPct.toFixed(2)}%` : '—';
+      const dayClass   = dayChgPos == null ? '' : dayChgPos >= 0 ? 'pos' : 'neg';
+      const weightPct  = portfolioTotal > 0 && val != null ? (val / portfolioTotal) * 100 : 0;
+      const weightStr  = weightPct > 0 ? weightPct.toFixed(1) + '%' : '—';
+      const instLabel  = h.institution_name ? `<span style="font-size:10px;color:var(--t3);margin-left:4px">${esc(h.institution_name)}</span>` : '';
+      const tickerClass = !isCash && rawTicker ? 'inv-ticker clickable' : 'inv-ticker';
+      const tickerClick = !isCash && rawTicker ? `onclick="openTickerLink('${rawTicker.replace(/'/g,"\\'")}')"` : '';
+      const tickerTitle = isCash ? esc(name) : esc(name) + ' — click to look up';
+      html += invViewMode === 'compact' ? `
+          <div class="inv-holding-row compact">
+            <span class="${tickerClass}" title="${tickerTitle}" ${tickerClick}>${ticker}</span>
+            <span class="inv-name" title="${esc(name)}">${name}${instLabel}</span>
+            <span class="inv-val">${value}</span>
+            <span class="inv-gain ${glClass}">${glStr}</span>
+            <span class="inv-gain ${glClass}">${glPctStr || '—'}</span>
+          </div>` : `
+          <div class="inv-holding-row detailed">
+            <span class="${tickerClass}" title="${tickerTitle}" ${tickerClick}>${ticker}</span>
+            <span class="inv-name" title="${esc(name)}">${name}${instLabel}</span>
+            <span class="inv-num">${qty}</span>
+            <span class="inv-num">${priceStr}</span>
+            <span class="inv-gain ${dayClass}">${dayDolStr}</span>
+            <span class="inv-gain ${dayClass}">${dayPctStr}</span>
+            <span class="${costClass}" title="${costTitle}" ${editFn}>${costStr}${hasOverride ? ' ✎' : ''}</span>
+            <span class="inv-val">${value}</span>
+            <span class="inv-gain ${glClass}">${glStr}</span>
+            <span class="inv-gain ${glClass}">${glPctStr || '—'}</span>
+            <span class="inv-num" style="line-height:1.4">${weightStr}${weightPct > 0 ? `<div class="inv-weight-bar-wrap"><div class="inv-weight-bar" style="width:${Math.min(weightPct*2,100)}%"></div></div>` : ''}</span>
+          </div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  el.innerHTML = bannerHtml + html;
+}
+
 function setInvGroupBy(mode) {
   invGroupBy = mode;
+  localStorage.setItem('invGroupBy', mode);
   document.getElementById('invBtnInstitution').classList.toggle('active', mode === 'institution');
   document.getElementById('invBtnTicker').classList.toggle('active', mode === 'ticker');
+  document.getElementById('invBtnCategory').classList.toggle('active', mode === 'category');
   renderInvestments();
 }
 
@@ -5525,8 +5702,10 @@ function drillAccount(inst, accountType, accountId) {
     state.invInstitutionFilter = inst;
     state.invAccountFilter = accountId && accountId.startsWith('csv_') ? accountId : null;
     invGroupBy = 'institution';
+    localStorage.setItem('invGroupBy', 'institution');
     document.getElementById('invBtnInstitution').classList.add('active');
     document.getElementById('invBtnTicker').classList.remove('active');
+    document.getElementById('invBtnCategory').classList.remove('active');
     showTab('investments', document.querySelector('.nav-item[data-tab="investments"]'));
     renderInvestments();
     renderSidebarAccounts();
@@ -5622,7 +5801,12 @@ function renderInvestmentsByTicker(holdings, securities, bannerHtml) {
 
   let html = '';
   sortedTypes.forEach(type => {
-    const group     = byType[type].sort((a, b) => b.totalValue - a.totalValue);
+    const group = [...byType[type]].sort((a, b) => {
+      const av = tickerSortVal(a, invSortCol);
+      const bv = tickerSortVal(b, invSortCol);
+      if (typeof av === 'string') return invSortDir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+      return invSortDir === 'asc' ? av - bv : bv - av;
+    });
     const meta      = INV_TYPE_META[type] || INV_TYPE_META.other;
     const typeTotal = group.reduce((s, a) => s + a.totalValue, 0);
     const groupId  = `inv-ticker-${type}`;
@@ -5643,25 +5827,7 @@ function renderInvestmentsByTicker(holdings, securities, bannerHtml) {
           </div>
         </div>
         <div id="${groupId}">
-          <div class="inv-col-heads ${invViewMode}">
-            ${invViewMode === 'compact' ? `
-            <span>Ticker</span><span>Name</span>
-            <span style="text-align:right">Value</span>
-            <span style="text-align:right">Gain $</span>
-            <span style="text-align:right">Gain %</span>
-            ` : `
-            <span>Ticker</span><span>Name</span>
-            <span style="text-align:right">Qty</span>
-            <span style="text-align:right">Price</span>
-            <span style="text-align:right" title="Today's dollar change">Daily $</span>
-            <span style="text-align:right" title="Today's percent change">Daily %</span>
-            <span style="text-align:right" title="Cost per share — click to edit">Cost/Share ✎</span>
-            <span style="text-align:right">Value</span>
-            <span style="text-align:right">Gain $</span>
-            <span style="text-align:right">Gain %</span>
-            <span style="text-align:right" title="% of total portfolio">Weight</span>
-            `}
-          </div>`;
+          ${invColHeadsHtml(true)}`;
 
     const tickerTotalValue = group.reduce((s, a) => s + a.totalValue, 0);
     group.forEach(a => {
