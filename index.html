@@ -950,6 +950,22 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ── Page-load overlay ──────────────────────────────────────────────────── */
+    #pageLoader {
+      position: fixed; inset: 0; z-index: 10000;
+      background: var(--bg);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px;
+      transition: opacity .25s ease;
+    }
+    #pageLoader.fade-out { opacity: 0; pointer-events: none; }
+    #pageLoader .pl-spinner {
+      width: 40px; height: 40px; border: 3px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    #pageLoader .pl-label { font-size: 13px; color: var(--t3); letter-spacing: .02em; }
+
     .empty-state {
       text-align: center; padding: 60px 20px; color: var(--t3);
     }
@@ -1497,6 +1513,8 @@
 </head>
 
 <body>
+
+<div id="pageLoader"><div class="pl-spinner"></div><div class="pl-label">Loading…</div></div>
 
 <!-- ════════════════════════ ONBOARDING OVERLAY ═════════════════════ -->
 <div id="onboardingOverlay" class="onboarding-overlay" style="display:none">
@@ -7218,6 +7236,14 @@ async function init() {
   renderInvestments();
   renderSyncInfo();
   fetchLivePrices();
+  hidePageLoader();
+}
+
+function hidePageLoader() {
+  const el = document.getElementById('pageLoader');
+  if (!el) return;
+  el.classList.add('fade-out');
+  el.addEventListener('transitionend', () => el.remove(), { once: true });
 }
 
 init();
