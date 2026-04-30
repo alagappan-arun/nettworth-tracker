@@ -2553,6 +2553,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Picker state
 let pickerTxId = null;
+let pickerMode = 'single'; // 'single' | 'recurring'
 
 // Add-category color palette
 const SWATCH_COLORS = ['#3b82f6','#f97316','#22c55e','#8b5cf6','#06b6d4','#ec4899',
@@ -6833,6 +6834,7 @@ function clearAllFilters() {
 function openCategoryPicker(txId, event) {
   event.stopPropagation();
   pickerTxId = txId;
+  pickerMode = 'single';
 
   const picker  = document.getElementById('catPicker');
   const rect    = event.currentTarget.getBoundingClientRect();
@@ -6853,6 +6855,50 @@ function openCategoryPicker(txId, event) {
     </div>`).join('');
 
   document.getElementById('catPickerReset').style.display = hasOverride ? 'flex' : 'none';
+}
+
+function openRecurringCatPicker(event) {
+  event.stopPropagation();
+  pickerMode = 'recurring';
+
+  const picker = document.getElementById('catPicker');
+  const rect   = event.currentTarget.getBoundingClientRect();
+  const left   = Math.min(rect.left, window.innerWidth - 270);
+  const top    = Math.min(rect.bottom + 6, window.innerHeight - 340);
+  picker.style.left    = left + 'px';
+  picker.style.top     = top  + 'px';
+  picker.style.display = 'block';
+
+  document.querySelector('#catPicker .cat-picker-title').textContent = 'Apply Category to All';
+  document.getElementById('catPickerGrid').innerHTML = allCats().map(c => `
+    <div class="cat-picker-item"
+         onclick="setRecurringCategoryAll('${c.key}')">
+      <span>${c.icon}</span><span>${c.label}</span>
+    </div>`).join('');
+
+  document.getElementById('catPickerReset').style.display = 'none';
+}
+
+function setRecurringCategoryAll(catKey) {
+  const ids = txFilters.bulkIds ? [...txFilters.bulkIds] : [];
+  ids.forEach(txId => saveTxOverride(txId, catKey));
+  persistTxOverrides();
+  closeCategoryPicker();
+  renderTransactions();
+  renderSpending();
+}
+
+function excludeAllRecurring() {
+  const ids = txFilters.bulkIds ? [...txFilters.bulkIds] : [];
+  const allTxs = allTransactions();
+  ids.forEach(txId => {
+    const tx = allTxs.find(t => t.transaction_id === txId);
+    const autoEx = tx ? isAutoExcluded(tx) : false;
+    applySpendOverride(txId, 'excluded', autoEx);
+  });
+  persistSpendExclusions();
+  renderTransactions();
+  renderSpending();
 }
 
 function setCategoryOverride(txId, catKey) {
@@ -6882,7 +6928,9 @@ function clearCategoryOverride() {
 
 function closeCategoryPicker() {
   document.getElementById('catPicker').style.display = 'none';
+  document.querySelector('#catPicker .cat-picker-title').textContent = 'Change Category';
   pickerTxId = null;
+  pickerMode = 'single';
 }
 
 // Close picker on outside click
@@ -6985,6 +7033,8 @@ function renderTransactions() {
           <em>${esc(f.cadence)}</em> · estimated <strong>${fmt(f.monthlyEstimate)}/mo</strong>.
         </div>
         <div class="bulk-banner-actions">
+          ${txs.length > 0 ? `<button class="bulk-banner-apply" onclick="openRecurringCatPicker(event)">Categorize all</button>` : ''}
+          ${txs.length > 0 ? `<button class="bulk-banner-apply" style="background:var(--t3)" onclick="excludeAllRecurring()">Exclude all from spending</button>` : ''}
           <button class="bulk-banner-cancel" onclick="clearRecurringTransactionFilter(true)">← Back to Recurring</button>
           <button class="bulk-banner-cancel" onclick="clearRecurringTransactionFilter(false)">Clear filter</button>
         </div>
