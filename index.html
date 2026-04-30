@@ -808,6 +808,11 @@
     .rec-confidence-fill { height:100%; border-radius:99px; background:var(--rec-color,var(--accent)); }
     .rec-confidence-label { font-size:10.5px; color:var(--t3); }
     .rec-empty { color:var(--t3); font-size:13px; padding:20px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+    .rec-cat-header { grid-column:1/-1; display:flex; align-items:center; gap:10px; padding:10px 2px 8px; margin-top:8px; border-bottom:1px solid var(--border); }
+    .rec-cat-header:first-child { margin-top:0; }
+    .rec-cat-icon { width:28px; height:28px; border-radius:8px; display:grid; place-items:center; font-size:14px; flex-shrink:0; }
+    .rec-cat-name { flex:1; font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--t2); }
+    .rec-cat-total { font-size:13px; font-weight:750; font-variant-numeric:tabular-nums; }
 
     /* ── Transactions redesign ────────────────────────────────────────────── */
     .search-input {
@@ -5923,40 +5928,68 @@ function renderRecurringRows(items, kind) {
   if (!items.length) {
     return `<div class="rec-empty">No recurring ${kind === 'spend' ? 'spend' : 'income'} patterns found in the recent transaction window.</div>`;
   }
-  return items.map(item => {
-    const sign = kind === 'income' ? '+' : '-';
-    const amountClass = kind === 'income' ? 'income' : 'spend';
-    const dateFmt = d => new Date(d).toLocaleDateString('en-AU', { month: 'short', day: 'numeric' });
-    const color = kind === 'income' ? 'var(--green)' : catByKey(mapToCustomCategory(item.sample[0] || {})).color;
-    const bg = kind === 'income' ? 'var(--green-dim)' : `${color}1f`;
-    const icon = kind === 'income' ? '↙' : (catByKey(mapToCustomCategory(item.sample[0] || {})).icon || '↻');
-    return `<div class="rec-row" style="--rec-color:${color};--rec-bg:${bg}" onclick="drillToRecurringTransactions('${item.recId}')" title="View matching transactions">
-      <div class="rec-icon">${icon}</div>
-      <div class="rec-main">
-        <div class="rec-main-top">
-          <div style="min-width:0">
-            <div class="rec-name">${esc(item.label)}</div>
-            <div class="rec-meta">${item.institution ? esc(item.institution) + ' · ' : ''}${item.count} payments across ${item.distinctMonths} month${item.distinctMonths !== 1 ? 's' : ''}</div>
+
+  const sign = kind === 'income' ? '+' : '-';
+  const dateFmt = d => new Date(d).toLocaleDateString('en-AU', { month: 'short', day: 'numeric' });
+
+  // Group by category
+  const groups = new Map();
+  for (const item of items) {
+    const cat = kind === 'income'
+      ? { key: '_income', label: 'Income', icon: '↙', color: 'var(--green)' }
+      : catByKey(mapToCustomCategory(item.sample[0] || {}));
+    const k = cat.key || '_other';
+    if (!groups.has(k)) groups.set(k, { cat, items: [] });
+    groups.get(k).items.push(item);
+  }
+
+  // Sort groups by total monthly estimate descending
+  const sorted = [...groups.values()].sort(
+    (a, b) => b.items.reduce((s, i) => s + i.monthlyEstimate, 0)
+            - a.items.reduce((s, i) => s + i.monthlyEstimate, 0)
+  );
+
+  return sorted.map(({ cat, items: groupItems }) => {
+    const total    = groupItems.reduce((s, i) => s + i.monthlyEstimate, 0);
+    const color    = kind === 'income' ? 'var(--green)' : cat.color;
+    const icon     = kind === 'income' ? '↙' : (cat.icon || '↻');
+    const header   = `<div class="rec-cat-header">
+      <div class="rec-cat-icon" style="background:${color}1f;color:${color}">${icon}</div>
+      <div class="rec-cat-name">${esc(cat.label || 'Other')}</div>
+      <div class="rec-cat-total" style="color:${color}">${sign}${fmt(total)}<span style="font-size:10px;font-weight:500;margin-left:2px;opacity:.65">/mo</span></div>
+    </div>`;
+    const rows = groupItems.map(item => {
+      const amountClass = kind === 'income' ? 'income' : 'spend';
+      const bg = kind === 'income' ? 'var(--green-dim)' : `${color}1f`;
+      return `<div class="rec-row" style="--rec-color:${color};--rec-bg:${bg}" onclick="drillToRecurringTransactions('${item.recId}')" title="View matching transactions">
+        <div class="rec-icon">${icon}</div>
+        <div class="rec-main">
+          <div class="rec-main-top">
+            <div style="min-width:0">
+              <div class="rec-name">${esc(item.label)}</div>
+              <div class="rec-meta">${item.institution ? esc(item.institution) + ' · ' : ''}${item.count} payments across ${item.distinctMonths} month${item.distinctMonths !== 1 ? 's' : ''}</div>
+            </div>
+            <div class="rec-amount ${amountClass}">${sign}${fmt(item.monthlyEstimate)}<div class="rec-subtle">/ mo</div></div>
           </div>
-          <div class="rec-amount ${amountClass}">${sign}${fmt(item.monthlyEstimate)}<div class="rec-subtle">/ mo</div></div>
-        </div>
-        <div class="rec-row-bottom">
-          <div class="rec-cadence">
-            <span class="rec-pill">${item.cadence.label}</span>
-            <span class="rec-subtle">Avg ${fmtFull(item.avgAmount)} each</span>
-          </div>
-          <div class="rec-dates">
-            <div class="rec-date-line">${dateFmt(item.firstDate)} → ${dateFmt(item.lastDate)}</div>
-            <div style="display:flex;align-items:center;gap:7px">
-              <span class="rec-confidence-label">${Math.round(item.confidence)}%</span>
-              <div class="rec-confidence" title="${Math.round(item.confidence)}% confidence">
-                <div class="rec-confidence-fill" style="width:${Math.round(item.confidence)}%"></div>
+          <div class="rec-row-bottom">
+            <div class="rec-cadence">
+              <span class="rec-pill">${item.cadence.label}</span>
+              <span class="rec-subtle">Avg ${fmtFull(item.avgAmount)} each</span>
+            </div>
+            <div class="rec-dates">
+              <div class="rec-date-line">${dateFmt(item.firstDate)} → ${dateFmt(item.lastDate)}</div>
+              <div style="display:flex;align-items:center;gap:7px">
+                <span class="rec-confidence-label">${Math.round(item.confidence)}%</span>
+                <div class="rec-confidence" title="${Math.round(item.confidence)}% confidence">
+                  <div class="rec-confidence-fill" style="width:${Math.round(item.confidence)}%"></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>`;
+      </div>`;
+    }).join('');
+    return header + rows;
   }).join('');
 }
 
