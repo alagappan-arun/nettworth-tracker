@@ -70,6 +70,24 @@
       --t3:         #9090b0;
     }
 
+    /* ── Light mode: hero card overrides (hardcoded dark gradients) ───────── */
+    body.light-mode .db-hero-card,
+    body.light-mode .inv-hero-card,
+    body.light-mode .sp-hero-card,
+    body.light-mode .rec-hero-card {
+      background: linear-gradient(135deg, #e8e4fc 0%, #f2f0ff 100%);
+      border-color: rgba(107, 88, 240, 0.2);
+    }
+    body.light-mode .db-hero-card::before,
+    body.light-mode .inv-hero-card::before,
+    body.light-mode .sp-hero-card::before,
+    body.light-mode .rec-hero-card::before {
+      background: radial-gradient(circle, rgba(107,88,240,.10) 0%, transparent 65%);
+    }
+    body.light-mode .sp-cat-bar-wrap { background: rgba(0,0,0,.08); }
+    body.light-mode .sidebar-collapse-btn { color: var(--t2); }
+    body.light-mode .sidebar-open-btn { color: var(--t2); }
+
     /* ── Scrollbars ────────────────────────────────────────────────────────── */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
