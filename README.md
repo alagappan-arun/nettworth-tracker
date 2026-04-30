@@ -4,6 +4,19 @@ A personal finance dashboard that runs entirely on your own computer. Connect yo
 
 ![Dashboard](https://img.shields.io/badge/status-ready-brightgreen) ![Local](https://img.shields.io/badge/data-local%20only-blue) ![Free](https://img.shields.io/badge/cost-free-success)
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/75b91067-a284-406f-ae5d-bd454b8b4612" width="400"/>
+  <img src="https://github.com/user-attachments/assets/b37d0d0e-efa9-42e5-93ad-aac6c69399c7" width="400"/>
+ <img width="400"  alt="image" src="https://github.com/user-attachments/assets/4b1caa60-3b3b-463a-ac49-8d4d17c5c404" />
+ <img width="400" alt="image" src="https://github.com/user-attachments/assets/ac18f226-03d6-4558-bb49-99683dbbd815" /> 
+  <img width="400"  alt="image" src="https://github.com/user-attachments/assets/b70a0f83-c296-4ec5-8dce-b3b0ae375d67" />
+  <img width="400" alt="image" src="https://github.com/user-attachments/assets/49785ac4-07f9-4ee4-a153-664718c62b5d" />
+</p>
+
+
+
+
+
 ---
 
 ## ✨ Features
