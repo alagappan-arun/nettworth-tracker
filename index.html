@@ -2541,8 +2541,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('invBtnTicker')?.classList.toggle('active', invGroupBy === 'ticker');
   const tog = document.getElementById('invCatGroupToggle');
   if (tog) tog.checked = invCategoryGroup;
-  const wrap = document.getElementById('invCatGroupWrap');
-  if (wrap) wrap.style.display = invViewMode === 'detailed' ? 'flex' : 'none';
   updateTickerSiteBtn();
 });
 
@@ -5629,8 +5627,6 @@ function setInvViewMode(mode) {
   localStorage.setItem('invViewMode', mode);
   document.getElementById('invBtnCompact').classList.toggle('active', mode === 'compact');
   document.getElementById('invBtnDetailed').classList.toggle('active', mode === 'detailed');
-  const wrap = document.getElementById('invCatGroupWrap');
-  if (wrap) wrap.style.display = mode === 'detailed' ? 'flex' : 'none';
   renderInvestments();
 }
 
