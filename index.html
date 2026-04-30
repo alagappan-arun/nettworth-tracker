@@ -4305,7 +4305,7 @@ function renderNwChart() {
       },
       scales: {
         x: { grid: { display: false }, ticks: { color: themeColor('--t3'), font: { size: 11 } } },
-        y: { grid: { color: themeColor('--border') + '55' }, ticks: { color: themeColor('--t3'), font: { size: 11 }, callback: v => '$' + Math.round(v/1000) + 'k' } },
+        y: { grid: { color: themeColor('--border') + '55' }, ticks: { color: themeColor('--t3'), font: { size: 11 }, callback: v => '$' + Math.round(v/1000) + 'K' } },
       },
     },
   });
@@ -4445,7 +4445,7 @@ function renderDashboard() {
   const aCtx = document.getElementById('assetChart');
 
   const donutCenter = document.getElementById('donutCenterVal');
-  if (donutCenter) donutCenter.textContent = assets >= 1e6 ? '$' + (assets/1e6).toFixed(1) + 'm' : assets >= 1000 ? '$' + Math.round(assets/1000) + 'k' : fmt(assets);
+  if (donutCenter) donutCenter.textContent = assets >= 1e6 ? '$' + (assets/1e6).toFixed(1) + 'M' : assets >= 1000 ? '$' + Math.round(assets/1000) + 'K' : fmt(assets);
   const allocCount = document.getElementById('allocCatCount');
   if (allocCount) allocCount.textContent = `${activeBuckets.length} categories`;
 
@@ -4472,7 +4472,7 @@ function renderDashboard() {
     legendEl.innerHTML = activeBuckets.map(b => {
       const val = bucketTotals[b.key];
       const pct = assets > 0 ? Math.round(val / assets * 100) : 0;
-      const short = val >= 1e6 ? '$' + (val/1e6).toFixed(1) + 'm' : val >= 1000 ? '$' + Math.round(val/1000) + 'k' : fmt(val);
+      const short = val >= 1e6 ? '$' + (val/1e6).toFixed(1) + 'M' : val >= 1000 ? '$' + Math.round(val/1000) + 'K' : fmt(val);
       return `<div class="db-legend-row">
         <div class="db-legend-left">
           <span class="db-legend-dot" style="background:${b.color}"></span>
@@ -5194,7 +5194,7 @@ function renderInvestments() {
       const pct   = allInstTotal > 0 ? (val / allInstTotal * 100).toFixed(1) : 0;
       const barW  = allInstTotal > 0 ? Math.round(val / allInstTotal * 100) : 0;
       const color = INST_COLORS[i % INST_COLORS.length];
-      const short = val >= 1e6 ? '$' + (val/1e6).toFixed(1) + 'm' : val >= 1000 ? '$' + Math.round(val/1000) + 'k' : fmt(val);
+      const short = val >= 1e6 ? '$' + (val/1e6).toFixed(1) + 'M' : val >= 1000 ? '$' + Math.round(val/1000) + 'K' : fmt(val);
 
       // Today gain for this institution — shown inline next to FI name
       const dayGain = instDayGain[name] ?? null;
