@@ -86,6 +86,29 @@ try {
 } catch (_) { netWorthHistory = []; }
 function persistHistory() { fs.writeFileSync(HISTORY_FILE, JSON.stringify(netWorthHistory, null, 2)); }
 
+// Returns "YYYY-Www" for a date string, used for weekly downsampling
+function isoWeekKey(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00Z');
+  const day = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const week = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  return `${d.getUTCFullYear()}-W${String(week).padStart(2, '0')}`;
+}
+
+// Compacts net worth history: entries older than 30 days are downsampled to one per week (latest wins)
+function compactHistory(history) {
+  const cutoff = new Date(Date.now() - 30 * 86400_000).toISOString().split('T')[0];
+  const recent = history.filter(h => h.date >= cutoff);
+  const older  = history.filter(h => h.date < cutoff);
+  const byWeek = new Map();
+  for (const h of older) {
+    const wk = isoWeekKey(h.date);
+    if (!byWeek.has(wk) || h.date > byWeek.get(wk).date) byWeek.set(wk, h);
+  }
+  return [...[...byWeek.values()].sort((a, b) => a.date.localeCompare(b.date)), ...recent];
+}
+
 // ── Manual accounts (persisted on disk) ───────────────────────────────────────
 const MANUAL_FILE = path.join(dataDir, 'manual_accounts.json');
 let manualAccountsDb = [];
@@ -334,9 +357,17 @@ app.post('/api/transactions/sync', async (_req, res) => {
 
   // Keep cached transactions that are older than the Plaid window (we can't re-fetch those)
   // Replace everything within the window with fresh Plaid data (handles pending→posted transitions)
-  const historicTxs = (txCache.transactions || []).filter(t => t.date < startDate);
+  const sixMonthsAgo = new Date(Date.now() - 180 * 86400_000).toISOString().split('T')[0];
+  const historicTxs = (txCache.transactions || []).filter(t => t.date < startDate && t.date >= sixMonthsAgo);
   const merged = [...historicTxs, ...freshTxs];
   merged.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  // Enforce 6-month retention and 10k hard cap (merged is already newest-first)
+  const MAX_TX = 10_000;
+  if (merged.length > MAX_TX) {
+    console.warn(`[tx-cache] trimmed to ${MAX_TX} (dropped ${merged.length - MAX_TX} older entries)`);
+    merged.splice(MAX_TX);
+  }
 
   txCache = { last_synced: new Date().toISOString(), transactions: merged };
   persistTxCache();
@@ -450,6 +481,7 @@ app.post('/api/history/snapshot', (req, res) => {
   if (idx !== -1) netWorthHistory[idx] = { ...netWorthHistory[idx], ...snap };
   else netWorthHistory.push(snap);
   netWorthHistory.sort((a, b) => a.date.localeCompare(b.date));
+  netWorthHistory = compactHistory(netWorthHistory);
   persistHistory();
   res.json({ success: true, total_snapshots: netWorthHistory.length });
 });
