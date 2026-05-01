@@ -699,15 +699,15 @@
       margin-bottom: 20px; transition: grid-template-columns .25s;
       align-items: start;
     }
-    .sp-main-layout.drawer-open { grid-template-columns: 1fr 1fr; align-items: stretch; }
+    .sp-main-layout.drawer-open { grid-template-columns: 1fr 1fr; align-items: start; }
     .sp-left-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
     /* When drawer opens: hero spans full left width, six-month trend hides */
     .sp-main-layout.drawer-open .sp-top-inner { grid-template-columns: 1fr; }
     .sp-main-layout.drawer-open #spTrendCard { display: none; }
-    /* Drawer stretches to match left column height exactly */
-    .sp-main-layout.drawer-open #spDrawer { display: flex; flex-direction: column; }
+    /* Drawer height is set to left column height by JS — fill it and clip tx list */
+    .sp-main-layout.drawer-open #spDrawer { overflow: hidden; }
     .sp-main-layout.drawer-open .sp-drawer {
-      flex: 1; overflow: hidden; position: static; box-sizing: border-box;
+      height: 100%; box-sizing: border-box; overflow: hidden; position: static;
     }
     .sp-main-layout.drawer-open .sp-drawer-tx-section { flex: 1; overflow: hidden; }
 
@@ -6450,6 +6450,13 @@ function selectSpendCat(key) {
   renderSpending();
 }
 
+function syncDrawerHeight() {
+  const leftCol = document.querySelector('#spMainLayout .sp-left-col');
+  const drawer  = document.getElementById('spDrawer');
+  if (!leftCol || !drawer || drawer.style.display === 'none') return;
+  drawer.style.height = leftCol.offsetHeight + 'px';
+}
+
 function setSpendHover(key) {
   state.hoverSpendCat = key;
   const preview = key || state.selectedSpendCat;
@@ -6802,8 +6809,10 @@ function renderSpending() {
     if (drawerOpen) {
       drawer.style.display = 'block';
       drawer.innerHTML = renderSpendDrawer(state.selectedSpendCat, history, sixMonthLabels, txs);
+      syncDrawerHeight();
     } else {
       drawer.style.display = 'none';
+      drawer.style.height = '';
       drawer.innerHTML = '';
     }
   }
@@ -7691,6 +7700,11 @@ function applyRouteFromLocation() {
 }
 
 window.addEventListener('popstate', applyRouteFromLocation);
+let _syncDrawerTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(_syncDrawerTimer);
+  _syncDrawerTimer = setTimeout(syncDrawerHeight, 80);
+});
 
 // Keyboard shortcut: Escape closes modal
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeManualModal(); });
