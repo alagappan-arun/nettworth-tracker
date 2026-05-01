@@ -181,9 +181,13 @@
       display: flex; align-items: center; justify-content: space-between;
       padding: 18px 22px 8px; cursor: pointer; user-select: none;
     }
-    .sidebar-accounts-hdr:hover .acct-toggle-icon { color: var(--t1); }
+    .sidebar-accounts-hdr:hover .acct-toggle-icon { background: var(--card-hover); color: var(--t1); }
     .acct-toggle-label { font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--t3); }
-    .acct-toggle-icon { font-size: 10px; color: var(--t3); transition: transform .2s; line-height: 1; }
+    .acct-toggle-icon {
+      font-size: 14px; color: var(--t2); transition: transform .2s;
+      line-height: 1; background: var(--bg2); border-radius: 5px;
+      padding: 2px 7px; display: inline-flex; align-items: center;
+    }
     .acct-toggle-icon.collapsed { transform: rotate(-90deg); }
 
     .sidebar-accounts { flex: 1; overflow-y: auto; padding: 0 10px; }
@@ -1783,7 +1787,7 @@
 
   <div class="sidebar-accounts-hdr" onclick="toggleAccountsList()">
     <span class="acct-toggle-label">Accounts</span>
-    <span class="acct-toggle-icon" id="acctToggleIcon">▾</span>
+    <span class="acct-toggle-icon" id="acctToggleIcon"><svg width="11" height="7" viewBox="0 0 11 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l4.5 4.5L10 1"/></svg></span>
   </div>
   <div class="sidebar-accounts" id="sidebarAccounts">
     <div style="padding:10px 12px;font-size:12px;color:var(--t3)">Loading…</div>
