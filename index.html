@@ -667,7 +667,7 @@
     .inv-inst-gain-item span.neg { color: var(--red); }
 
     /* ── Spending redesign ────────────────────────────────────────────────── */
-    .sp-top-row { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .sp-top-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .sp-hero-card {
       background: linear-gradient(135deg, #1a1a2e 0%, #16162a 100%);
       border: 1px solid rgba(124,106,247,.22);
@@ -693,13 +693,17 @@
     .sp-cat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
     .sp-cat-hint { font-size: 12px; color: var(--t3); }
 
-    /* Categories + drawer grid */
-    .sp-cats-outer {
-      display: grid; grid-template-columns: 1fr; gap: 18px;
+    /* Main layout: left col (hero + trend + categories) | right col (drawer) */
+    .sp-main-layout {
+      display: grid; grid-template-columns: 1fr; gap: 16px;
       margin-bottom: 20px; transition: grid-template-columns .25s;
       align-items: start;
     }
-    .sp-cats-outer.drawer-open { grid-template-columns: 1fr 1fr; }
+    .sp-main-layout.drawer-open { grid-template-columns: 1fr 1fr; }
+    .sp-left-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+    /* When drawer opens: hero spans full left width, six-month trend hides */
+    .sp-main-layout.drawer-open .sp-top-inner { grid-template-columns: 1fr; }
+    .sp-main-layout.drawer-open #spTrendCard { display: none; }
 
     /* Category row — full layout (no drawer) */
     .sp-cat-row {
@@ -711,10 +715,10 @@
       margin: 0 -10px;
     }
     /* Compact layout when drawer open (drop bar column) */
-    .sp-cats-outer.drawer-open .sp-cat-row {
+    .sp-main-layout.drawer-open .sp-cat-row {
       grid-template-columns: 28px 1fr 88px 52px;
     }
-    .sp-cats-outer.drawer-open .sp-cat-row .sp-cat-bar-wrap { display: none; }
+    .sp-main-layout.drawer-open .sp-cat-row .sp-cat-bar-wrap { display: none; }
     .sp-cat-row:last-child { border-bottom: none; }
     .sp-cat-row:hover { background: var(--card-hover); }
     .sp-cat-row.selected { background: var(--sp-sel-bg, rgba(139,124,255,.08)); }
@@ -749,6 +753,14 @@
       font-family: inherit;
     }
     .sp-drawer-cta:hover { filter: brightness(1.08); }
+    .sp-drawer-tx-section { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 14px; }
+    .sp-drawer-tx-heading { font-size: 10.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--t3); margin-bottom: 10px; }
+    .sp-drawer-tx-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+    .sp-drawer-tx-row:last-child { border-bottom: none; }
+    .sp-drawer-tx-info { flex: 1; min-width: 0; }
+    .sp-drawer-tx-name { font-size: 13px; font-weight: 500; color: var(--t1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sp-drawer-tx-date { font-size: 11px; color: var(--t3); margin-top: 2px; }
+    .sp-drawer-tx-amt { font-size: 13px; font-weight: 600; color: var(--t1); white-space: nowrap; flex-shrink: 0; }
 
     /* Transaction tab — back button + category chip */
     .sp-back-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
@@ -2019,41 +2031,41 @@
       </div>
       <div id="monthTabs" class="month-tabs"></div>
 
-      <!-- Hero + Six-month trend -->
-      <div class="sp-top-row">
-        <div class="card sp-hero-card">
-          <div class="sp-hero-label" id="spendHeroLabel">SPENT</div>
-          <div class="sp-hero-value" id="spendTotal">—</div>
-          <div class="sp-change-badge" id="spendMoM" style="display:none"></div>
-          <div class="sp-hero-stats">
-            <div class="sp-hstat-block">
-              <div class="sp-hstat-label">Transactions</div>
-              <div class="sp-hstat-value" id="spendTxCount">—</div>
+      <!-- Unified layout: left col (hero + trend + categories) | right col (category drawer) -->
+      <div id="spMainLayout" class="sp-main-layout">
+        <div class="sp-left-col">
+          <div class="sp-top-inner">
+            <div class="card sp-hero-card">
+              <div class="sp-hero-label" id="spendHeroLabel">SPENT</div>
+              <div class="sp-hero-value" id="spendTotal">—</div>
+              <div class="sp-change-badge" id="spendMoM" style="display:none"></div>
+              <div class="sp-hero-stats">
+                <div class="sp-hstat-block">
+                  <div class="sp-hstat-label">Transactions</div>
+                  <div class="sp-hstat-value" id="spendTxCount">—</div>
+                </div>
+                <div class="sp-hstat-divider"></div>
+                <div class="sp-hstat-block">
+                  <div class="sp-hstat-label">Daily Avg</div>
+                  <div class="sp-hstat-value" id="spendDailyAvg">—</div>
+                </div>
+              </div>
             </div>
-            <div class="sp-hstat-divider"></div>
-            <div class="sp-hstat-block">
-              <div class="sp-hstat-label">Daily Avg</div>
-              <div class="sp-hstat-value" id="spendDailyAvg">—</div>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-title">Six-month trend</div>
-          <div class="chart-wrap" id="spendChartWrap" style="height:180px"></div>
-        </div>
-      </div>
-
-      <!-- Categories + sidecar drawer -->
-      <div id="spCatsOuter" class="sp-cats-outer">
-        <div class="card" id="spCatsCard">
-          <div class="sp-cat-header">
-            <span class="card-title" style="margin-bottom:0">Categories</span>
-            <div style="display:flex;align-items:center;gap:10px">
-              <span class="sp-cat-hint" id="spendCatHint"></span>
-              <button class="btn btn-ghost" onclick="exportSpendingCsv()" style="font-size:11px;padding:4px 10px" title="Export spending for this month as CSV">⬇ Export CSV</button>
+            <div class="card" id="spTrendCard">
+              <div class="card-title">Six-month trend</div>
+              <div class="chart-wrap" id="spendChartWrap" style="height:180px"></div>
             </div>
           </div>
-          <div id="categoryList"></div>
+          <div class="card" id="spCatsCard">
+            <div class="sp-cat-header">
+              <span class="card-title" style="margin-bottom:0">Categories</span>
+              <div style="display:flex;align-items:center;gap:10px">
+                <span class="sp-cat-hint" id="spendCatHint"></span>
+                <button class="btn btn-ghost" onclick="exportSpendingCsv()" style="font-size:11px;padding:4px 10px" title="Export spending for this month as CSV">⬇ Export CSV</button>
+              </div>
+            </div>
+            <div id="categoryList"></div>
+          </div>
         </div>
         <div id="spDrawer" style="display:none"></div>
       </div>
@@ -6555,6 +6567,24 @@ function renderSpendDrawer(catKey, history, monthLabels, allTxs) {
   const avgColor = avgPct > 0 ? 'var(--red)' : 'var(--green)';
   const momColor = momAbs > 0 ? 'var(--red)' : 'var(--green)';
 
+  // Top 10 spending transactions for this category (by amount desc)
+  const top10 = [...curMonthTxs]
+    .filter(t => t.amount > 0)
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 10);
+  const txListHtml = top10.length ? `
+    <div class="sp-drawer-tx-section">
+      <div class="sp-drawer-tx-heading">Top transactions</div>
+      ${top10.map(t => `
+        <div class="sp-drawer-tx-row">
+          <div class="sp-drawer-tx-info">
+            <div class="sp-drawer-tx-name">${esc(t.merchant_name || t.name || 'Unknown')}</div>
+            <div class="sp-drawer-tx-date">${new Date(t.date + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</div>
+          </div>
+          <div class="sp-drawer-tx-amt">${fmtFull(t.amount)}</div>
+        </div>`).join('')}
+    </div>` : '';
+
   return `
     <div class="card sp-drawer" style="border-left:3px solid ${color}">
       <div class="sp-drawer-header">
@@ -6584,6 +6614,7 @@ function renderSpendDrawer(catKey, history, monthLabels, allTxs) {
       <button class="sp-drawer-cta" style="background:${color}" onclick="drillToCategory('${catKey}')">
         View ${txCount} ${esc(catObj.label)} transaction${txCount !== 1 ? 's' : ''} →
       </button>
+      ${txListHtml}
     </div>`;
 }
 
@@ -6717,7 +6748,7 @@ function renderSpending() {
     document.getElementById('categoryList').innerHTML = `<div style="color:var(--t3);font-size:13px;padding:16px 0">No spending this month</div>`;
     const hint = document.getElementById('spendCatHint');
     if (hint) hint.textContent = '';
-    const outer = document.getElementById('spCatsOuter');
+    const outer = document.getElementById('spMainLayout');
     if (outer) { outer.classList.remove('drawer-open'); }
     const drawer = document.getElementById('spDrawer');
     if (drawer) { drawer.style.display = 'none'; drawer.innerHTML = ''; }
@@ -6758,7 +6789,7 @@ function renderSpending() {
   }).join('');
 
   // Drawer + outer grid state
-  const outer = document.getElementById('spCatsOuter');
+  const outer = document.getElementById('spMainLayout');
   const drawer = document.getElementById('spDrawer');
   if (outer) outer.classList.toggle('drawer-open', drawerOpen);
   if (drawer) {
