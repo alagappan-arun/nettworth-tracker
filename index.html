@@ -898,6 +898,14 @@
     .spend-tag.transfer   { background: transparent; color: var(--t3); border-color: var(--border); }
     .tx-row.spend-excluded { opacity: 0.5; }
     .tx-row.spend-excluded .tx-name { text-decoration: line-through; }
+    .cash-tx-edit-btn {
+      border: none; background: none; cursor: pointer;
+      font-size: 10px; color: var(--t3); padding: 0 3px;
+      border-radius: 3px; vertical-align: middle;
+      opacity: 0; transition: opacity .12s; font-family: inherit;
+    }
+    .tx-row:hover .cash-tx-edit-btn { opacity: 1; }
+    .cash-tx-edit-btn:hover { color: var(--accent); background: var(--bg2); }
 
     /* ── Spend-status popover ──────────────────────────────────────────────── */
     .spend-popover {
@@ -2131,6 +2139,7 @@
           <option value="">All (90 days)</option>
         </select>
         <button class="btn btn-ghost" id="clearFiltersBtn" onclick="clearAllFilters()" style="display:none;font-size:12px;padding:5px 12px">✕ Clear</button>
+        <button class="filter-select" onclick="openCashTxModal()" style="padding-right:10px;background-image:none;white-space:nowrap;margin-left:auto;background:rgba(124,106,247,.12);border-color:rgba(124,106,247,.35);border-style:dashed;color:var(--accent2)" title="Record a cash transaction">+ Record Cash</button>
       </div>
 
       <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
@@ -2139,7 +2148,7 @@
                  placeholder='Search: "coffee"  >50  20-100  <30  "amazon >20"'
                  oninput="renderTransactions()" style="width:100%;padding-right:12px" />
         </div>
-        <button class="btn btn-ghost" onclick="exportTransactionsCsv()" style="font-size:11px;padding:6px 12px;white-space:nowrap;flex-shrink:0" title="Export visible transactions as CSV">⬇ Export CSV</button>
+        <button class="filter-select" onclick="exportTransactionsCsv()" style="padding-right:10px;background-image:none;white-space:nowrap;flex-shrink:0" title="Export visible transactions as CSV">⬇ Export CSV</button>
       </div>
       <div id="txList"></div>
     </div><!-- /transactions -->
@@ -2451,6 +2460,51 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="cashTxModal" onclick="if(event.target===this)closeCashTxModal()">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-title" id="cashTxModalTitle">Record Cash Transaction</div>
+    <input type="hidden" id="cashTxEditId" />
+    <div class="form-group">
+      <label class="form-label">Date</label>
+      <input class="form-input" type="date" id="cashTxDate" onclick="try{this.showPicker()}catch(e){}" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <input class="form-input" type="text" id="cashTxName" placeholder="e.g. Coffee shop"
+        maxlength="200" onkeydown="if(event.key==='Enter')saveCashTransaction()" />
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="flex:1;margin-bottom:0">
+        <label class="form-label">Amount ($)</label>
+        <input class="form-input" type="number" id="cashTxAmount" placeholder="0.00" min="0" step="0.01" />
+      </div>
+      <div class="form-group" style="flex:1;margin-bottom:0">
+        <label class="form-label">Type</label>
+        <select class="form-input" id="cashTxType">
+          <option value="debit">Spending / Debit</option>
+          <option value="credit">Income / Credit</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row" style="margin-top:16px">
+      <div class="form-group" style="flex:1;margin-bottom:0">
+        <label class="form-label">Category</label>
+        <select class="form-input" id="cashTxCategory"></select>
+      </div>
+      <div class="form-group" style="flex:1;margin-bottom:0">
+        <label class="form-label">Account <span style="color:var(--t3);font-weight:400">(optional)</span></label>
+        <input class="form-input" type="text" id="cashTxAccount" placeholder="Cash" maxlength="100" />
+      </div>
+    </div>
+    <div class="modal-footer" style="margin-top:20px">
+      <button class="btn btn-ghost" id="cashTxDeleteBtn" onclick="deleteCashTransaction()"
+        style="display:none;margin-right:auto;color:var(--red)">Delete</button>
+      <button class="btn btn-ghost" onclick="closeCashTxModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCashTransaction()">Save</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="tickerSiteModal" onclick="if(event.target===this)closeTickerSiteModal()">
   <div class="modal" style="max-width:400px">
     <div class="modal-title">Open tickers in…</div>
@@ -2501,6 +2555,7 @@ const state = {
   invAccountFilter:      null,  // string | null — filter investments to one account_id within an institution
   invPeriodFilter:       'all', // 'all' | 'ytd' | '3m' | '1m' — period for gain/loss display
   csvAccounts:           [],    // CSV-uploaded accounts [{ id, name, institution, assetBucket, dataType, ... }]
+  manualTransactions:    [],    // manually recorded cash transactions
   livePrices:            {},    // { "VOO": 520.23, ... } — fetched from Yahoo Finance on demand
   livePriceDetails:      {},    // { "VOO": { price, change, changePct }, ... } — full daily move data
   costBasisOverrides:    {},    // { "VOO": 12345.67, ... } — user-editable per-ticker cost basis
@@ -2835,12 +2890,12 @@ function allAccounts() {
   ];
 }
 
-// All transactions combined (Plaid + CSV)
+// All transactions combined (Plaid + CSV + manual cash)
 function allTransactions() {
   const csvTxs = state.csvAccounts
     .filter(a => a.dataType === 'transactions')
     .flatMap(a => (a.transactions || []).map(t => ({ ...t, institution_name: a.institution || 'CSV Import' })));
-  return [...state.transactions, ...csvTxs];
+  return [...state.transactions, ...csvTxs, ...state.manualTransactions];
 }
 
 // All investment holdings combined (Plaid + CSV)
@@ -2943,6 +2998,97 @@ async function saveManualAccounts() {
   } catch {
     localStorage.setItem(MANUAL_KEY, JSON.stringify(state.manualAccounts));
   }
+}
+
+// ── Manual (cash) transactions ────────────────────────────────────────────────
+async function loadManualTransactions() {
+  try {
+    const data = await apiFetch('/manual-transactions');
+    state.manualTransactions = data.transactions || [];
+  } catch { state.manualTransactions = []; }
+}
+
+async function saveManualTransactions() {
+  try {
+    await apiFetch('/manual-transactions', {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transactions: state.manualTransactions }),
+    });
+  } catch { console.error('Failed to save manual transactions'); }
+}
+
+function openCashTxModal(id) {
+  const tx = id ? state.manualTransactions.find(t => t.transaction_id === id) : null;
+  document.getElementById('cashTxModalTitle').textContent = tx ? 'Edit Cash Transaction' : 'Record Cash Transaction';
+  document.getElementById('cashTxEditId').value = id || '';
+  document.getElementById('cashTxDate').value = tx?.date || new Date().toISOString().split('T')[0];
+  document.getElementById('cashTxName').value = tx?.name || '';
+  document.getElementById('cashTxAmount').value = tx ? Math.abs(tx.amount) : '';
+  document.getElementById('cashTxType').value = tx ? (tx.amount >= 0 ? 'debit' : 'credit') : 'debit';
+  document.getElementById('cashTxAccount').value = tx?.account_name !== 'Cash' ? (tx?.account_name || '') : '';
+  document.getElementById('cashTxDeleteBtn').style.display = tx ? '' : 'none';
+
+  const catSel = document.getElementById('cashTxCategory');
+  catSel.innerHTML = allCats().map(c => `<option value="${c.key}">${c.icon} ${c.label}</option>`).join('');
+  catSel.value = id ? (state.txOverrides[id] || 'misc') : 'misc';
+
+  document.getElementById('cashTxModal').classList.add('open');
+  setTimeout(() => document.getElementById('cashTxName').focus(), 50);
+}
+
+function closeCashTxModal() {
+  document.getElementById('cashTxModal').classList.remove('open');
+}
+
+function saveCashTransaction() {
+  const name    = document.getElementById('cashTxName').value.trim();
+  const amtRaw  = parseFloat(document.getElementById('cashTxAmount').value);
+  const date    = document.getElementById('cashTxDate').value;
+  const type    = document.getElementById('cashTxType').value;
+  const catKey  = document.getElementById('cashTxCategory').value;
+  const acct    = document.getElementById('cashTxAccount').value.trim() || 'Cash';
+  const editId  = document.getElementById('cashTxEditId').value;
+
+  if (!name)               { document.getElementById('cashTxName').focus();   return; }
+  if (isNaN(amtRaw) || amtRaw <= 0) { document.getElementById('cashTxAmount').focus(); return; }
+  if (!date)               { document.getElementById('cashTxDate').focus();   return; }
+
+  const amount = type === 'debit' ? amtRaw : -amtRaw;
+  const txId   = editId || ('cash_' + Date.now());
+
+  if (editId) {
+    const idx = state.manualTransactions.findIndex(t => t.transaction_id === editId);
+    if (idx !== -1) {
+      state.manualTransactions[idx] = { ...state.manualTransactions[idx], date, name, amount, account_name: acct };
+    }
+  } else {
+    state.manualTransactions.push({
+      transaction_id: txId, date, name, amount, pending: false,
+      account_name: acct, account_id: 'cash', institution_name: 'Cash', is_manual: true,
+      createdAt: new Date().toISOString(),
+    });
+  }
+
+  if (catKey && catKey !== 'misc') state.txOverrides[txId] = catKey;
+  else delete state.txOverrides[txId];
+  persistTxOverrides();
+
+  saveManualTransactions();
+  closeCashTxModal();
+  renderTransactions();
+  renderSpending();
+}
+
+function deleteCashTransaction() {
+  const id = document.getElementById('cashTxEditId').value;
+  if (!id) return;
+  state.manualTransactions = state.manualTransactions.filter(t => t.transaction_id !== id);
+  delete state.txOverrides[id];
+  persistTxOverrides();
+  saveManualTransactions();
+  closeCashTxModal();
+  renderTransactions();
+  renderSpending();
 }
 
 // ── Transaction category overrides ───────────────────────────────────────────
@@ -6454,7 +6600,7 @@ function renderSpending() {
       `<div class="empty-state" style="padding:30px">
         <div class="e-icon">💳</div>
         <h3>No transactions yet</h3>
-        <p>Connect a bank, credit card, or checking account via Plaid — transactions from the last 90 days will appear here.</p>
+        <p>Connect a bank account via Plaid, upload a CSV, or record a cash transaction to see spending here.</p>
       </div>`;
     document.getElementById('categoryList').innerHTML = '';
     return;
@@ -7127,11 +7273,12 @@ function renderTransactions() {
   if (!txs.length) {
     const anyFilter = catFilter || txFilters.institution || txFilters.account || txFilters.month || txFilters.type !== 'all' || textQuery || amtFilter;
     el.innerHTML = `<div class="empty-state"><div class="e-icon">🔍</div><h3>No transactions</h3>
-      <p>${anyFilter ? 'No results for these filters — try adjusting above.' : state.transactions.length ? 'No results.' : 'Connect a Plaid account or upload a CSV to see transactions.'}</p></div>`;
+      <p>${anyFilter ? 'No results for these filters — try adjusting above.' : (state.transactions.length || state.manualTransactions.length) ? 'No results.' : 'Connect a Plaid account, upload a CSV, or record a cash transaction.'}</p></div>`;
     return;
   }
 
   // ── Render grouped by date ──────────────────────────────────────────────
+  txs.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
   let html = '<div class="tx-list-card card" style="padding:0;overflow:hidden">';
   let currentDate = null;
 
@@ -7175,12 +7322,15 @@ function renderTransactions() {
       onclick="openCategoryPicker('${t.transaction_id}',event)"
       title="Click to change category">${custCat.icon} ${custCat.label}${hasOverride ? ' ✎' : ''}</span>`;
 
+    const editBtn = t.is_manual
+      ? `<button class="cash-tx-edit-btn" onclick="openCashTxModal('${t.transaction_id}')" title="Edit this transaction">✎ edit</button>`
+      : '';
     html += `
       <div class="tx-row${ts.excluded ? ' spend-excluded' : ''}">
         <div class="tx-dir-icon ${debit ? 'debit' : 'credit'}">${debit ? '↓' : '↑'}</div>
         <div class="tx-info">
           <div class="tx-name">${esc(label)}</div>
-          <div class="tx-meta">${esc(acctName)}</div>
+          <div class="tx-meta">${esc(acctName)}${editBtn}</div>
         </div>
         <div class="tx-cat-col">${catBadge}</div>
         <div>${spendTagHtml}</div>
@@ -7523,7 +7673,7 @@ async function init() {
 
   // All remaining data in parallel (local disk + cached Plaid files), then one render pass
   await Promise.all([
-    loadManualAccounts(), loadCsvAccounts(), loadHistory(),
+    loadManualAccounts(), loadCsvAccounts(), loadHistory(), loadManualTransactions(),
     loadTxOverrides(), loadCustomCategories(), loadCostBasisOverrides(), loadSpendingExclusions(),
     loadAccounts(true), loadTransactions(true), loadInvestments(true),
   ]);

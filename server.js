@@ -162,6 +162,15 @@ try {
 } catch (_) { costBasisDb = {}; }
 function persistCostBasis() { fs.writeFileSync(COST_BASIS_FILE, JSON.stringify(costBasisDb, null, 2)); }
 
+// ── Manual (cash) transactions (persisted on disk) ────────────────────────────
+// Format: [{ transaction_id, date, name, amount, account_name, institution_name, is_manual, ... }]
+const MANUAL_TX_FILE = path.join(dataDir, 'manual_transactions.json');
+let manualTxDb = [];
+try {
+  if (!demoMode && fs.existsSync(MANUAL_TX_FILE)) manualTxDb = JSON.parse(fs.readFileSync(MANUAL_TX_FILE, 'utf8'));
+} catch (_) { manualTxDb = []; }
+function persistManualTx() { fs.writeFileSync(MANUAL_TX_FILE, JSON.stringify(manualTxDb, null, 2)); }
+
 // ── Live price cache (in-memory, TTL 5 minutes) ───────────────────────────────
 const PRICE_CACHE_TTL = 5 * 60 * 1000;
 const priceCache = {}; // { "VOO": { price: 520.23, ts: 1714000000000 }, ... }
@@ -496,6 +505,19 @@ app.put('/api/manual-accounts', (req, res) => {
   if (demoMode) return res.json({ success: true, demo_mode: true }); // no-op in demo
   manualAccountsDb = req.body.accounts || [];
   persistManual();
+  res.json({ success: true });
+});
+
+// ── Manual (cash) transaction endpoints ──────────────────────────────────────
+app.get('/api/manual-transactions', (_req, res) => {
+  if (demoMode) return res.json({ transactions: [] });
+  res.json({ transactions: manualTxDb });
+});
+
+app.put('/api/manual-transactions', (req, res) => {
+  if (demoMode) return res.json({ success: true, demo_mode: true });
+  manualTxDb = req.body.transactions || [];
+  persistManualTx();
   res.json({ success: true });
 });
 
