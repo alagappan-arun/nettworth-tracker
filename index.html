@@ -699,11 +699,17 @@
       margin-bottom: 20px; transition: grid-template-columns .25s;
       align-items: start;
     }
-    .sp-main-layout.drawer-open { grid-template-columns: 1fr 1fr; }
+    .sp-main-layout.drawer-open { grid-template-columns: 1fr 1fr; align-items: stretch; }
     .sp-left-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
     /* When drawer opens: hero spans full left width, six-month trend hides */
     .sp-main-layout.drawer-open .sp-top-inner { grid-template-columns: 1fr; }
     .sp-main-layout.drawer-open #spTrendCard { display: none; }
+    /* Drawer stretches to match left column height exactly */
+    .sp-main-layout.drawer-open #spDrawer { display: flex; flex-direction: column; }
+    .sp-main-layout.drawer-open .sp-drawer {
+      flex: 1; overflow: hidden; position: static; box-sizing: border-box;
+    }
+    .sp-main-layout.drawer-open .sp-drawer-tx-section { flex: 1; overflow: hidden; }
 
     /* Category row — full layout (no drawer) */
     .sp-cat-row {
