@@ -96,17 +96,21 @@ function isoWeekKey(dateStr) {
   return `${d.getUTCFullYear()}-W${String(week).padStart(2, '0')}`;
 }
 
-// Compacts net worth history: entries older than 30 days are downsampled to one per week (latest wins)
+// Compacts net worth history: entries older than 30 days are downsampled to one per week (latest wins).
+// Entries with source:'manual' are always preserved.
 function compactHistory(history) {
   const cutoff = new Date(Date.now() - 30 * 86400_000).toISOString().split('T')[0];
-  const recent = history.filter(h => h.date >= cutoff);
-  const older  = history.filter(h => h.date < cutoff);
-  const byWeek = new Map();
-  for (const h of older) {
+  const recent  = history.filter(h => h.date >= cutoff);
+  const older   = history.filter(h => h.date < cutoff);
+  const manual  = older.filter(h => h.source === 'manual');
+  const auto    = older.filter(h => h.source !== 'manual');
+  const byWeek  = new Map();
+  for (const h of auto) {
     const wk = isoWeekKey(h.date);
     if (!byWeek.has(wk) || h.date > byWeek.get(wk).date) byWeek.set(wk, h);
   }
-  return [...[...byWeek.values()].sort((a, b) => a.date.localeCompare(b.date)), ...recent];
+  const compacted = [...manual, ...[...byWeek.values()]].sort((a, b) => a.date.localeCompare(b.date));
+  return [...compacted, ...recent];
 }
 
 // ── Manual accounts (persisted on disk) ───────────────────────────────────────
@@ -174,6 +178,7 @@ function persistManualTx() { fs.writeFileSync(MANUAL_TX_FILE, JSON.stringify(man
 // ── Live price cache (in-memory, TTL 5 minutes) ───────────────────────────────
 const PRICE_CACHE_TTL = 5 * 60 * 1000;
 const priceCache  = {}; // { "VOO": { price: 520.23, ts: 1714000000000 }, ... }
+const FX_CACHE_TTL  = 30 * 60 * 1000;
 const fxRateCache = {}; // { "INR": { rate: 83.5, ts: ... }, ... } — USD per 1 unit of currency
 
 // ── Transactions cache (persisted on disk) ────────────────────────────────────
@@ -490,6 +495,22 @@ app.post('/api/history/snapshot', (req, res) => {
   const idx = netWorthHistory.findIndex(h => h.date === date);
   if (idx !== -1) netWorthHistory[idx] = { ...netWorthHistory[idx], ...snap };
   else netWorthHistory.push(snap);
+  netWorthHistory.sort((a, b) => a.date.localeCompare(b.date));
+  netWorthHistory = compactHistory(netWorthHistory);
+  persistHistory();
+  res.json({ success: true, total_snapshots: netWorthHistory.length });
+});
+
+app.post('/api/history/import', (req, res) => {
+  if (demoMode) return res.json({ success: true, demo_mode: true });
+  const entries = req.body;
+  if (!Array.isArray(entries)) return res.status(400).json({ error: 'expected array of {date,value}' });
+  for (const e of entries) {
+    if (!e.date || e.value === undefined) continue;
+    const snap = { date: e.date, value: e.value, source: 'manual' };
+    const idx = netWorthHistory.findIndex(h => h.date === e.date);
+    if (idx === -1) netWorthHistory.push(snap); // don't overwrite existing tracked entries
+  }
   netWorthHistory.sort((a, b) => a.date.localeCompare(b.date));
   netWorthHistory = compactHistory(netWorthHistory);
   persistHistory();
@@ -832,7 +853,7 @@ app.get('/api/prices', async (req, res) => {
       const rates = {};
       await Promise.all(currencies.map(async (currency) => {
         const cached = fxRateCache[currency];
-        if (cached && (now - cached.ts) < PRICE_CACHE_TTL) { rates[currency] = cached.rate; return; }
+        if (cached && (now - cached.ts) < FX_CACHE_TTL) { rates[currency] = cached.rate; return; }
         const rate = await fetchFxRate(currency); // Google Finance → Yahoo Finance fallback
         if (rate) {
           fxRateCache[currency] = { rate, ts: now };
@@ -853,6 +874,24 @@ app.get('/api/prices', async (req, res) => {
   }
 
   res.json({ prices: fresh, details: priceDetails, fetched_at: new Date().toISOString(), cached_count: tickers.length - stale.length });
+});
+
+// ── FX rate lookup (USD per 1 unit of foreign currency) ──────────────────────
+app.get('/api/fx-rate', async (req, res) => {
+  const currency = (req.query.currency || '').toUpperCase();
+  if (!currency || currency === 'USD') return res.json({ currency: 'USD', rate: 1 });
+  if (!/^[A-Z]{3}$/.test(currency)) return res.status(400).json({ error: 'Invalid currency code' });
+  if (demoMode) {
+    const demoRates = { INR: 83.5, EUR: 0.92, GBP: 0.79, AUD: 1.53, CAD: 1.36, JPY: 149.5, SGD: 1.34, CHF: 0.9, HKD: 7.82 };
+    return res.json({ currency, rate: demoRates[currency] ?? 1 });
+  }
+  const now = Date.now();
+  const cached = fxRateCache[currency];
+  if (cached && (now - cached.ts) < FX_CACHE_TTL) return res.json({ currency, rate: cached.rate });
+  const rate = await fetchFxRate(currency);
+  if (!rate) return res.status(502).json({ error: `Could not fetch FX rate for ${currency}` });
+  fxRateCache[currency] = { rate, ts: now };
+  res.json({ currency, rate });
 });
 
 // ── Gold spot price (Yahoo Finance GC=F — gold futures, USD per troy oz) ─────
