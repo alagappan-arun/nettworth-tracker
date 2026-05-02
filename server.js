@@ -173,7 +173,8 @@ function persistManualTx() { fs.writeFileSync(MANUAL_TX_FILE, JSON.stringify(man
 
 // ── Live price cache (in-memory, TTL 5 minutes) ───────────────────────────────
 const PRICE_CACHE_TTL = 5 * 60 * 1000;
-const priceCache = {}; // { "VOO": { price: 520.23, ts: 1714000000000 }, ... }
+const priceCache  = {}; // { "VOO": { price: 520.23, ts: 1714000000000 }, ... }
+const fxRateCache = {}; // { "INR": { rate: 83.5, ts: ... }, ... } — USD per 1 unit of currency
 
 // ── Transactions cache (persisted on disk) ────────────────────────────────────
 // Format: { last_synced: ISO string, transactions: [...Plaid tx objects] }
@@ -626,11 +627,75 @@ function httpsGetJson(url, extraHeaders = {}) {
   });
 }
 
+function httpsGetText(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml',
+      },
+    }, (r) => {
+      // Follow redirects
+      if (r.statusCode >= 300 && r.statusCode < 400 && r.headers.location) {
+        return httpsGetText(r.headers.location).then(resolve).catch(reject);
+      }
+      let data = '';
+      r.on('data', c => data += c);
+      r.on('end', () => resolve(data));
+    }).on('error', reject);
+  });
+}
+
+// Fetch USD-to-X exchange rate from Google Finance (primary) with Yahoo Finance fallback.
+// Returns: how many units of `currency` per 1 USD (e.g. 83.5 for INR).
+async function fetchFxRate(currency) {
+  // ── Google Finance ────────────────────────────────────────────────────────
+  try {
+    const html = await httpsGetText(`https://www.google.com/finance/quote/USD-${currency}`);
+    // Google Finance embeds the live price in a data-last-price attribute
+    let m = html.match(/data-last-price="([\d.]+)"/);
+    if (!m) {
+      // Fallback: look for the rate in the main YMlKec price element
+      m = html.match(/class="[^"]*YMlKec[^"]*"[^>]*>([\d,]+\.[\d]+)</);
+    }
+    if (m) {
+      const rate = parseFloat(m[1].replace(/,/g, ''));
+      if (rate > 0) {
+        console.log(`[FX] Google Finance USD-${currency} → ${rate}`);
+        return rate;
+      }
+    }
+  } catch (e) {
+    console.warn(`[FX] Google Finance failed for USD-${currency}:`, e.message);
+  }
+
+  // ── Yahoo Finance fallback ────────────────────────────────────────────────
+  const pair = `USD${currency}=X`;
+  let fx = await fetchYahooV8(pair);
+  if (!fx) fx = await fetchYahooV1(pair);
+  if (fx) {
+    console.log(`[FX] Yahoo Finance ${pair} → ${fx.price}`);
+    return fx.price;
+  }
+
+  return null;
+}
+
 // Ticker aliases: map stored CSV symbols to the correct Yahoo Finance query symbol.
 // Yahoo Finance uses hyphens for dot-suffixed tickers (BRK.B → BRK-B).
 const TICKER_ALIASES = {
   'BRKB': 'BRK-B',
 };
+
+// Map user-facing exchange suffixes to Yahoo Finance suffixes.
+// Users enter RELIANCE.NSE / RELIANCE.BSE; Yahoo expects RELIANCE.NS / RELIANCE.BO.
+const EXCHANGE_SUFFIX_MAP = { '.NSE': '.NS', '.BSE': '.BO' };
+function toYahooTicker(ticker) {
+  for (const [from, to] of Object.entries(EXCHANGE_SUFFIX_MAP)) {
+    if (ticker.endsWith(from)) return ticker.slice(0, -from.length) + to;
+  }
+  return TICKER_ALIASES[ticker] || ticker;
+}
 
 // Proxy tickers: plan-specific fund codes (e.g. NH Deferred Compensation Plan via Fidelity)
 // that have no public API. We fetch the equivalent public fund's daily % change and apply
@@ -683,7 +748,8 @@ function parseYahooResult(result) {
   const prev = closes.length >= 2 ? closes[closes.length - 2] : price;
   const change    = price - prev;
   const changePct = prev > 0 ? (change / prev) * 100 : null;
-  return { price, change, changePct };
+  const currency  = (meta.currency || 'USD').toUpperCase();
+  return { price, change, changePct, currency };
 }
 
 // Primary: Yahoo Finance v8 chart API (stable, no auth required)
@@ -711,8 +777,9 @@ async function fetchYahooV1(ticker) {
 app.get('/api/prices', async (req, res) => {
   const tickerParam = req.query.tickers || '';
   const raw = tickerParam.split(',').map(t => t.trim().toUpperCase()).filter(Boolean);
-  // Validate: max 100 tickers, each must be 1–10 alphanumeric chars (standard ticker format)
-  const tickers = raw.filter(t => /^[A-Z0-9.\-]{1,10}$/.test(t)).slice(0, 100);
+  // Validate: max 100 tickers, each must be 1–20 alphanumeric/dot/dash chars
+  // 20 chars covers Indian tickers like TATAMOTORS.NS (13 chars) and similar long symbols
+  const tickers = raw.filter(t => /^[A-Z0-9.\-]{1,20}$/.test(t)).slice(0, 100);
   if (!tickers.length) return res.json({ prices: {}, fetched_at: new Date().toISOString() });
 
   const now   = Date.now();
@@ -735,27 +802,80 @@ app.get('/api/prices', async (req, res) => {
     // Fetch stale tickers in parallel:
     //   1. Yahoo Finance v8 (query2), with alias applied for dot-tickers like BRK-B
     //   2. Yahoo Finance v1 fallback
-    //   3. Proxy estimate for plan-specific fund codes (NHFSMKX98 etc.) —
-    //      applies the equivalent public fund's daily % change to last CSV-imported price.
+    //   3. Proxy estimate for plan-specific fund codes (NHFSMKX98 etc.)
+    const pendingFx = {}; // non-USD results awaiting conversion: { ticker: result }
+
     await Promise.all(stale.map(async (ticker) => {
-      const yahooTicker = TICKER_ALIASES[ticker] || ticker;
+      const yahooTicker = toYahooTicker(ticker);
       let result = await fetchYahooV8(yahooTicker);
       if (!result) result = await fetchYahooV1(yahooTicker);
       if (!result) result = await fetchProxyPrice(ticker);
       if (result) {
-        priceCache[ticker] = { price: result.price, change: result.change ?? null, changePct: result.changePct ?? null, ts: now };
-        fresh[ticker] = result.price;
-        priceDetails[ticker] = { price: result.price, change: result.change ?? null, changePct: result.changePct ?? null };
-        const alias  = TICKER_ALIASES[ticker]  ? ` (alias ${yahooTicker})`  : '';
-        const proxy  = TICKER_PROXIES[ticker]  ? ` (proxy ${TICKER_PROXIES[ticker]})` : '';
-        console.log(`[Prices] ${ticker}${alias}${proxy} → $${result.price.toFixed(4)} (${result.changePct?.toFixed(2) ?? '—'}%)`);
+        if (result.currency && result.currency !== 'USD') {
+          pendingFx[ticker] = result; // convert after fetching FX rate
+        } else {
+          priceCache[ticker] = { price: result.price, change: result.change ?? null, changePct: result.changePct ?? null, ts: now };
+          fresh[ticker] = result.price;
+          priceDetails[ticker] = { price: result.price, change: result.change ?? null, changePct: result.changePct ?? null };
+          const alias = yahooTicker !== ticker ? ` (→ ${yahooTicker})` : '';
+          const proxy = TICKER_PROXIES[ticker] ? ` (proxy ${TICKER_PROXIES[ticker]})` : '';
+          console.log(`[Prices] ${ticker}${alias}${proxy} → $${result.price.toFixed(4)} (${result.changePct?.toFixed(2) ?? '—'}%)`);
+        }
       } else {
         console.warn(`[Prices] Could not fetch price for ${ticker}`);
       }
     }));
+
+    // Convert non-USD prices to USD using live FX rates
+    if (Object.keys(pendingFx).length) {
+      const currencies = [...new Set(Object.values(pendingFx).map(r => r.currency))];
+      const rates = {};
+      await Promise.all(currencies.map(async (currency) => {
+        const cached = fxRateCache[currency];
+        if (cached && (now - cached.ts) < PRICE_CACHE_TTL) { rates[currency] = cached.rate; return; }
+        const rate = await fetchFxRate(currency); // Google Finance → Yahoo Finance fallback
+        if (rate) {
+          fxRateCache[currency] = { rate, ts: now };
+          rates[currency] = rate;
+        }
+      }));
+
+      Object.entries(pendingFx).forEach(([ticker, result]) => {
+        const rate     = rates[result.currency];
+        const usdPrice = rate ? result.price / rate : result.price;
+        const usdChg   = rate && result.change != null ? result.change / rate : result.change;
+        priceCache[ticker] = { price: usdPrice, change: usdChg ?? null, changePct: result.changePct ?? null, ts: now };
+        fresh[ticker]      = usdPrice;
+        priceDetails[ticker] = { price: usdPrice, change: usdChg ?? null, changePct: result.changePct ?? null };
+        console.log(`[Prices] ${ticker} (${result.currency}) ${result.price.toFixed(2)} ÷ ${rate?.toFixed(2) ?? '?'} → $${usdPrice.toFixed(4)} (${result.changePct?.toFixed(2) ?? '—'}%)`);
+      });
+    }
   }
 
   res.json({ prices: fresh, details: priceDetails, fetched_at: new Date().toISOString(), cached_count: tickers.length - stale.length });
+});
+
+// ── Gold spot price (Yahoo Finance GC=F — gold futures, USD per troy oz) ─────
+let goldPriceCache = { price: null, ts: 0 };
+
+app.get('/api/gold-price', async (req, res) => {
+  if (demoMode) return res.json({ price_per_oz: 3300, source: 'demo', fetched_at: new Date().toISOString() });
+
+  const now = Date.now();
+  if (goldPriceCache.price && (now - goldPriceCache.ts) < PRICE_CACHE_TTL) {
+    return res.json({ price_per_oz: goldPriceCache.price, source: 'GC=F', fetched_at: new Date(goldPriceCache.ts).toISOString(), cached: true });
+  }
+
+  try {
+    let result = await fetchYahooV8('GC=F');
+    if (!result) result = await fetchYahooV1('GC=F');
+    if (!result) return res.status(502).json({ error: 'Could not fetch gold price from Yahoo Finance' });
+    goldPriceCache = { price: result.price, ts: now };
+    console.log(`[Gold] GC=F → $${result.price.toFixed(2)}/ozt`);
+    res.json({ price_per_oz: result.price, source: 'GC=F', fetched_at: new Date(now).toISOString() });
+  } catch (e) {
+    res.status(502).json({ error: e.message });
+  }
 });
 
 // (Property estimate via Redfin/Rentcast removed — property values are entered manually)

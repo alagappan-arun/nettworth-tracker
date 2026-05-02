@@ -235,7 +235,8 @@
     .accts-action-bar { display: flex; gap: 10px; margin-bottom: 28px; flex-wrap: wrap; }
     .accts-section { margin-bottom: 20px; }
     .accts-section-title { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--t3); margin-bottom: 12px; }
-    .acct-card-row { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--border); }
+    .acct-card-row { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--border); cursor: pointer; border-radius: 6px; transition: background .12s; }
+    .acct-card-row:hover { background: var(--card-hover); }
     .acct-card-row:last-child { border-bottom: none; }
     .acct-card-icon { width: 38px; height: 38px; border-radius: 9px; background: var(--card-hover); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
     .acct-card-info { flex: 1; min-width: 0; }
@@ -2333,6 +2334,35 @@
       <div id="equityPreview" style="display:none;margin-top:-8px;margin-bottom:16px;padding:10px 14px;background:var(--card-hover);border-radius:var(--radius);font-size:13px"></div>
     </div>
 
+    <!-- Holdings group (only shown for investment type) -->
+    <div id="holdingsGroup" style="display:none">
+      <div class="form-group" style="margin-bottom:8px">
+        <label class="form-label">Stock Holdings <span style="color:var(--t3);font-weight:400">(optional — auto-calculates balance from live prices)</span></label>
+        <div id="holdingsList" style="display:flex;flex-direction:column;gap:6px"></div>
+        <button type="button" onclick="addHoldingRow()" style="margin-top:8px;background:var(--accent);border:none;border-radius:var(--radius);padding:7px 14px;font-size:14px;color:#fff;cursor:pointer;width:100%;text-align:center;font-weight:500">+ Add ticker</button>
+        <div class="form-hint">US: <strong>AAPL</strong>, <strong>VOO</strong> &nbsp;·&nbsp; India NSE: <strong>RELIANCE.NSE</strong> &nbsp;·&nbsp; India BSE: <strong>RELIANCE.BSE</strong> &nbsp;·&nbsp; Non-USD prices auto-converted to USD.</div>
+      </div>
+      <div id="holdingsPreview" style="display:none;margin-bottom:16px;padding:10px 14px;background:var(--card-hover);border-radius:var(--radius);font-size:13px;line-height:1.7"></div>
+    </div>
+
+    <!-- Gold group (only shown for gold type) -->
+    <div id="goldGroup" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Gold Quantity</label>
+        <div style="display:flex;gap:8px">
+          <input class="form-input" id="goldQty" type="number" min="0" step="any" placeholder="0" oninput="updateGoldPreview()" style="flex:2" />
+          <select class="form-select" id="goldUnit" onchange="updateGoldPreview()" style="flex:1">
+            <option value="ozt">troy oz</option>
+            <option value="g">grams</option>
+            <option value="kg">kilograms</option>
+            <option value="tola">tola</option>
+          </select>
+        </div>
+        <div class="form-hint">24K spot price fetched live from Yahoo Finance (GC=F).</div>
+      </div>
+      <div id="goldPreview" style="display:none;margin-bottom:16px;padding:10px 14px;background:var(--card-hover);border-radius:var(--radius);font-size:13px;line-height:1.7"></div>
+    </div>
+
     <div class="form-row">
       <div class="form-group" style="margin-bottom:0">
         <label class="form-label">Current Value / Balance</label>
@@ -2579,6 +2609,7 @@ const state = {
   csvAccounts:           [],    // CSV-uploaded accounts [{ id, name, institution, assetBucket, dataType, ... }]
   manualTransactions:    [],    // manually recorded cash transactions
   livePrices:            {},    // { "VOO": 520.23, ... } — fetched from Yahoo Finance on demand
+  goldPricePerOz:        null, // USD per troy oz, fetched from /api/gold-price (GC=F)
   livePriceDetails:      {},    // { "VOO": { price, change, changePct }, ... } — full daily move data
   costBasisOverrides:    {},    // { "VOO": 12345.67, ... } — user-editable per-ticker cost basis
   pricesFetchedAt:       null,  // ISO string — when live prices were last fetched
@@ -2730,6 +2761,11 @@ let assetChart    = null;
 let spendChart    = null;
 
 // ── Manual account type definitions ─────────────────────────────────────────
+// Troy oz conversion factors for gold unit selector
+const GOLD_UNIT_TO_OZ = { ozt: 1, g: 1 / 31.1035, kg: 1000 / 31.1035, tola: 11.6638 / 31.1035 };
+const GOLD_UNIT_LABELS = { ozt: 'troy oz', g: 'g', kg: 'kg', tola: 'tola' };
+function goldToOz(qty, unit) { return (qty || 0) * (GOLD_UNIT_TO_OZ[unit] || 1); }
+
 const MANUAL_TYPES = [
   { key: 'checking',       icon: '🏦', label: 'Checking',     type: 'depository', subtype: 'checking',    isAsset: true  },
   { key: 'savings',        icon: '🏦', label: 'Savings',      type: 'depository', subtype: 'savings',     isAsset: true  },
@@ -2739,7 +2775,7 @@ const MANUAL_TYPES = [
   { key: 'crypto',         icon: '₿',  label: 'Crypto',       type: 'investment', subtype: 'crypto',      isAsset: true  },
   { key: 'credit',         icon: '💳', label: 'Credit Card',  type: 'credit',     subtype: 'credit card', isAsset: false },
   { key: 'mortgage',       icon: '🏡', label: 'Mortgage',     type: 'loan',       subtype: 'mortgage',    isAsset: false },
-  { key: 'loan',           icon: '📝', label: 'Loan',         type: 'loan',       subtype: 'personal',    isAsset: false },
+  { key: 'gold',           icon: '🪙', label: 'Gold',         type: 'investment', subtype: 'gold',        isAsset: true  },
 ];
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -2833,6 +2869,7 @@ function getAccountMeta(acc) {
     if (subtype === 'super')        return { label: 'Super / 401k',  icon: '🦘', color: '#14b8a6', isAsset: true };
     if (subtype === 'real_estate')  return { label: 'Real Estate',   icon: '🏠', color: '#f97316', isAsset: true };
     if (subtype === 'crypto')       return { label: 'Crypto',        icon: '₿',  color: '#eab308', isAsset: true };
+    if (subtype === 'gold')         return { label: 'Gold',          icon: '🪙', color: '#f59e0b', isAsset: true };
     return                                 { label: 'Investment',    icon: '📈', color: '#7c6af7', isAsset: true };
   }
   if (type === 'credit')
@@ -2847,13 +2884,25 @@ function getAccountMeta(acc) {
 // Convert a stored manual account → Plaid-like account shape
 function manualToAccount(m) {
   const def = MANUAL_TYPES.find(t => t.key === m.accountType) || MANUAL_TYPES[2];
+  let balance = parseFloat(m.balance) || 0;
+  if (m.holdings?.length && state.livePrices) {
+    const computed = m.holdings.reduce((sum, h) => {
+      const price = state.livePrices[(h.ticker || '').toUpperCase()];
+      return sum + (price != null ? price * (h.shares || 0) : 0);
+    }, 0);
+    if (computed > 0) balance = computed;
+  }
+  if (m.accountType === 'gold' && m.goldQty && state.goldPricePerOz) {
+    const oz = goldToOz(m.goldQty, m.goldUnit);
+    balance = oz * state.goldPricePerOz;
+  }
   return {
     account_id:       m.id,
     name:             m.name,
     institution_name: m.institution || 'Manual',
     type:             def.type,
     subtype:          def.subtype,
-    balances:         { current: parseFloat(m.balance) || 0 },
+    balances:         { current: balance },
     mask:             null,
     currency:         m.currency || 'USD',
     isManual:         true,
@@ -3616,9 +3665,16 @@ function buildTypeGrid(selected) {
 function selectType(key) {
   state.selectedType = key;
   buildTypeGrid(key);
-  const isRE = key === 'real_estate';
-  document.getElementById('realEstateGroup').style.display = isRE ? 'block' : 'none';
-  if (isRE) populateMortgageDropdown();
+  const isRE   = key === 'real_estate';
+  const isInv  = key === 'investment';
+  const isGold = key === 'gold';
+  document.getElementById('realEstateGroup').style.display = isRE   ? 'block' : 'none';
+  document.getElementById('holdingsGroup').style.display   = isInv  ? 'block' : 'none';
+  document.getElementById('goldGroup').style.display       = isGold ? 'block' : 'none';
+  if (isRE)   populateMortgageDropdown();
+  if (!isInv) { document.getElementById('holdingsList').innerHTML = ''; document.getElementById('holdingsPreview').style.display = 'none'; }
+  if (isGold) fetchGoldPrice();
+  if (!isGold) document.getElementById('goldPreview').style.display = 'none';
 }
 
 // Populate the mortgage dropdown with all loan/mortgage accounts
@@ -3691,10 +3747,28 @@ function openManualModal(id) {
   buildTypeGrid(state.selectedType);
 
   // Real estate group
-  const isRE = state.selectedType === 'real_estate';
-  document.getElementById('realEstateGroup').style.display = isRE ? 'block' : 'none';
+  const isRE   = state.selectedType === 'real_estate';
+  const isInv  = state.selectedType === 'investment';
+  const isGold = state.selectedType === 'gold';
+  document.getElementById('realEstateGroup').style.display = isRE   ? 'block' : 'none';
   document.getElementById('manualAddress').value = m?.address || '';
   if (isRE) populateMortgageDropdown(m?.linkedMortgageId || '');
+
+  // Holdings group
+  document.getElementById('holdingsGroup').style.display = isInv ? 'block' : 'none';
+  document.getElementById('holdingsList').innerHTML = '';
+  document.getElementById('holdingsPreview').style.display = 'none';
+  if (isInv && m?.holdings?.length) {
+    m.holdings.forEach(h => addHoldingRow(h.ticker, h.shares));
+    updateHoldingsPreview();
+  }
+
+  // Gold group
+  document.getElementById('goldGroup').style.display   = isGold ? 'block' : 'none';
+  document.getElementById('goldPreview').style.display = 'none';
+  document.getElementById('goldQty').value  = m?.goldQty  || '';
+  document.getElementById('goldUnit').value = m?.goldUnit || 'ozt';
+  if (isGold) fetchGoldPrice();
 
   document.getElementById('manualModal').classList.add('open');
   setTimeout(() => document.getElementById('manualName').focus(), 100);
@@ -3708,10 +3782,109 @@ function closeModalOnOverlay(e) {
   if (e.target === document.getElementById('manualModal')) closeManualModal();
 }
 
+function addHoldingRow(ticker = '', shares = '') {
+  const list = document.getElementById('holdingsList');
+  const row  = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:6px;align-items:center';
+  row.innerHTML = `
+    <input class="form-input" type="text" placeholder="AAPL / RELIANCE.NSE" style="flex:1;min-width:0"
+           oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9.\\-]/g,'');updateHoldingsPreview()"
+           value="${esc(String(ticker))}" />
+    <input class="form-input" type="number" placeholder="Shares" style="flex:1;min-width:0"
+           min="0" step="any" oninput="updateHoldingsPreview()" value="${shares !== '' ? shares : ''}" />
+    <button type="button" onclick="this.parentNode.remove();updateHoldingsPreview()"
+            style="background:none;border:none;color:var(--t3);cursor:pointer;padding:0 4px;font-size:20px;line-height:1;flex-shrink:0">×</button>`;
+  list.appendChild(row);
+  if (!ticker) row.querySelector('input').focus();
+  updateHoldingsPreview();
+}
+
+function collectHoldings() {
+  return Array.from(document.querySelectorAll('#holdingsList > div')).map(row => {
+    const [tickerInput, sharesInput] = row.querySelectorAll('input');
+    const ticker = tickerInput.value.trim().toUpperCase();
+    const shares = parseFloat(sharesInput.value);
+    return ticker ? { ticker, shares: isNaN(shares) ? 0 : shares } : null;
+  }).filter(Boolean);
+}
+
+let _holdingsPriceFetchTimer = null;
+
+function updateHoldingsPreview() {
+  const holdings = collectHoldings();
+  const preview  = document.getElementById('holdingsPreview');
+  if (!holdings.length) { preview.style.display = 'none'; return; }
+
+  let total     = 0;
+  let anyPrices = false;
+  const lines   = holdings.map(h => {
+    const price = state.livePrices?.[h.ticker];
+    if (price != null) {
+      const val = price * h.shares;
+      total    += val;
+      anyPrices = true;
+      return `<strong>${esc(h.ticker)}</strong> × ${h.shares} @ ${fmt(price)} = <strong>${fmt(val)}</strong>`;
+    }
+    return `<strong>${esc(h.ticker)}</strong> × ${h.shares} <span style="color:var(--t3)">— fetching price…</span>`;
+  });
+
+  preview.style.display = 'block';
+  preview.innerHTML = lines.join('<br>') +
+    (anyPrices ? `<br><span style="color:var(--t3)">──</span> Total: <strong>${fmt(total)}</strong>` : '');
+
+  if (anyPrices) document.getElementById('manualBalance').value = total.toFixed(2);
+
+  // Fetch prices for any tickers not yet loaded, debounced to avoid firing on every keypress
+  const missing = holdings.map(h => h.ticker).filter(t => t.length >= 1 && state.livePrices?.[t] == null);
+  if (missing.length) {
+    clearTimeout(_holdingsPriceFetchTimer);
+    _holdingsPriceFetchTimer = setTimeout(async () => {
+      try {
+        const data = await apiFetch('/prices?tickers=' + missing.join(','));
+        Object.assign(state.livePrices       ||= {}, data.prices  || {});
+        Object.assign(state.livePriceDetails ||= {}, data.details || {});
+        updateHoldingsPreview();
+      } catch (_) {}
+    }, 600);
+  }
+}
+
+async function fetchGoldPrice() {
+  try {
+    const data = await apiFetch('/gold-price');
+    state.goldPricePerOz = data.price_per_oz || null;
+    updateGoldPreview();
+    renderSidebarAccounts();
+    renderDashboard();
+  } catch (e) {
+    console.warn('fetchGoldPrice:', e);
+  }
+}
+
+function updateGoldPreview() {
+  const qty     = parseFloat(document.getElementById('goldQty')?.value);
+  const unit    = document.getElementById('goldUnit')?.value || 'ozt';
+  const preview = document.getElementById('goldPreview');
+  if (!preview) return;
+  if (!qty || isNaN(qty)) { preview.style.display = 'none'; return; }
+
+  const oz    = goldToOz(qty, unit);
+  const price = state.goldPricePerOz;
+  if (price == null) {
+    preview.style.display = 'block';
+    preview.innerHTML = `${qty} ${GOLD_UNIT_LABELS[unit]} = ${oz.toFixed(4)} troy oz <span style="color:var(--t3)">— fetching price…</span>`;
+    return;
+  }
+  const value = oz * price;
+  preview.style.display = 'block';
+  preview.innerHTML = `${qty} ${GOLD_UNIT_LABELS[unit]} = ${oz.toFixed(4)} troy oz @ ${fmt(price)}/ozt = <strong>${fmt(value)}</strong>
+    <br><span style="color:var(--t3);font-size:11px">24K spot via GC=F (Yahoo Finance)</span>`;
+  document.getElementById('manualBalance').value = value.toFixed(2);
+}
+
 function saveManualAccount() {
   const name             = document.getElementById('manualName').value.trim();
   const institution      = document.getElementById('manualInstitution').value.trim();
-  const balance          = parseFloat(document.getElementById('manualBalance').value);
   const currency         = document.getElementById('manualCurrency').value;
   const accountType      = state.selectedType;
   const address          = document.getElementById('manualAddress').value.trim();
@@ -3719,6 +3892,12 @@ function saveManualAccount() {
     ? (document.getElementById('manualLinkedMortgage')?.value || '')
     : '';
   const editId           = document.getElementById('manualEditId').value;
+  const holdings         = accountType === 'investment' ? collectHoldings() : [];
+  const goldQty          = accountType === 'gold' ? (parseFloat(document.getElementById('goldQty').value) || 0) : 0;
+  const goldUnit         = accountType === 'gold' ? (document.getElementById('goldUnit').value || 'ozt') : '';
+  const balanceRaw       = parseFloat(document.getElementById('manualBalance').value);
+  const hasAutoBalance   = holdings.length > 0 || (accountType === 'gold' && goldQty > 0);
+  const balance          = isNaN(balanceRaw) ? (hasAutoBalance ? 0 : NaN) : balanceRaw;
 
   if (!name)           { document.getElementById('manualName').focus(); return; }
   if (isNaN(balance))  { document.getElementById('manualBalance').focus(); return; }
@@ -3726,17 +3905,19 @@ function saveManualAccount() {
   if (editId) {
     const idx = state.manualAccounts.findIndex(a => a.id === editId);
     if (idx !== -1) {
-      state.manualAccounts[idx] = { ...state.manualAccounts[idx], name, institution, balance, currency, accountType, address, linkedMortgageId };
+      state.manualAccounts[idx] = { ...state.manualAccounts[idx], name, institution, balance, currency, accountType, address, linkedMortgageId, holdings, goldQty, goldUnit };
     }
   } else {
     state.manualAccounts.push({
       id:          'manual_' + Date.now(),
-      name, institution, balance, currency, accountType, address, linkedMortgageId,
+      name, institution, balance, currency, accountType, address, linkedMortgageId, holdings, goldQty, goldUnit,
       createdAt:   new Date().toISOString(),
     });
   }
 
   saveManualAccounts(); // async, fire-and-forget
+  if (holdings.length) fetchLivePrices();
+  if (accountType === 'gold' && goldQty) fetchGoldPrice();
   closeManualModal();
   renderSidebarAccounts();
   renderDashboard();
@@ -3826,6 +4007,16 @@ function renderSidebarAccounts() {
                  onclick="event.stopPropagation();openManualModal('${linkedProp.id}')" title="Edit house price">✎</button>
              </div>`
           : '';
+        const holdingsRow = mData?.holdings?.length
+          ? `<div style="grid-column:1/-1;padding:2px 12px 6px 48px;font-size:11px;color:var(--t3)">
+               ${mData.holdings.map(h => `${esc(h.ticker)} × ${h.shares}`).join(' · ')}
+             </div>`
+          : '';
+        const goldRow = (mData?.accountType === 'gold' && mData?.goldQty)
+          ? `<div style="grid-column:1/-1;padding:2px 12px 6px 48px;font-size:11px;color:var(--t3)">
+               🪙 ${mData.goldQty} ${GOLD_UNIT_LABELS[mData.goldUnit] || mData.goldUnit || 'ozt'} · 24K spot
+             </div>`
+          : '';
         html += `
           <div class="account-item${drilledClass}" style="flex-wrap:wrap" onclick="drillAccount('${safeInst}','${a.type}','${safeAcct}')">
             <div class="account-icon" style="background:${meta.color}22">${meta.icon}</div>
@@ -3836,7 +4027,7 @@ function renderSidebarAccounts() {
             <div class="account-bal" style="color:${meta.isAsset ? 'var(--green)' : 'var(--red)'}">${balStr}</div>
             <button class="acct-action-btn edit"   onclick="event.stopPropagation();openManualModal('${a.manualId}')" title="Edit">✎</button>
             <button class="acct-action-btn remove" onclick="event.stopPropagation();quickDeleteManual('${a.manualId}')" title="Delete">✕</button>
-            ${equityRow}${propRow}
+            ${equityRow}${propRow}${holdingsRow}${goldRow}
           </div>`;
       } else {
         html += `
@@ -4721,13 +4912,15 @@ function renderDashboard() {
     { key: 'cash',        label: 'Cash',         color: '#34d399' },
     { key: 'real_estate', label: 'Real Estate',  color: '#60a5fa' },
     { key: 'crypto',      label: 'Crypto',       color: '#f97316' },
+    { key: 'gold',        label: 'Gold',         color: '#f59e0b' },
     { key: 'other',       label: 'Other',        color: '#8b8ba7' },
   ];
   function getAssetBucket(a) {
     const type    = (a.type    || '').toLowerCase();
-    const subtype = (a.subtype || '').toLowerCase();
+    const subtype = (a.subtype || a.manualData?.accountType || '').toLowerCase();
     if (type === 'depository') return 'cash';
     if (subtype === 'real_estate') return 'real_estate';
+    if (subtype === 'gold') return 'gold';
     if (type === 'investment' || type === 'brokerage') return 'investment';
     if (subtype === 'crypto') return 'crypto';
     return 'other';
@@ -5248,13 +5441,19 @@ async function fetchLivePrices() {
     ...state.csvAccounts.filter(a => a.dataType === 'holdings')
       .flatMap(a => (a.holdings || [])),
   ];
-  const tickers = [...new Set(
-    allHoldings.map(h => {
+  const manualHoldingTickers = state.manualAccounts
+    .filter(a => a.holdings?.length)
+    .flatMap(a => a.holdings.map(h => (h.ticker || '').toUpperCase()))
+    .filter(t => t && !t.startsWith('CUR:'));
+
+  const tickers = [...new Set([
+    ...allHoldings.map(h => {
       const sec = securities[h.security_id] || {};
       const t   = (sec.ticker_symbol || '').toUpperCase();
       return (t && !t.startsWith('CUR:')) ? t : null;
-    }).filter(Boolean)
-  )];
+    }).filter(Boolean),
+    ...manualHoldingTickers,
+  ])];
 
   if (!tickers.length) {
     if (btn) { btn.disabled = false; btn.textContent = '📡 Refresh Prices'; }
@@ -5268,6 +5467,8 @@ async function fetchLivePrices() {
     state.pricesFetchedAt   = data.fetched_at || null;
     buildAccountInvStats();
     renderInvestments();
+    renderSidebarAccounts();
+    renderDashboard();
     if (btn) {
       btn.disabled    = false;
       btn.textContent = '✓ Updated';
@@ -5509,12 +5710,39 @@ function renderInvestments() {
   const csvHoldingsFlat = state.csvAccounts
     .filter(a => a.dataType === 'holdings')
     .flatMap(a => (a.holdings || []).map(h => ({ ...h, institution_name: h.institution_name || a.institution || 'CSV Import' })));
-  const allHoldings    = [...(state.investments.holdings || []), ...csvHoldingsFlat];
+
+  // Synthetic Plaid-like holdings from manual investment accounts that have stock tickers
+  const manualHoldingsFlat = state.manualAccounts
+    .filter(a => a.accountType === 'investment' && a.holdings?.length)
+    .flatMap(a => (a.holdings || []).map(h => {
+      const ticker = (h.ticker || '').toUpperCase();
+      const price  = state.livePrices?.[ticker] ?? null;
+      return {
+        account_id:        a.id,
+        security_id:       'manual_' + ticker,
+        quantity:          h.shares || 0,
+        institution_name:  a.institution || 'Manual',
+        institution_price: price,
+        institution_value: price != null ? price * (h.shares || 0) : null,
+        cost_basis:        null,
+      };
+    }));
+  const manualSecurities = Object.fromEntries(
+    state.manualAccounts
+      .filter(a => a.accountType === 'investment' && a.holdings?.length)
+      .flatMap(a => (a.holdings || []).map(h => {
+        const ticker = (h.ticker || '').toUpperCase();
+        return ['manual_' + ticker, { ticker_symbol: ticker, name: ticker, type: 'equity' }];
+      }))
+  );
+
+  const allHoldings = [...(state.investments.holdings || []), ...csvHoldingsFlat, ...manualHoldingsFlat];
   const csvSecurities  = Object.fromEntries(
     state.csvAccounts.filter(a => a.dataType === 'holdings')
       .flatMap(a => Object.entries(a.securities || {}))
   );
-  const securities     = { ...csvSecurities, ...(state.investments.securities || {}) };
+  // Manual securities have lowest priority — Plaid/CSV override if same ticker
+  const securities = { ...manualSecurities, ...csvSecurities, ...(state.investments.securities || {}) };
   const needsReconnect = state.investments.needsReconnect || [];
 
   // ── Institution + account filter pills ───────────────────────────────────
@@ -5522,10 +5750,11 @@ function renderInvestments() {
   const activeFilter   = state.invInstitutionFilter;
   const activeAcctFilter = state.invAccountFilter;
 
-  // Build account name lookup from CSV sub-accounts and Plaid accounts
+  // Build account name lookup from CSV sub-accounts, Plaid accounts, and manual accounts
   const acctNameMap = {};
-  (state.csvAccounts || []).forEach(a => { acctNameMap[a.id] = a.name; });
-  (state.accounts    || []).forEach(a => { if (a.account_id) acctNameMap[a.account_id] = a.name; });
+  (state.csvAccounts    || []).forEach(a => { acctNameMap[a.id] = a.name; });
+  (state.accounts       || []).forEach(a => { if (a.account_id) acctNameMap[a.account_id] = a.name; });
+  (state.manualAccounts || []).forEach(a => { acctNameMap[a.id] = a.name; });
 
   // Sub-account pills — shown when one institution is selected and it has >1 account
   let acctFilterHtml = '';
@@ -5958,7 +6187,7 @@ function drillAccount(inst, accountType, accountId) {
   if (isInvestment) {
     // Switch to Investments tab, pre-filter to this institution (+ specific account if from CSV sub-account)
     state.invInstitutionFilter = inst;
-    state.invAccountFilter = accountId && accountId.startsWith('csv_') ? accountId : null;
+    state.invAccountFilter = accountId && (accountId.startsWith('csv_') || accountId.startsWith('manual_')) ? accountId : null;
     invGroupBy = 'institution';
     localStorage.setItem('invGroupBy', 'institution');
     document.getElementById('invBtnInstitution').classList.add('active');
@@ -7507,16 +7736,19 @@ function renderAccountsPage() {
     const mask  = a.mask ? ` ···${a.mask}` : '';
     const cur   = a.currency || 'USD';
 
+    const safeInst = (a.institution_name || a.manualData?.institution || '').replace(/'/g,"\\'");
+    const safeAcct = (a.account_id || '').replace(/'/g,"\\'");
+
     // Actions
     let actions = '';
     if (a.isCsvAccount) {
-      actions = `<button class="acct-card-btn" onclick="openCsvModal('${a.csvId}')">↑ Re-upload</button>
-                 <button class="acct-card-btn danger" onclick="quickDeleteCsv('${a.csvId}')">✕ Delete</button>`;
+      actions = `<button class="acct-card-btn" onclick="event.stopPropagation();openCsvModal('${a.csvId}')">↑ Re-upload</button>
+                 <button class="acct-card-btn danger" onclick="event.stopPropagation();quickDeleteCsv('${a.csvId}')">✕ Delete</button>`;
     } else if (a.isManual) {
-      actions = `<button class="acct-card-btn" onclick="openManualModal('${a.manualData?.id}')">✎ Edit</button>
-                 <button class="acct-card-btn danger" onclick="quickDeleteManual('${a.manualData?.id}')">✕ Delete</button>`;
+      actions = `<button class="acct-card-btn" onclick="event.stopPropagation();openManualModal('${a.manualData?.id}')">✎ Edit</button>
+                 <button class="acct-card-btn danger" onclick="event.stopPropagation();quickDeleteManual('${a.manualData?.id}')">✕ Delete</button>`;
     } else {
-      actions = `<button class="acct-card-btn danger" onclick="deleteItem('${a.item_id}','${esc(a.institution_name||'')}')">✕ Disconnect</button>`;
+      actions = `<button class="acct-card-btn danger" onclick="event.stopPropagation();deleteItem('${a.item_id}','${esc(a.institution_name||'')}')">✕ Disconnect</button>`;
     }
 
     // Extra detail rows based on account type
@@ -7558,7 +7790,7 @@ function renderAccountsPage() {
 
     const balColor = meta.isAsset ? 'var(--green)' : 'var(--red)';
     return `
-      <div class="acct-card-row">
+      <div class="acct-card-row" onclick="drillAccount('${safeInst}','${a.type}','${safeAcct}')">
         <div class="acct-card-icon" style="background:${meta.color}22">${meta.icon}</div>
         <div class="acct-card-info">
           <div class="acct-card-name">${esc(a.name)}${mask ? `<span style="color:var(--t3);font-weight:400"> ${mask}</span>` : ''}</div>
@@ -7574,8 +7806,9 @@ function renderAccountsPage() {
   const groups = [
     { key: 'bank',        title: 'Bank Accounts',        icon: '🏦', match: a => (a.type||'').toLowerCase() === 'depository' },
     { key: 'credit',      title: 'Credit Cards',          icon: '💳', match: a => (a.type||'').toLowerCase() === 'credit' },
-    { key: 'investment',  title: 'Investment Accounts',   icon: '📈', match: a => ['investment','brokerage'].includes((a.type||'').toLowerCase()) && (a.subtype||a.manualData?.accountType||'').toLowerCase() !== 'real_estate' },
+    { key: 'investment',  title: 'Investment Accounts',   icon: '📈', match: a => ['investment','brokerage'].includes((a.type||'').toLowerCase()) && !['real_estate','gold'].includes((a.subtype||a.manualData?.accountType||'').toLowerCase()) },
     { key: 'real_estate', title: 'Real Estate',           icon: '🏠', match: a => (a.subtype||a.manualData?.accountType||'').toLowerCase() === 'real_estate' },
+    { key: 'gold',        title: 'Gold',                  icon: '🪙', match: a => (a.subtype||a.manualData?.accountType||'').toLowerCase() === 'gold' },
     { key: 'loan',        title: 'Loans & Mortgages',     icon: '🏡', match: a => (a.type||'').toLowerCase() === 'loan' },
     { key: 'other',       title: 'Other Accounts',        icon: '💰', match: () => true },
   ];
@@ -7740,7 +7973,7 @@ async function init() {
   renderSpending();
   renderInvestments();
   renderSyncInfo();
-  fetchLivePrices();
+  await fetchLivePrices();
   hidePageLoader();
 }
 
