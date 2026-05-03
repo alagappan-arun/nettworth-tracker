@@ -1575,6 +1575,146 @@
       vertical-align: middle; margin-left: 3px;
     }
     .acct-action-btn.reupload:hover { color: var(--blue); }
+
+    /* ══════════════════════════════════════════════════════════════════════
+       MOBILE RESPONSIVE  (≤ 768 px)
+       ══════════════════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+
+      /* ── Layout: hide desktop sidebar ───────────────────────────────────── */
+      .sidebar, .sidebar-open-btn { display: none !important; }
+
+      /* ── Content area: tighter padding + room for bottom nav ────────────── */
+      .content { padding: 14px 14px calc(60px + env(safe-area-inset-bottom, 16px) + 8px); }
+
+      /* ── Topbar: compact, hide rarely-used actions ───────────────────────── */
+      .topbar { padding: 12px 14px; }
+      .topbar-title { font-size: 16px; }
+      #connectBtn, #addAccountBtn, .sync-info { display: none !important; }
+
+      /* ── Cards: tighter padding ──────────────────────────────────────────── */
+      .card { padding: 16px; }
+
+      /* ── Grids → single column ───────────────────────────────────────────── */
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .db-top-row, .inv-top-row, .rec-top-row { grid-template-columns: 1fr; }
+      .sp-top-inner { grid-template-columns: 1fr; }
+
+      /* ── Hero values: smaller font ───────────────────────────────────────── */
+      .db-hero-value, .inv-hero-value, .sp-hero-value, .rec-hero-value { font-size: 36px; }
+      .hero-value { font-size: 32px; }
+
+      /* ── Hero stat rows: drop visual dividers, all three stats fit ──────── */
+      .db-hero-stats, .inv-hero-stats, .rec-hero-stats { grid-template-columns: 1fr 1fr 1fr; }
+      .db-hstat-divider, .inv-hstat-divider, .rec-hstat-divider { display: none; }
+      .db-hstat-block, .inv-hstat-block, .rec-hstat-block { padding: 0 6px; }
+      .db-hstat-block:first-child,
+      .inv-hstat-block:first-child,
+      .rec-hstat-block:first-child { padding-left: 0; }
+      .db-hstat-value, .inv-hstat-value, .rec-hstat-value { font-size: 15px; }
+
+      .sp-hero-stats { grid-template-columns: 1fr 1fr; }
+      .sp-hstat-divider { display: none; }
+      .sp-hstat-block { padding: 0 6px; }
+      .sp-hstat-block:first-child { padding-left: 0; }
+
+      /* ── Charts: slightly shorter ────────────────────────────────────────── */
+      .chart-wrap { height: 170px; }
+      .db-chart-header { flex-wrap: wrap; gap: 8px; }
+      .db-chart-controls { flex-wrap: wrap; gap: 6px; }
+      .db-period-tabs {
+        overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+      }
+      .db-period-tabs::-webkit-scrollbar { display: none; }
+
+      /* ── Transaction rows: icon | name | amount ──────────────────────────── */
+      .tx-row { grid-template-columns: 32px 1fr 90px; gap: 8px; padding: 10px 0; }
+      .tx-cat-col, .tx-date-col { display: none !important; }
+      .spend-tag { display: none !important; }
+
+      /* ── Filter bar ──────────────────────────────────────────────────────── */
+      .filter-bar { gap: 6px; }
+      .filter-select { font-size: 12px; min-width: 0; }
+
+      /* ── Month tabs: horizontal scroll ───────────────────────────────────── */
+      .month-tabs {
+        flex-wrap: nowrap; overflow-x: auto;
+        -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 4px;
+      }
+      .month-tabs::-webkit-scrollbar { display: none; }
+
+      /* ── Spending category rows: dot | info | amount ─────────────────────── */
+      .sp-cat-row { grid-template-columns: 28px 1fr 80px !important; gap: 10px; }
+      .sp-cat-bar-wrap, .sp-cat-pct { display: none !important; }
+
+      /* ── Spending drawer: stacks below categories (not side-by-side) ──────── */
+      .sp-main-layout.drawer-open { grid-template-columns: 1fr; }
+      .sp-main-layout.drawer-open .sp-top-inner { grid-template-columns: 1fr; }
+
+      /* ── Recurring list: single column ──────────────────────────────────── */
+      .rec-list { grid-template-columns: 1fr; }
+
+      /* ── Investment group buttons: compact ───────────────────────────────── */
+      .inv-group-btn { font-size: 12px; padding: 5px 10px; }
+
+      /* ══════════════════════════════════════════════════════════════════════
+         BOTTOM NAVIGATION BAR
+         ══════════════════════════════════════════════════════════════════════ */
+      .mobile-nav {
+        display: flex; position: fixed; bottom: 0; left: 0; right: 0;
+        height: 60px; background: var(--bg2); border-top: 1px solid var(--border);
+        z-index: 200; padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      .mobile-nav-item {
+        flex: 1; display: flex; flex-direction: column; align-items: center;
+        justify-content: center; gap: 2px; cursor: pointer;
+        color: var(--t3); font-size: 10px; font-weight: 500; padding: 8px 2px;
+        transition: color .15s; -webkit-tap-highlight-color: transparent;
+        border: none; background: none; font-family: inherit;
+      }
+      .mobile-nav-item.active { color: var(--accent2); }
+      .mobile-nav-icon { font-size: 20px; line-height: 1; }
+
+      /* ── More drawer (bottom sheet) ──────────────────────────────────────── */
+      .mobile-more-drawer {
+        position: fixed; bottom: 0; left: 0; right: 0;
+        background: var(--card); border-top: 1px solid var(--border);
+        border-radius: 16px 16px 0 0;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        z-index: 300; transform: translateY(100%);
+        transition: transform .25s cubic-bezier(.4,0,.2,1);
+      }
+      .mobile-more-drawer.open { transform: translateY(0); }
+      .mobile-drawer-handle {
+        width: 36px; height: 4px; background: var(--border);
+        border-radius: 2px; margin: 12px auto 4px;
+      }
+      .mobile-drawer-item {
+        display: flex; align-items: center; gap: 14px;
+        padding: 14px 20px; cursor: pointer; color: var(--t1);
+        font-size: 15px; font-weight: 500;
+        -webkit-tap-highlight-color: transparent;
+        border-bottom: 1px solid var(--border);
+        background: none; width: 100%;
+        border-top: none; border-right: none; border-left: none;
+        font-family: inherit;
+      }
+      .mobile-drawer-item:last-child { border-bottom: none; }
+      .mobile-drawer-item.active { color: var(--accent2); }
+      .mobile-drawer-item-icon { font-size: 20px; width: 28px; text-align: center; }
+      .mobile-drawer-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,.45);
+        z-index: 299; display: none;
+      }
+      .mobile-drawer-overlay.open { display: block; }
+    }
+
+    /* ── Desktop: ensure mobile-only elements stay hidden ─────────────────── */
+    @media (min-width: 769px) {
+      .mobile-nav,
+      .mobile-more-drawer,
+      .mobile-drawer-overlay { display: none !important; }
+    }
   </style>
 </head>
 
@@ -8040,6 +8180,7 @@ function showTab(name, navEl, opts = {}) {
   (navEl || document.querySelector(`.nav-item[data-tab="${name}"]`))?.classList.add('active');
   document.getElementById('topbarTitle').textContent = TAB_TITLES[name] || name;
   document.querySelector('.content')?.scrollTo({ top: 0, behavior: 'instant' });
+  syncMobileNav(name);
   if (name === 'recurring')    renderRecurringTransactions();
   if (name === 'accounts')     renderAccountsPage();
   if (name === 'settings')     renderSettingsPage();
@@ -8345,6 +8486,40 @@ function claudeGetPortfolioData() {
 }
 
 
+// ── Mobile navigation ──────────────────────────────────────────────────────
+const MOBILE_MAIN_TABS = new Set(['dashboard', 'investments', 'spending', 'transactions']);
+
+function syncMobileNav(name) {
+  document.querySelectorAll('.mobile-nav-item[data-tab]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === name);
+  });
+  const moreBtn = document.getElementById('mnMore');
+  if (moreBtn) moreBtn.classList.toggle('active', !MOBILE_MAIN_TABS.has(name));
+  ['recurring', 'accounts', 'settings'].forEach(t => {
+    const id = 'mnd' + t.charAt(0).toUpperCase() + t.slice(1);
+    document.getElementById(id)?.classList.toggle('active', t === name);
+  });
+}
+
+function mobileNavTo(tab) {
+  showTab(tab, document.querySelector(`.nav-item[data-tab="${tab}"]`));
+}
+
+function mobileMoreNavTo(tab) {
+  closeMobileMore();
+  showTab(tab, document.querySelector(`.nav-item[data-tab="${tab}"]`));
+}
+
+function openMobileMore() {
+  document.getElementById('mobileMoreDrawer').classList.add('open');
+  document.getElementById('mobileDrawerOverlay').classList.add('open');
+}
+
+function closeMobileMore() {
+  document.getElementById('mobileMoreDrawer').classList.remove('open');
+  document.getElementById('mobileDrawerOverlay').classList.remove('open');
+}
+
 function claudeOpenInWeb() {
   const ta = document.getElementById('claudeWebPrompt');
   const prompt = ta ? ta.value.trim() : claudeBuildWebPrompt(CLAUDE_WEB_PROMPTS[0].text);
@@ -8367,6 +8542,38 @@ function claudeOpenInWeb() {
 
 </script>
 
+
+<!-- ════════════════════ MOBILE BOTTOM NAVIGATION ════════════════════ -->
+<div class="mobile-drawer-overlay" id="mobileDrawerOverlay" onclick="closeMobileMore()"></div>
+<div class="mobile-more-drawer" id="mobileMoreDrawer">
+  <div class="mobile-drawer-handle"></div>
+  <button class="mobile-drawer-item" id="mndRecurring" onclick="mobileMoreNavTo('recurring')">
+    <span class="mobile-drawer-item-icon">🔁</span><span>Recurring</span>
+  </button>
+  <button class="mobile-drawer-item" id="mndAccounts" onclick="mobileMoreNavTo('accounts')">
+    <span class="mobile-drawer-item-icon">🏦</span><span>Accounts</span>
+  </button>
+  <button class="mobile-drawer-item" id="mndSettings" onclick="mobileMoreNavTo('settings')">
+    <span class="mobile-drawer-item-icon">⚙️</span><span>Settings</span>
+  </button>
+</div>
+<nav class="mobile-nav" id="mobileNav" aria-label="Main navigation">
+  <button class="mobile-nav-item active" data-tab="dashboard" onclick="mobileNavTo('dashboard')">
+    <span class="mobile-nav-icon">📊</span><span>Dashboard</span>
+  </button>
+  <button class="mobile-nav-item" data-tab="investments" onclick="mobileNavTo('investments')">
+    <span class="mobile-nav-icon">📈</span><span>Invest</span>
+  </button>
+  <button class="mobile-nav-item" data-tab="spending" onclick="mobileNavTo('spending')">
+    <span class="mobile-nav-icon">💳</span><span>Spending</span>
+  </button>
+  <button class="mobile-nav-item" data-tab="transactions" onclick="mobileNavTo('transactions')">
+    <span class="mobile-nav-icon">📋</span><span>Txns</span>
+  </button>
+  <button class="mobile-nav-item" id="mnMore" onclick="openMobileMore()">
+    <span class="mobile-nav-icon">⋯</span><span>More</span>
+  </button>
+</nav>
 
 <!-- ── Spend-status popover (singleton, positioned by JS) ──────────────── -->
 <div id="spendPopover" class="spend-popover">
