@@ -2,6 +2,8 @@
 
 A personal finance dashboard that runs entirely on your own computer. Connect your bank accounts, track spending by category, and watch your net worth grow over time — no cloud, no subscriptions, no ads.
 
+Demo page - https://alagappan-arun.github.io/nettworth-tracker 
+
 ![Dashboard](https://img.shields.io/badge/status-ready-brightgreen) ![Local](https://img.shields.io/badge/data-local%20only-blue) ![Free](https://img.shields.io/badge/cost-free-success)
 
 <p align="center">
