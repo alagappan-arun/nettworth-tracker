@@ -895,6 +895,7 @@
     .tx-info  { min-width: 0; }
     .tx-name  { font-size: 13.5px; font-weight: 600; color: var(--t1); word-break: break-word; }
     .tx-meta  { font-size: 11.5px; color: var(--t3); margin-top: 2px; }
+    .tx-inst-tag { font-size: 10.5px; color: var(--t3); opacity: 0.7; }
     .tx-cat-col { font-size: 12.5px; color: var(--t2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .tx-date-col { font-size: 12px; color: var(--t3); text-align: right; white-space: nowrap; }
     .tx-amount-col { font-size: 14px; font-weight: 600; text-align: right; white-space: nowrap; }
@@ -2743,6 +2744,7 @@ const state = {
   selectedType:      'investment', // for modal
   txCategoryFilter:  null,         // set when jumping from spending tab
   txOverrides:       {},           // { transaction_id: 'car' } — manual category overrides
+  merchantCatRules:  {},           // { txNormKey: 'car' } — sticky merchant-level category rules
   customCategories:  [],           // user-defined categories [{ key, label, icon, color }]
   includePending:        false, // whether spending tab counts pending transactions
   lastSyncedTx:          null,  // ISO string — when transactions were last synced from Plaid
@@ -3336,6 +3338,21 @@ function persistTxOverrides() {
   }).catch(console.error);
 }
 
+// ── Merchant category rules ───────────────────────────────────────────────────
+async function loadMerchantCatRules() {
+  try {
+    const data = await apiFetch('/merchant-cat-rules');
+    state.merchantCatRules = data.rules || {};
+  } catch { state.merchantCatRules = {}; }
+}
+
+function persistMerchantCatRules() {
+  apiFetch('/merchant-cat-rules', {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ rules: state.merchantCatRules }),
+  }).catch(console.error);
+}
+
 // ── Custom categories ─────────────────────────────────────────────────────────
 async function loadCustomCategories() {
   try {
@@ -3486,9 +3503,15 @@ const CUSTOM_CATS = [
 const CUSTOM_CAT_MAP = Object.fromEntries(CUSTOM_CATS.map(c => [c.key, c]));
 
 function mapToCustomCategory(tx) {
-  // Manual override wins — never auto-reassign once the user has set it
+  // Per-transaction override wins first
   if (state.txOverrides[tx.transaction_id]) {
     const key = state.txOverrides[tx.transaction_id];
+    if (allCats().find(c => c.key === key)) return key;
+  }
+  // Sticky merchant rule wins second — applies to future transactions from same merchant
+  const normKey = txNormKey(tx);
+  if (normKey && state.merchantCatRules[normKey]) {
+    const key = state.merchantCatRules[normKey];
     if (allCats().find(c => c.key === key)) return key;
   }
   const primary  = (tx.personal_finance_category?.primary  || '').toUpperCase();
@@ -6633,6 +6656,8 @@ function isAutoExcluded(t) {
   if (/\b(payroll|direct deposit|salary|wages|paycheck)\b/.test(name)) return true;
   // Payments (loan payments, bill pay, etc.)
   if (/\bpayment\b/.test(name)) return true;
+  // Chase credit card payment via SoFi ("CHASE CREDIT CRD CARDMEMBER SERV")
+  if (name.includes('cardmember serv')) return true;
   // Transfer keywords — exclude unless it's Zelle (user wants Zelle in spending)
   if (/\b(transfer|wire transfer|ach transfer|online transfer|account transfer|funds transfer|bank transfer|interbank)\b/.test(name))
     return true;
@@ -6681,6 +6706,8 @@ function isTransferTx(tx) {
 
   // Credit card payments from checking accounts (paying off the card)
   if (/\b(credit card payment|card payment|autopay payment)\b/.test(name)) return true;
+  // SoFi → Chase credit card payment ("CHASE CREDIT CRD CARDMEMBER SERV")
+  if (name.includes('cardmember serv')) return true;
 
   return false;
 }
@@ -7554,6 +7581,8 @@ function openCategoryPicker(txId, event) {
   const tx        = allTransactions().find(t => t.transaction_id === txId);
   const currentKey = mapToCustomCategory(tx || {});
   const hasOverride = !!state.txOverrides[txId];
+  const hasMerchantRule = tx ? !!state.merchantCatRules[txNormKey(tx)] : false;
+  const canReset = hasOverride || hasMerchantRule;
 
   document.getElementById('catPickerGrid').innerHTML = allCats().map(c => `
     <div class="cat-picker-item ${c.key === currentKey ? 'current' : ''}"
@@ -7561,7 +7590,9 @@ function openCategoryPicker(txId, event) {
       <span>${c.icon}</span><span>${c.label}</span>
     </div>`).join('');
 
-  document.getElementById('catPickerReset').style.display = hasOverride ? 'flex' : 'none';
+  const resetBtn = document.getElementById('catPickerReset');
+  resetBtn.style.display = canReset ? 'flex' : 'none';
+  resetBtn.title = hasMerchantRule ? 'Remove rule — future transactions from this merchant revert to auto-detection' : 'Reset to auto-detected category';
 }
 
 function openRecurringCatPicker(event) {
@@ -7611,6 +7642,14 @@ function excludeAllRecurring() {
 function setCategoryOverride(txId, catKey) {
   const t = allTransactions().find(tx => tx.transaction_id === txId);
   saveTxOverride(txId, catKey);
+  // Also save as a sticky merchant rule so future transactions auto-categorize the same way
+  if (t) {
+    const normKey = txNormKey(t);
+    if (normKey) {
+      state.merchantCatRules[normKey] = catKey;
+      persistMerchantCatRules();
+    }
+  }
   closeCategoryPicker();
   renderTransactions();
   renderSpending();
@@ -7626,7 +7665,16 @@ function setCategoryOverride(txId, catKey) {
 
 function clearCategoryOverride() {
   if (pickerTxId) {
+    const t = allTransactions().find(tx => tx.transaction_id === pickerTxId);
     saveTxOverride(pickerTxId, null);
+    // Remove the merchant rule too so future transactions go back to auto-detection
+    if (t) {
+      const normKey = txNormKey(t);
+      if (normKey && state.merchantCatRules[normKey]) {
+        delete state.merchantCatRules[normKey];
+        persistMerchantCatRules();
+      }
+    }
     closeCategoryPicker();
     renderTransactions();
     renderSpending();
@@ -7845,6 +7893,7 @@ function renderTransactions() {
     const amt        = fmtFull(Math.abs(t.amount));
     const label      = t.merchant_name || t.name || 'Unknown';
     const acctName   = t.account_name || '';
+    const instName   = t.institution_name || '';
     const hardExcl   = isTransferTx(t);
     const txDate     = new Date(t.date + 'T00:00:00').toLocaleDateString('en-AU', { month: 'short', day: 'numeric' });
 
@@ -7873,7 +7922,7 @@ function renderTransactions() {
         <div class="tx-dir-icon ${debit ? 'debit' : 'credit'}">${debit ? '↓' : '↑'}</div>
         <div class="tx-info">
           <div class="tx-name">${esc(label)}</div>
-          <div class="tx-meta">${esc(acctName)}${editBtn}</div>
+          <div class="tx-meta">${esc(acctName)}${instName ? `<span class="tx-inst-tag"> · ${esc(instName)}</span>` : ''}${editBtn}</div>
         </div>
         <div class="tx-cat-col">${catBadge}</div>
         <div>${spendTagHtml}</div>
@@ -8232,7 +8281,7 @@ async function init() {
   // All remaining data in parallel (local disk + cached Plaid files), then one render pass
   await Promise.all([
     loadManualAccounts(), loadCsvAccounts(), loadHistory(), loadManualTransactions(),
-    loadTxOverrides(), loadCustomCategories(), loadCostBasisOverrides(), loadSpendingExclusions(),
+    loadTxOverrides(), loadMerchantCatRules(), loadCustomCategories(), loadCostBasisOverrides(), loadSpendingExclusions(),
     loadAccounts(true), loadTransactions(true), loadInvestments(true),
   ]);
 

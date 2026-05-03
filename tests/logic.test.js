@@ -64,6 +64,8 @@ function isAutoExcluded(t) {
   if (name.includes('zelle')) return false;
   if (/\b(payroll|direct deposit|salary|wages|paycheck)\b/.test(name)) return true;
   if (/\bpayment\b/.test(name)) return true;
+  // Chase credit card payment via SoFi ("CHASE CREDIT CRD CARDMEMBER SERV")
+  if (name.includes('cardmember serv')) return true;
   if (/\b(transfer|wire transfer|ach transfer|online transfer|account transfer|funds transfer|bank transfer|interbank)\b/.test(name))
     return true;
   return false;
@@ -73,7 +75,7 @@ function isAutoExcluded(t) {
 const OWN_ACCOUNT_MASKS = ['1111', '2222'];
 
 // Minimal state stub used by isTransferTx / isExcludedFromSpending
-let _state = { txOverrides: {}, spendingExclusions: {} };
+let _state = { txOverrides: {}, merchantCatRules: {}, spendingExclusions: {} };
 
 function isTransferTx(tx) {
   if (_state.txOverrides[tx.transaction_id]) return false;
@@ -90,6 +92,8 @@ function isTransferTx(tx) {
   if (/fidelity/i.test(tx.institution_name || '') &&
       /\b(contribution|rollover|sweep|transfer|journal|reinvest|dividend reinvest|money market)\b/.test(name)) return true;
   if (/\b(credit card payment|card payment|autopay payment)\b/.test(name)) return true;
+  // SoFi → Chase credit card payment ("CHASE CREDIT CRD CARDMEMBER SERV")
+  if (name.includes('cardmember serv')) return true;
   return false;
 }
 
@@ -125,8 +129,11 @@ function getSpendTagState(override, autoEx, t) {
 
 // ── mapToCustomCategory (keyword paths only) ──────────────────────────────────
 function mapToCustomCategory(tx) {
-  // Manual override wins
+  // Per-transaction override wins first
   if (_state.txOverrides[tx.transaction_id]) return _state.txOverrides[tx.transaction_id];
+  // Sticky merchant rule wins second
+  const normKey = txNormKey(tx);
+  if (normKey && _state.merchantCatRules[normKey]) return _state.merchantCatRules[normKey];
   const name    = (tx.merchant_name || tx.name || '').toLowerCase();
   const primary = (tx.personal_finance_category?.primary || '').toUpperCase();
   const leg0    = (tx.category?.[0] || '').toLowerCase();
@@ -176,7 +183,7 @@ function tx(overrides = {}) {
 }
 
 function resetState() {
-  _state = { txOverrides: {}, spendingExclusions: {} };
+  _state = { txOverrides: {}, merchantCatRules: {}, spendingExclusions: {} };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

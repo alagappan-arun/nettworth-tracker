@@ -130,6 +130,16 @@ try {
 } catch (_) { txOverrides = {}; }
 function persistOverrides() { fs.writeFileSync(TX_OVERRIDES_FILE, JSON.stringify(txOverrides, null, 2)); }
 
+// ── Merchant category rules (persisted on disk) ────────────────────────────────
+// Format: { "txNormKey": "car", "amazon": "shopping", ... }
+// Sticky rules applied to future transactions from the same merchant
+const MERCHANT_CAT_RULES_FILE = path.join(dataDir, 'merchant_cat_rules.json');
+let merchantCatRulesDb = {};
+try {
+  if (!demoMode && fs.existsSync(MERCHANT_CAT_RULES_FILE)) merchantCatRulesDb = JSON.parse(fs.readFileSync(MERCHANT_CAT_RULES_FILE, 'utf8'));
+} catch (_) { merchantCatRulesDb = {}; }
+function persistMerchantCatRules() { fs.writeFileSync(MERCHANT_CAT_RULES_FILE, JSON.stringify(merchantCatRulesDb, null, 2)); }
+
 // ── Custom categories (persisted on disk) ─────────────────────────────────────
 // Format: [{ key, label, icon, color }, ...]
 const CUSTOM_CATS_FILE = path.join(dataDir, 'custom_categories.json');
@@ -587,6 +597,19 @@ app.put('/api/tx-overrides', (req, res) => {
   if (demoMode) return res.json({ success: true, demo_mode: true });
   txOverrides = req.body.overrides || {};
   persistOverrides();
+  res.json({ success: true });
+});
+
+// ── Merchant category rule endpoints ─────────────────────────────────────────
+app.get('/api/merchant-cat-rules', (_req, res) => {
+  if (demoMode) return res.json({ rules: {}, demo_mode: true });
+  res.json({ rules: merchantCatRulesDb });
+});
+
+app.put('/api/merchant-cat-rules', (req, res) => {
+  if (demoMode) return res.json({ success: true, demo_mode: true });
+  merchantCatRulesDb = req.body.rules || {};
+  persistMerchantCatRules();
   res.json({ success: true });
 });
 
