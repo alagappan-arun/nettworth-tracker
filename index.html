@@ -766,8 +766,7 @@
     .sp-stat-label { font-size: 10.5px; color: var(--t3); text-transform: uppercase; letter-spacing: .1em; }
     .sp-stat-val { font-size: 15px; font-weight: 600; margin-top: 4px; font-variant-numeric: tabular-nums; }
     .sp-stat-sub { font-size: 10.5px; color: var(--t3); margin-top: 2px; }
-    .sp-dot-tip { display: none; pointer-events: none; }
-    .sp-dot-group:hover .sp-dot-tip { display: block; }
+    .sp-dot-tip { pointer-events: none; }
     .sp-drawer-cta {
       margin-top: 18px; border: 0; border-radius: 8px;
       padding: 12px 16px; font-size: 13px; font-weight: 600;
@@ -7121,20 +7120,14 @@ function renderSpendDrawer(catKey, history, monthLabels, allTxs, sixMonths) {
       <path d="${pathD}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
       ${points.map((p, i) => {
         const isSel = i === selIdx;
-        const tipText = `${monthLabels[i]}: ${fmtFull(p.v)}`;
-        const tipW = Math.max(88, tipText.length * 6.4);
-        const tipX = Math.max(tipW / 2 + 4, Math.min(W - tipW / 2 - 4, p.x));
+        const compact = p.v >= 1000 ? `$${(p.v / 1000).toFixed(1)}k` : `$${Math.round(p.v)}`;
+        const labelX = Math.max(Pad + 14, Math.min(W - Pad - 14, p.x));
         return `
         <g class="sp-dot-group">
           <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${isSel ? 6 : 4}" fill="${color}" stroke="var(--card)" stroke-width="2" opacity="${isSel ? 1 : 0.75}"/>
-          <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="14" fill="transparent"/>
-          <g class="sp-dot-tip" transform="translate(${(tipX - p.x).toFixed(1)},0)">
-            <rect x="${(-tipW / 2).toFixed(1)}" y="${(p.y - 32).toFixed(1)}" width="${tipW.toFixed(1)}" height="20" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1"/>
-            <text x="0" y="${(p.y - 18).toFixed(1)}" font-size="10.5" fill="var(--t1)" text-anchor="middle">${tipText}</text>
-          </g>
+          <text class="sp-dot-tip" x="${labelX.toFixed(1)}" y="${(p.y - 10).toFixed(1)}" font-size="10" fill="${isSel ? color : 'var(--t3)'}" text-anchor="middle" font-family="monospace" ${isSel ? 'font-weight="600"' : ''}>${compact}</text>
           <text x="${p.x.toFixed(1)}" y="${H - 4}" font-size="10" fill="${isSel ? color : 'var(--t3)'}" text-anchor="middle" ${isSel ? 'font-weight="600"' : ''}>${monthLabels[i]}</text>
         </g>`; }).join('')}
-      <text x="${points[selIdx].x.toFixed(1)}" y="${(points[selIdx].y - 12).toFixed(1)}" font-size="11" fill="${color}" text-anchor="middle" font-family="monospace" font-weight="600">$${(cur / 1000).toFixed(2)}k</text>
     </svg>`;
 
   // Stat tile colours: red = spending up (bad), green = spending down (good)
