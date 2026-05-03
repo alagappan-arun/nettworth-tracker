@@ -700,8 +700,12 @@
     .sp-hstat-block:first-child { padding-left: 0; }
     .sp-hstat-label { font-size: 10px; font-weight: 600; letter-spacing: .13em; text-transform: uppercase; color: var(--t3); margin-bottom: 5px; }
     .sp-hstat-value { font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
-    .sp-cat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .sp-cat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
     .sp-cat-hint { font-size: 12px; color: var(--t3); }
+    .sp-sort-group { display: flex; gap: 4px; }
+    .sp-sort-btn { font-size: 11px; padding: 2px 9px; border-radius: 99px; border: 1px solid var(--border); background: transparent; color: var(--t3); cursor: pointer; transition: background .12s, color .12s, border-color .12s; }
+    .sp-sort-btn.active { background: var(--accent2); border-color: var(--accent2); color: #fff; }
+    .sp-sort-btn:hover:not(.active) { color: var(--t1); border-color: var(--t2); }
 
     /* Main layout: left col (hero + trend + categories) | right col (drawer) */
     .sp-main-layout {
@@ -762,6 +766,8 @@
     .sp-stat-label { font-size: 10.5px; color: var(--t3); text-transform: uppercase; letter-spacing: .1em; }
     .sp-stat-val { font-size: 15px; font-weight: 600; margin-top: 4px; font-variant-numeric: tabular-nums; }
     .sp-stat-sub { font-size: 10.5px; color: var(--t3); margin-top: 2px; }
+    .sp-dot-tip { display: none; pointer-events: none; }
+    .sp-dot-group:hover .sp-dot-tip { display: block; }
     .sp-drawer-cta {
       margin-top: 18px; border: 0; border-radius: 8px;
       padding: 12px 16px; font-size: 13px; font-weight: 600;
@@ -2216,9 +2222,17 @@
           </div>
           <div class="card" id="spCatsCard">
             <div class="sp-cat-header">
-              <span class="card-title" style="margin-bottom:0">Categories</span>
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <span class="card-title" style="margin-bottom:0">Categories</span>
+                <div class="sp-sort-group">
+                  <button class="sp-sort-btn" data-sort="amount" onclick="setSpendCatSort('amount')">↓ Amount</button>
+                  <button class="sp-sort-btn" data-sort="pct" onclick="setSpendCatSort('pct')">↓ %</button>
+                  <button class="sp-sort-btn" data-sort="name" onclick="setSpendCatSort('name')">A–Z</button>
+                </div>
+              </div>
               <div style="display:flex;align-items:center;gap:10px">
                 <span class="sp-cat-hint" id="spendCatHint"></span>
+                <button class="btn btn-ghost" onclick="copyCatsToClipboard(this)" style="font-size:11px;padding:4px 10px" title="Copy category totals for Excel">⎘ Copy</button>
                 <button class="btn btn-ghost" onclick="exportSpendingCsv()" style="font-size:11px;padding:4px 10px" title="Export spending for this month as CSV">⬇ Export CSV</button>
               </div>
             </div>
@@ -2763,6 +2777,7 @@ const state = {
   spendingExclusions:    {},    // { transaction_id: true } — user-excluded from spending
   selectedSpendCat:      null,  // string | null — category key with drawer open
   hoverSpendCat:         null,  // string | null — hovered row (dims chart segments)
+  spendCatSort:          'amount', // 'amount' | 'pct' | 'name'
   spendNavFromDrawer:    false, // true when Tx tab was entered from the spending drawer CTA
   recurringDrilldowns:   {},    // { recId: recurring group } for row → transactions drill-down
   recurringTxFilter:     null,  // active recurring drill-down metadata on Transactions page
@@ -2914,6 +2929,7 @@ const INV_TYPE_META = {
 let netWorthChart = null;
 let assetChart    = null;
 let spendChart    = null;
+let _spendCatsSnapshot = { cats: [], total: 0 };
 
 // ── Manual account type definitions ─────────────────────────────────────────
 // Troy oz conversion factors for gold unit selector
@@ -6974,6 +6990,11 @@ function selectSpendCat(key) {
   renderSpending();
 }
 
+function setSpendCatSort(key) {
+  state.spendCatSort = key;
+  renderSpending();
+}
+
 function syncDrawerHeight() {
   const leftCol = document.querySelector('#spMainLayout .sp-left-col');
   const drawer  = document.getElementById('spDrawer');
@@ -7039,12 +7060,17 @@ function renderSpendStackedSvg(history, monthLabels, activeCats, selectedCat, ho
 }
 
 // Render the sidecar drawer for a selected category
-function renderSpendDrawer(catKey, history, monthLabels, allTxs) {
+function renderSpendDrawer(catKey, history, monthLabels, allTxs, sixMonths) {
   const catObj = catByKey(catKey);
   if (!catObj || !history.length) return '';
   const color = catObj.color;
-  const cur   = history[history.length - 1][catKey] || 0;
-  const prev  = history.length >= 2 ? (history[history.length - 2][catKey] || 0) : 0;
+
+  // Use the selected month's index so stats reflect the tab the user picked
+  const rawIdx = sixMonths ? sixMonths.indexOf(state.selectedMonth || '') : -1;
+  const selIdx = rawIdx >= 0 ? rawIdx : history.length - 1;
+
+  const cur   = history[selIdx][catKey] || 0;
+  const prev  = selIdx >= 1 ? (history[selIdx - 1][catKey] || 0) : 0;
   const avg   = history.reduce((s, m) => s + (m[catKey] || 0), 0) / history.length;
   const avgPct = avg > 0 ? (cur - avg) / avg * 100 : 0;
   const momAbs = cur - prev;
@@ -7093,11 +7119,22 @@ function renderSpendDrawer(catKey, history, monthLabels, allTxs) {
       }).join('')}
       <path d="${areaD}" fill="url(#${gradId})"/>
       <path d="${pathD}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-      ${points.map((p, i) => `
-        <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="${color}" stroke="var(--card)" stroke-width="2"/>
-        <text x="${p.x.toFixed(1)}" y="${H - 4}" font-size="10" fill="var(--t3)" text-anchor="middle">${monthLabels[i]}</text>
-      `).join('')}
-      <text x="${lastP.x.toFixed(1)}" y="${(lastP.y - 12).toFixed(1)}" font-size="11" fill="${color}" text-anchor="middle" font-family="monospace" font-weight="600">$${(cur / 1000).toFixed(2)}k</text>
+      ${points.map((p, i) => {
+        const isSel = i === selIdx;
+        const tipText = `${monthLabels[i]}: ${fmtFull(p.v)}`;
+        const tipW = Math.max(88, tipText.length * 6.4);
+        const tipX = Math.max(tipW / 2 + 4, Math.min(W - tipW / 2 - 4, p.x));
+        return `
+        <g class="sp-dot-group">
+          <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${isSel ? 6 : 4}" fill="${color}" stroke="var(--card)" stroke-width="2" opacity="${isSel ? 1 : 0.75}"/>
+          <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="14" fill="transparent"/>
+          <g class="sp-dot-tip" transform="translate(${(tipX - p.x).toFixed(1)},0)">
+            <rect x="${(-tipW / 2).toFixed(1)}" y="${(p.y - 32).toFixed(1)}" width="${tipW.toFixed(1)}" height="20" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1"/>
+            <text x="0" y="${(p.y - 18).toFixed(1)}" font-size="10.5" fill="var(--t1)" text-anchor="middle">${tipText}</text>
+          </g>
+          <text x="${p.x.toFixed(1)}" y="${H - 4}" font-size="10" fill="${isSel ? color : 'var(--t3)'}" text-anchor="middle" ${isSel ? 'font-weight="600"' : ''}>${monthLabels[i]}</text>
+        </g>`; }).join('')}
+      <text x="${points[selIdx].x.toFixed(1)}" y="${(points[selIdx].y - 12).toFixed(1)}" font-size="11" fill="${color}" text-anchor="middle" font-family="monospace" font-weight="600">$${(cur / 1000).toFixed(2)}k</text>
     </svg>`;
 
   // Stat tile colours: red = spending up (bad), green = spending down (good)
@@ -7262,7 +7299,12 @@ function renderSpending() {
   const active = allCats()
     .map(c => ({ ...c, total: cats[c.key]?.total || 0, count: cats[c.key]?.count || 0 }))
     .filter(c => c.total > 0)
-    .sort((a, b) => b.total - a.total);
+    .sort((a, b) => {
+      if (state.spendCatSort === 'name') return a.label.localeCompare(b.label);
+      return b.total - a.total; // 'amount' and 'pct' both sort by value desc
+    });
+  _spendCatsSnapshot = { cats: active, total };
+  document.querySelectorAll('.sp-sort-btn').forEach(b => b.classList.toggle('active', b.dataset.sort === state.spendCatSort));
 
   // Six-month history (newest first in months[], reverse for chart)
   if (spendChart) { spendChart.destroy(); spendChart = null; }
@@ -7332,7 +7374,7 @@ function renderSpending() {
   if (drawer) {
     if (drawerOpen) {
       drawer.style.display = 'block';
-      drawer.innerHTML = renderSpendDrawer(state.selectedSpendCat, history, sixMonthLabels, txs);
+      drawer.innerHTML = renderSpendDrawer(state.selectedSpendCat, history, sixMonthLabels, txs, sixMonths);
       syncDrawerHeight();
     } else {
       drawer.style.display = 'none';
@@ -7430,6 +7472,22 @@ function exportSpendingCsv() {
     ]));
   });
   triggerCsvDownload(`spending-${month}.csv`, rows);
+}
+
+function copyCatsToClipboard(btn) {
+  const { cats, total } = _spendCatsSnapshot;
+  if (!cats.length) return;
+  const lines = ['Category\tAmount\tTransactions\t%'];
+  cats.forEach(c => {
+    const pct = total > 0 ? (c.total / total * 100).toFixed(1) : '0.0';
+    lines.push(`${c.label}\t${c.total.toFixed(2)}\t${c.count}\t${pct}`);
+  });
+  lines.push(`Total\t${total.toFixed(2)}\t${cats.reduce((s, c) => s + c.count, 0)}\t100`);
+  navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied';
+    setTimeout(() => { btn.textContent = orig; }, 1800);
+  });
 }
 
 // Export whatever is currently visible in the transactions tab
