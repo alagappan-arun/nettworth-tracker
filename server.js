@@ -264,7 +264,7 @@ app.post('/api/create_link_token', async (_req, res) => {
   try {
     const resp = await plaidClient.linkTokenCreate({
       user:          { client_user_id: 'local-user' },
-      client_name:   'Net Worth Tracker',
+      client_name:   'WealthOS',
       products:      ['transactions', 'investments'],
       language:      'en',
       country_codes: ['US'],
@@ -574,7 +574,7 @@ app.post('/api/update_consent/:item_id', async (req, res) => {
   try {
     const resp = await plaidClient.linkTokenCreate({
       user:                         { client_user_id: 'local-user' },
-      client_name:                  'Net Worth Tracker',
+      client_name:                  'WealthOS',
       access_token:                 item.access_token,
       additional_consented_products: ['investments'],
       language:                     'en',
@@ -1006,7 +1006,7 @@ Provide clear, actionable insights. Format your response with markdown — use h
 // ── Start ──────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`\n  Net Worth Tracker  →  http://localhost:${PORT}`);
+  console.log(`\n  WealthOS  →  http://localhost:${PORT}`);
   if (demoMode) {
     console.log(`  Mode               →  🎭 DEMO  (fake data, no Plaid calls, nothing written to disk)`);
     console.log(`  To use live data   →  npm start\n`);

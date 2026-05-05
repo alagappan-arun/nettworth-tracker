@@ -1,5 +1,5 @@
 /**
- * Unit tests for net-worth-tracker business logic.
+ * Unit tests for WealthOS business logic.
  *
  * These tests cover the pure functions extracted from index.html:
  *   - parseAmountFilter

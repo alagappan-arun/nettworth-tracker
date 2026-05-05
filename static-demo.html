@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Net Worth Tracker — Demo</title>
+  <title>WealthOS — Demo</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='28' font-size='28'%3E%F0%9F%92%8E%3C/text%3E%3C/svg%3E" />
 
   <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
@@ -1605,7 +1605,7 @@
     <div class="ob-step visible" id="obStep0">
       <div class="ob-logo">
         <div class="ob-logo-icon">💎</div>
-        <div class="ob-logo-text">Net Worth Tracker</div>
+        <div class="ob-logo-text">WealthOS</div>
       </div>
       <div class="ob-hero-title">Your complete financial<br>picture, privately.</div>
       <div class="ob-hero-sub">Track bank accounts, investments, real estate, and spending — all running locally on your computer. Nothing ever leaves your machine.</div>
@@ -1766,7 +1766,7 @@
   <div class="sidebar-logo">
     <div class="logo-icon">💎</div>
     <div>
-      <div class="logo-text">Net Worth</div>
+      <div class="logo-text">WealthOS</div>
       <div class="logo-sub">Tracker</div>
     </div>
     <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" onclick="toggleSidebar()" title="Collapse sidebar" aria-label="Collapse sidebar">←</button>
@@ -4649,8 +4649,8 @@ const DEMO_PRICES = {
 };
 
 // Legacy keys — only used to migrate old localStorage data on first run
-const HISTORY_KEY = 'nwt_networth_history';
-const MANUAL_KEY  = 'nwt_manual_accounts';
+const HISTORY_KEY = 'wos_networth_history';
+const MANUAL_KEY  = 'wos_manual_accounts';
 
 const state = {
   accounts:          [],   // from Plaid
@@ -4881,11 +4881,11 @@ function toggleSidebar() {
   const openBtn  = document.getElementById('sidebarOpenBtn');
   const collapsed = sidebar.classList.toggle('collapsed');
   openBtn.classList.toggle('visible', collapsed);
-  localStorage.setItem('nwt-sidebar-collapsed', collapsed ? '1' : '');
+  localStorage.setItem('wos-sidebar-collapsed', collapsed ? '1' : '');
 }
 
 function applyStoredSidebarState() {
-  if (localStorage.getItem('nwt-sidebar-collapsed') === '1') {
+  if (localStorage.getItem('wos-sidebar-collapsed') === '1') {
     document.getElementById('sidebar').classList.add('collapsed');
     document.getElementById('sidebarOpenBtn').classList.add('visible');
   }
@@ -4893,7 +4893,7 @@ function applyStoredSidebarState() {
 
 function toggleTheme() {
   const isLight = document.body.classList.toggle('light-mode');
-  localStorage.setItem('nwt-theme', isLight ? 'light' : 'dark');
+  localStorage.setItem('wos-theme', isLight ? 'light' : 'dark');
   document.getElementById('themeToggle').textContent = isLight ? '☀️' : '🌙';
   // Re-render charts so Chart.js picks up the new colors
   renderDashboard();
@@ -4901,7 +4901,7 @@ function toggleTheme() {
 }
 
 function applyStoredTheme() {
-  const stored = localStorage.getItem('nwt-theme');
+  const stored = localStorage.getItem('wos-theme');
   if (stored === 'light') {
     document.body.classList.add('light-mode');
     document.getElementById('themeToggle').textContent = '☀️';
@@ -6817,7 +6817,7 @@ async function scrubCsvAccountOverrides(accountId) {
 //  RENDER – DASHBOARD
 // ════════════════════════════════════════════════════════════════════════════
 let _nwPeriod = '1Y';
-let _nwProjection = localStorage.getItem('nwt-projection') !== 'false'; // default on
+let _nwProjection = localStorage.getItem('wos-projection') !== 'false'; // default on
 
 function setNwPeriod(period, btn) {
   _nwPeriod = period;
@@ -6828,7 +6828,7 @@ function setNwPeriod(period, btn) {
 
 function toggleNwProjection() {
   _nwProjection = !_nwProjection;
-  localStorage.setItem('nwt-projection', _nwProjection);
+  localStorage.setItem('wos-projection', _nwProjection);
   const btn = document.getElementById('nwProjectionToggle');
   if (btn) btn.classList.toggle('active', _nwProjection);
   renderNwChart();
@@ -7605,7 +7605,7 @@ let _pendingTickerTarget = null; // ticker waiting for site preference pick
 
 function openTickerLink(ticker) {
   if (!ticker || ticker === '—' || ticker === '💵') return;
-  const site = localStorage.getItem('nwt-ticker-site');
+  const site = localStorage.getItem('wos-ticker-site');
   if (site && TICKER_SITES[site]) {
     window.open(TICKER_SITES[site](ticker), '_blank', 'noopener');
   } else {
@@ -7615,7 +7615,7 @@ function openTickerLink(ticker) {
 }
 
 function pickTickerSite(site) {
-  localStorage.setItem('nwt-ticker-site', site);
+  localStorage.setItem('wos-ticker-site', site);
   updateTickerSiteBtn();
   closeTickerSiteModal();
   if (_pendingTickerTarget && TICKER_SITES[site]) {
@@ -7637,7 +7637,7 @@ function changeTickerSite() {
 function updateTickerSiteBtn() {
   const btn  = document.getElementById('invTickerSiteBtn');
   if (!btn) return;
-  const site = localStorage.getItem('nwt-ticker-site');
+  const site = localStorage.getItem('wos-ticker-site');
   btn.textContent = site ? `↗ ${TICKER_SITE_LABELS[site] || site}` : '↗ Lookup site';
   btn.title = site ? `Tickers open in ${TICKER_SITE_LABELS[site] || site} — click to change` : 'Choose where ticker links open';
 }
@@ -9953,11 +9953,11 @@ function toggleAccountsList() {
   const hide = el.style.display !== 'none';
   el.style.display = hide ? 'none' : '';
   icon.classList.toggle('collapsed', hide);
-  localStorage.setItem('nwt-accts-hidden', hide ? '1' : '');
+  localStorage.setItem('wos-accts-hidden', hide ? '1' : '');
 }
 
 function applyStoredAccountsState() {
-  if (localStorage.getItem('nwt-accts-hidden') === '1') {
+  if (localStorage.getItem('wos-accts-hidden') === '1') {
     const el   = document.getElementById('sidebarAccounts');
     const icon = document.getElementById('acctToggleIcon');
     if (el)   el.style.display = 'none';
@@ -10171,7 +10171,7 @@ function renderSettingsPage() {
 function setTheme(mode) {
   const isLight = mode === 'light';
   document.body.classList.toggle('light-mode', isLight);
-  localStorage.setItem('nwt-theme', isLight ? 'light' : 'dark');
+  localStorage.setItem('wos-theme', isLight ? 'light' : 'dark');
   document.getElementById('themeToggle').textContent = isLight ? '☀️' : '🌙';
   document.getElementById('themePillDark').classList.toggle('active',  !isLight);
   document.getElementById('themePillLight').classList.toggle('active', isLight);

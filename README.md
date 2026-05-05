@@ -1,8 +1,8 @@
-# 💎 Net Worth Tracker
+# WealthOS
 
-A personal finance dashboard that runs entirely on your own computer. Connect your bank accounts, track spending by category, and watch your net worth grow over time — no cloud, no subscriptions, no ads.
+A personal finance OS that runs entirely on your own computer. Connect your bank accounts, track spending by category, and watch your net worth grow over time — no cloud, no subscriptions, no ads.
 
-Demo page - https://alagappan-arun.github.io/nettworth-tracker 
+Demo page - https://alagappan-arun.github.io/wealthos
 
 ![Dashboard](https://img.shields.io/badge/status-ready-brightgreen) ![Local](https://img.shields.io/badge/data-local%20only-blue) ![Free](https://img.shields.io/badge/cost-free-success)
 
@@ -91,8 +91,8 @@ If you don't see a version number, download it from [nodejs.org](https://nodejs.
 
 **1. Clone the repo**
 ```bash
-git clone https://github.com/YOUR_USERNAME/nett-worth-tracker.git
-cd nett-worth-tracker
+git clone https://github.com/YOUR_USERNAME/wealthos.git
+cd wealthos
 ```
 
 **2. Install dependencies**
@@ -250,7 +250,7 @@ To back up, copy the `data/` folder somewhere safe. To move to a new machine, co
 ## 📁 Project Structure
 
 ```
-nett-worth-tracker/
+wealthos/
 ├── data/                 ← 🔒 YOUR private data (gitignored)
 ├── data.example/         ← Template — copy this to get started
 │   └── demo_data.json    ← Fake data used by npm run demo

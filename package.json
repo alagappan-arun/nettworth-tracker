@@ -1,7 +1,7 @@
 {
-  "name": "nett-worth-tracker",
+  "name": "wealthos",
   "version": "1.0.0",
-  "description": "Personal net worth tracker with Plaid bank integrations",
+  "description": "Personal finance OS with Plaid bank integrations",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
