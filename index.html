@@ -2381,6 +2381,9 @@
       <div id="txCategoryChip" style="display:none"></div>
       <div id="txBulkBanner" style="display:none"></div>
 
+      <!-- Month tabs -->
+      <div id="txMonthTabs" class="month-tabs"></div>
+
       <!-- Filter bar -->
       <div class="filter-bar">
         <select class="filter-select" id="filterInstitution" onchange="applyFilters()">
@@ -2396,9 +2399,6 @@
           <option value="all">All Types</option>
           <option value="debit">Spending only</option>
           <option value="credit">Income / Credits</option>
-        </select>
-        <select class="filter-select" id="filterMonth" onchange="applyFilters()">
-          <option value="">All (90 days)</option>
         </select>
         <button class="btn btn-ghost" id="clearFiltersBtn" onclick="clearAllFilters()" style="display:none;font-size:12px;padding:5px 12px">✕ Clear</button>
         <button class="filter-select" onclick="openCashTxModal()" style="padding-right:10px;background-image:none;white-space:nowrap;margin-left:auto;background:rgba(124,106,247,.12);border-color:rgba(124,106,247,.35);border-style:dashed;color:var(--accent2)" title="Record a cash transaction">+ Record Cash</button>
@@ -7672,16 +7672,17 @@ function selectMonth(m) {
   renderSpending();
 }
 
+function setTxMonth(month) {
+  txFilters.month = month;
+  renderTransactions();
+}
+
 // CTA from the drawer — navigate to Transactions with category + month pre-applied
 function drillToCategory(catKey) {
   state.txCategoryFilter  = catKey;
   state.spendNavFromDrawer = true;
   txFilters.category      = catKey;
-  if (state.selectedMonth) {
-    txFilters.month = state.selectedMonth;
-    const monthSel = document.getElementById('filterMonth');
-    if (monthSel) monthSel.value = state.selectedMonth;
-  }
+  if (state.selectedMonth) txFilters.month = state.selectedMonth;
   document.getElementById('txSearch').value = '';
   const navEl = document.querySelector('.nav-item[data-tab="transactions"]');
   showTab('transactions', navEl);
@@ -7865,18 +7866,18 @@ function populateFilterSelects() {
   typeEl.value = txFilters.type;
   typeEl.className = 'filter-select' + (txFilters.type !== 'all' ? ' has-value' : '');
 
-  // Month options
+  // Month tabs
   const months = [...new Set(txs.map(t => t.date.slice(0,7)))].sort().reverse();
-  const moEl   = document.getElementById('filterMonth');
-  const prevMo = txFilters.month;
-  moEl.innerHTML = '<option value="">All (90 days)</option>' +
-    months.map(m => {
-      const [yr, mo] = m.split('-');
-      const label = new Date(+yr, +mo - 1).toLocaleDateString('en-AU', { month: 'short', year: 'numeric' });
-      return `<option value="${m}">${label}</option>`;
-    }).join('');
-  moEl.value = prevMo;
-  moEl.className = 'filter-select' + (prevMo ? ' has-value' : '');
+  const tabsEl = document.getElementById('txMonthTabs');
+  if (tabsEl) {
+    tabsEl.innerHTML =
+      `<button class="month-tab ${!txFilters.month ? 'active' : ''}" onclick="setTxMonth('')">All</button>` +
+      months.map(m => {
+        const [yr, mo] = m.split('-');
+        const label = new Date(+yr, +mo - 1).toLocaleDateString('en-AU', { month: 'short', year: 'numeric' });
+        return `<button class="month-tab ${txFilters.month === m ? 'active' : ''}" onclick="setTxMonth('${m}')">${label}</button>`;
+      }).join('');
+  }
 
   // Clear button visibility
   const active = txFilters.bulkIds || txFilters.institution || txFilters.account || txFilters.category || txFilters.month ||
@@ -7891,7 +7892,6 @@ function applyFilters() {
   txFilters.account     = document.getElementById('filterAccount').value;
   txFilters.category    = document.getElementById('filterCategory').value;
   txFilters.type        = document.getElementById('filterType').value;
-  txFilters.month       = document.getElementById('filterMonth').value;
   if (!txFilters.category) state.txCategoryFilter = null;
   renderTransactions();
 }
