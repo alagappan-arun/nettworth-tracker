@@ -255,6 +255,33 @@
 
     /* ── Settings page ───────────────────────────────────────────────────── */
     .settings-page { padding: 24px 28px; max-width: 680px; }
+    .cash-page { padding: 24px 28px; max-width: 900px; }
+    .cash-hero-card { position: relative; overflow: hidden; }
+    .cash-hero-card::before { content: ''; position: absolute; top: -30px; right: -30px; width: 160px; height: 160px; background: radial-gradient(circle, rgba(52,211,153,.18) 0%, transparent 70%); pointer-events: none; }
+    .cash-hero-label { font-size: 10.5px; font-weight: 600; letter-spacing: .13em; text-transform: uppercase; color: var(--t3); margin-bottom: 10px; }
+    .cash-hero-value { font-size: 44px; font-weight: 700; letter-spacing: -.03em; line-height: 1; color: var(--t1); margin-bottom: 20px; }
+    .cash-hero-stats { display: grid; grid-template-columns: 1fr 1px 1fr 1px 1fr; border-top: 1px solid var(--border); padding-top: 18px; }
+    .cash-hstat-block { padding: 0 16px; }
+    .cash-hstat-block:first-child { padding-left: 0; }
+    .cash-hstat-label { font-size: 11px; color: var(--t3); font-weight: 500; margin-bottom: 5px; text-transform: uppercase; letter-spacing: .05em; }
+    .cash-hstat-value { font-size: 15px; font-weight: 700; color: var(--t1); }
+    .cash-hstat-divider { background: var(--border); width: 1px; }
+    .cash-section { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 16px; }
+    .cash-section-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; cursor: pointer; user-select: none; border-bottom: 1px solid var(--border); }
+    .cash-section-header:hover { background: rgba(255,255,255,.03); }
+    .cash-section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--t3); display: flex; align-items: center; gap: 6px; }
+    .cash-section-meta { display: flex; align-items: center; gap: 10px; }
+    .cash-section-total { font-size: 12px; font-weight: 600; color: var(--t2); }
+    .cash-row { display: grid; grid-template-columns: 36px 1fr auto; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); transition: background .12s; }
+    .cash-row:last-child { border-bottom: none; }
+    .cash-row:hover { background: var(--card-hover); }
+    .cash-row-icon { width: 36px; height: 36px; border-radius: 9px; background: var(--card-hover); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+    .cash-row-name { font-size: 13.5px; font-weight: 600; color: var(--t1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cash-row-sub { font-size: 11.5px; color: var(--t3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cash-row-right { text-align: right; flex-shrink: 0; }
+    .cash-row-val { font-size: 14px; font-weight: 600; color: var(--t1); }
+    .cash-row-pct { font-size: 11px; color: var(--t3); margin-top: 2px; }
+    .cash-subtype-pill { display: inline-block; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; padding: 2px 7px; border-radius: 99px; background: rgba(52,211,153,.12); color: #34d399; }
     .settings-section { margin-bottom: 20px; }
     .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); }
     .settings-row:last-child { border-bottom: none; }
@@ -582,6 +609,15 @@
       pointer-events: none;
     }
     .db-hero-label { font-size: 10.5px; font-weight: 600; letter-spacing: .13em; text-transform: uppercase; color: var(--t3); margin-bottom: 10px; }
+    .hero-top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 8px; flex-wrap: wrap; }
+    .region-filter { display: flex; gap: 5px; }
+    .currency-toggle { display: flex; gap: 3px; }
+    .region-btn { font-size: 11.5px; font-weight: 600; padding: 4px 11px; border-radius: 99px; border: 1px solid var(--border); background: transparent; color: var(--t2); cursor: pointer; transition: all .15s; letter-spacing: .01em; }
+    .region-btn:hover { background: var(--card-hover); color: var(--t1); }
+    .region-btn.active { background: rgba(124,106,247,.18); color: var(--accent2); border-color: var(--accent2); }
+    .currency-btn { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 99px; border: 1px solid var(--border); background: transparent; color: var(--t3); cursor: pointer; transition: all .15s; letter-spacing: .03em; }
+    .currency-btn:hover { background: var(--card-hover); color: var(--t2); }
+    .currency-btn.active { background: rgba(52,211,153,.14); color: #34d399; border-color: #34d399; }
     .db-hero-value { font-size: 46px; font-weight: 700; letter-spacing: -.03em; line-height: 1; color: var(--t1); margin-bottom: 14px; }
     .db-change-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 13px; border-radius: 99px; font-size: 13px; font-weight: 600; margin-bottom: 24px; }
     .db-change-badge.pos { background: rgba(52,211,153,.15); color: var(--green); }
@@ -1611,13 +1647,14 @@
       .hero-value { font-size: 32px; }
 
       /* ── Hero stat rows: drop visual dividers, all three stats fit ──────── */
-      .db-hero-stats, .inv-hero-stats, .rec-hero-stats { grid-template-columns: 1fr 1fr 1fr; }
-      .db-hstat-divider, .inv-hstat-divider, .rec-hstat-divider { display: none; }
-      .db-hstat-block, .inv-hstat-block, .rec-hstat-block { padding: 0 6px; }
+      .db-hero-stats, .inv-hero-stats, .rec-hero-stats, .cash-hero-stats { grid-template-columns: 1fr 1fr 1fr; }
+      .db-hstat-divider, .inv-hstat-divider, .rec-hstat-divider, .cash-hstat-divider { display: none; }
+      .db-hstat-block, .inv-hstat-block, .rec-hstat-block, .cash-hstat-block { padding: 0 6px; }
       .db-hstat-block:first-child,
       .inv-hstat-block:first-child,
-      .rec-hstat-block:first-child { padding-left: 0; }
-      .db-hstat-value, .inv-hstat-value, .rec-hstat-value { font-size: 15px; }
+      .rec-hstat-block:first-child,
+      .cash-hstat-block:first-child { padding-left: 0; }
+      .db-hstat-value, .inv-hstat-value, .rec-hstat-value, .cash-hstat-value { font-size: 15px; }
 
       .sp-hero-stats { grid-template-columns: 1fr 1fr; }
       .sp-hstat-divider { display: none; }
@@ -1919,6 +1956,9 @@
     <div class="nav-item" data-tab="investments" onclick="showTab('investments',this)">
       <span class="nav-icon">📈</span> Investments
     </div>
+    <div class="nav-item" data-tab="cash" onclick="showTab('cash',this)">
+      <span class="nav-icon">💵</span> Cash
+    </div>
     <div class="nav-item" data-tab="spending" onclick="showTab('spending',this)">
       <span class="nav-icon">💳</span> Spending
     </div>
@@ -1990,7 +2030,18 @@
       <!-- Row 1: Hero + Asset Allocation -->
       <div class="db-top-row">
         <div class="card db-hero-card" id="heroCard">
-          <div class="db-hero-label">Total Net Worth</div>
+          <div class="hero-top-row">
+            <div class="region-filter">
+              <button class="region-btn active" id="regionBtnAll"   onclick="setRegionFilter('all')">🌍 All</button>
+              <button class="region-btn"        id="regionBtnUsa"   onclick="setRegionFilter('usa')">🇺🇸 USA</button>
+              <button class="region-btn"        id="regionBtnIndia" onclick="setRegionFilter('india')">🇮🇳 India</button>
+            </div>
+            <div class="currency-toggle">
+              <button class="currency-btn active" id="currencyBtnUsd" onclick="setDisplayCurrency('usd')">$ USD</button>
+              <button class="currency-btn"        id="currencyBtnInr" onclick="setDisplayCurrency('inr')">₹ INR</button>
+            </div>
+          </div>
+          <div class="db-hero-label" id="heroLabel">Total Net Worth</div>
           <div class="db-hero-value" id="heroValue">—</div>
           <div class="db-change-badge" id="heroChangeBadge" style="display:none"></div>
           <div class="db-hero-stats">
@@ -2179,6 +2230,34 @@
         </div>
       </div>
     </div><!-- /investments -->
+
+
+    <!-- ═══════════ CASH TAB ═══════════ -->
+    <div id="tab-cash" class="tab-content">
+      <div class="cash-page">
+        <div class="card cash-hero-card" style="margin-bottom:20px">
+          <div class="cash-hero-label">Total Cash</div>
+          <div class="cash-hero-value" id="cashHeroTotal">—</div>
+          <div class="cash-hero-stats">
+            <div class="cash-hstat-block">
+              <div class="cash-hstat-label">Bank Accounts</div>
+              <div class="cash-hstat-value" id="cashStatBank">—</div>
+            </div>
+            <div class="cash-hstat-divider"></div>
+            <div class="cash-hstat-block">
+              <div class="cash-hstat-label">Brokerage Cash</div>
+              <div class="cash-hstat-value" id="cashStatInv">—</div>
+            </div>
+            <div class="cash-hstat-divider"></div>
+            <div class="cash-hstat-block">
+              <div class="cash-hstat-label">Accounts</div>
+              <div class="cash-hstat-value" id="cashStatCount">—</div>
+            </div>
+          </div>
+        </div>
+        <div id="cashList"></div>
+      </div>
+    </div><!-- /cash -->
 
 
     <!-- ═══════════ SPENDING TAB ═══════════ -->
@@ -2472,6 +2551,15 @@
     </div>
 
     <div class="form-group">
+      <label class="form-label">Region</label>
+      <input type="hidden" id="manualRegion" value="usa" />
+      <div class="region-filter" style="margin-bottom:0">
+        <button type="button" class="region-btn active" id="manualRegionBtnUsa"   onclick="setManualRegion('usa')">🇺🇸 USA</button>
+        <button type="button" class="region-btn"        id="manualRegionBtnIndia" onclick="setManualRegion('india')">🇮🇳 India</button>
+      </div>
+    </div>
+
+    <div class="form-group">
       <label class="form-label">Account Type</label>
       <div class="type-grid" id="typeGrid">
         <!-- populated by JS -->
@@ -2575,6 +2663,14 @@
         <div class="form-group" style="margin-bottom:0">
           <label class="form-label">Account Name <span style="color:var(--t3);font-weight:400;font-size:11px">(optional)</span></label>
           <input class="form-input" id="csvAccountName" placeholder="e.g. Checking, Brokerage — leave blank to auto-name" oninput="csvAutoClassify()" />
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:16px">
+        <label class="form-label">Region</label>
+        <input type="hidden" id="csvRegion" value="usa" />
+        <div class="region-filter" style="margin-bottom:0">
+          <button type="button" class="region-btn active" id="csvRegionBtnUsa"   onclick="setCsvRegion('usa')">🇺🇸 USA</button>
+          <button type="button" class="region-btn"        id="csvRegionBtnIndia" onclick="setCsvRegion('india')">🇮🇳 India</button>
         </div>
       </div>
 
@@ -2741,7 +2837,7 @@
 // ════════════════════════════════════════════════════════════════════════════
 //  CONSTANTS & STATE
 // ════════════════════════════════════════════════════════════════════════════
-const API         = 'http://localhost:3000/api';
+const API         = window.location.origin + '/api';
 // Legacy keys — only used to migrate old localStorage data on first run
 const HISTORY_KEY = 'wos_networth_history';
 const MANUAL_KEY  = 'wos_manual_accounts';
@@ -2780,6 +2876,9 @@ const state = {
   spendNavFromDrawer:    false, // true when Tx tab was entered from the spending drawer CTA
   recurringDrilldowns:   {},    // { recId: recurring group } for row → transactions drill-down
   recurringTxFilter:     null,  // active recurring drill-down metadata on Transactions page
+  regionFilter:          localStorage.getItem('wos_regionFilter') || 'all',
+  displayCurrency:       localStorage.getItem('wos_displayCurrency') || 'usd',
+  fxRateInr:             null,
 };
 
 // Active filters for the transactions tab
@@ -2958,11 +3057,36 @@ const MANUAL_TYPES = [
 const _ESC_MAP = { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' };
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => _ESC_MAP[c]); }
 
-const fmt = (n, currency = 'USD') =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
+const _fmtUSD     = (n, c = 'USD') => new Intl.NumberFormat('en-US', { style: 'currency', currency: c, maximumFractionDigits: 0 }).format(n);
+const _fmtFullUSD = (n, c = 'USD') => new Intl.NumberFormat('en-US', { style: 'currency', currency: c }).format(n);
 
-const fmtFull = (n, currency = 'USD') =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(n);
+function _fmtINR(n) {
+  const abs = Math.abs(n), sign = n < 0 ? '-' : '';
+  if (abs >= 1e7) return sign + '₹' + (abs / 1e7).toFixed(2) + ' Cr';
+  if (abs >= 1e5) return sign + '₹' + (abs / 1e5).toFixed(2) + ' L';
+  return sign + new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(Math.abs(n));
+}
+function _fmtFullINR(n) {
+  const abs = Math.abs(n), sign = n < 0 ? '-' : '';
+  if (abs >= 1e7) return sign + '₹' + (abs / 1e7).toFixed(3) + ' Cr';
+  if (abs >= 1e5) return sign + '₹' + (abs / 1e5).toFixed(2) + ' L';
+  return sign + new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(Math.abs(n));
+}
+
+// When called with an explicit currency arg, format as-is (e.g. FX preview, per-share USD prices).
+// When called with no currency arg, apply the user's display currency preference.
+function fmt(n, currency) {
+  if (currency !== undefined) return _fmtUSD(n, currency);
+  if (typeof state !== 'undefined' && state.displayCurrency === 'inr' && state.fxRateInr)
+    return _fmtINR(n * state.fxRateInr);
+  return _fmtUSD(n);
+}
+function fmtFull(n, currency) {
+  if (currency !== undefined) return _fmtFullUSD(n, currency);
+  if (typeof state !== 'undefined' && state.displayCurrency === 'inr' && state.fxRateInr)
+    return _fmtFullINR(n * state.fxRateInr);
+  return _fmtFullUSD(n);
+}
 
 // Read a CSS variable from the current theme (used for dynamic chart colors)
 function themeColor(varName) {
@@ -3122,6 +3246,58 @@ function csvToAccount(c) {
   };
 }
 
+// ── Region classification ──────────────────────────────────────────────────
+const INDIA_INST_RE = /\b(hdfc|icici|sbi|axis\s*bank|kotak|yes\s*bank|indusind|idfc|punjab\s*national|federal\s*bank|zerodha|groww|angel\s*(broking|one)?|upstox|5paisa|iifl|motilal\s*oswal|sharekhan|paytm|phonepe|dhan|fyers|nse|bse)\b/i;
+
+function accountRegion(account) {
+  // Explicit user-set region always wins
+  const explicit = account.manualData?.region || account.csvData?.region;
+  if (explicit) return explicit;
+
+  // Manual account: check saved originalCurrency, then institution name
+  if (account.isManual) {
+    if (account.manualData?.originalCurrency === 'INR') return 'india';
+    if (INDIA_INST_RE.test(account.manualData?.institution || '')) return 'india';
+    return 'usa';
+  }
+  // CSV account: currency field (preserved on save) or institution name
+  if (account.isCsvAccount) {
+    if ((account.csvData?.currency || '').toUpperCase() === 'INR') return 'india';
+    if (INDIA_INST_RE.test(account.csvData?.institution || '')) return 'india';
+    return 'usa';
+  }
+  // Plaid account: currency field
+  const curr = (account.currency || account.balances?.iso_currency_code || '').toUpperCase();
+  if (curr === 'INR') return 'india';
+  if (INDIA_INST_RE.test(account.institution_name || '')) return 'india';
+  return 'usa';
+}
+
+function isAccountInRegion(account) {
+  if (state.regionFilter === 'all') return true;
+  return accountRegion(account) === state.regionFilter;
+}
+
+function isHoldingInRegion(h) {
+  if (state.regionFilter === 'all') return true;
+  if (h._csvAccountId) {
+    const csvAcct = state.csvAccounts.find(a => a.id === h._csvAccountId);
+    if (!csvAcct) return true;
+    return accountRegion(csvToAccount(csvAcct)) === state.regionFilter;
+  }
+  if (h._manualAccountId) {
+    const manAcct = state.manualAccounts.find(a => a.id === h._manualAccountId);
+    if (!manAcct) return true;
+    return accountRegion(manualToAccount(manAcct)) === state.regionFilter;
+  }
+  // Plaid holding — check its account
+  if (h.account_id) {
+    const plaidAcct = state.accounts.find(a => a.account_id === h.account_id);
+    if (plaidAcct) return accountRegion(plaidAcct) === state.regionFilter;
+  }
+  return state.regionFilter === 'usa';
+}
+
 // All accounts combined (Plaid + manual + CSV)
 function allAccounts() {
   return [
@@ -3143,7 +3319,7 @@ function allTransactions() {
 function allHoldings() {
   const csvHoldings = state.csvAccounts
     .filter(a => a.dataType === 'holdings')
-    .flatMap(a => (a.holdings || []).map(h => ({ ...h, institution_name: a.institution || 'CSV Import' })));
+    .flatMap(a => (a.holdings || []).map(h => ({ ...h, institution_name: a.institution || 'CSV Import', _csvAccountId: a.id })));
   return { holdings: [...(state.investments.holdings || []), ...csvHoldings] };
 }
 
@@ -3397,6 +3573,7 @@ async function loadInvestments(silent = false) {
   buildAccountInvStats();
   if (!silent) {
     renderInvestments();
+    renderCash();
     fetchLivePrices();
   }
 }
@@ -3412,6 +3589,7 @@ async function syncInvestments() {
     if (data.last_synced) { state.lastSyncedInv = data.last_synced; renderSyncInfo(); }
   } catch (e) { console.warn('Investments sync failed:', e.message); }
   renderInvestments();
+  renderCash();
   fetchLivePrices();
 }
 
@@ -3494,6 +3672,9 @@ function classifyHolding(holding, security) {
 
   // Name suggests crypto
   if (/\b(bitcoin|ethereum|solana|cardano|ripple|dogecoin|litecoin|crypto)\b/i.test(name)) return 'crypto';
+
+  // CUSIP (9 alphanumeric, last char is a digit) — corporate/muni/treasury bond
+  if (isCusipTicker(ticker)) return 'fixed_income';
 
   // Standard stock ticker: 1–5 uppercase letters, no digits (covers SOFI, MSFT, AMZN, etc.)
   if (/^[A-Z]{1,5}$/.test(ticker)) return 'stock';
@@ -3759,6 +3940,7 @@ async function loadAll() {
   renderSpending();
   renderRecurringTransactions();
   renderInvestments();
+  renderCash();
   renderSyncInfo();
   fetchLivePrices();
 }
@@ -3932,6 +4114,7 @@ function openManualModal(id) {
   document.getElementById('manualInstitution').value   = m?.institution || '';
   document.getElementById('manualBalance').value       = m?.balance     || '';
   document.getElementById('manualCurrency').value      = m?.currency    || 'USD';
+  setManualRegion(m?.region || 'usa');
   document.getElementById('fxPreview').style.display   = 'none';
   document.getElementById('deleteManualBtn').style.display = isEdit ? 'inline-flex' : 'none';
 
@@ -4107,7 +4290,7 @@ async function updateFxPreview() {
       const rate = await getFxRate(currency);
       if (!rate) { preview.textContent = 'Could not fetch rate.'; return; }
       const usd = raw / rate;
-      preview.innerHTML = `${raw.toLocaleString()} ${currency} ÷ ${rate.toFixed(4)} = <strong>${fmt(usd)}</strong> — will be saved as USD`;
+      preview.innerHTML = `${raw.toLocaleString()} ${currency} ÷ ${rate.toFixed(4)} = <strong>${fmt(usd, 'USD')}</strong> — will be saved as USD`;
     } catch { preview.textContent = 'Could not fetch rate.'; }
   }, 400);
 }
@@ -4116,6 +4299,7 @@ async function saveManualAccount() {
   const name             = document.getElementById('manualName').value.trim();
   const institution      = document.getElementById('manualInstitution').value.trim();
   const currency         = document.getElementById('manualCurrency').value;
+  const region           = document.getElementById('manualRegion').value || 'usa';
   const accountType      = state.selectedType;
   const address          = document.getElementById('manualAddress').value.trim();
   const linkedMortgageId = accountType === 'real_estate'
@@ -4143,12 +4327,12 @@ async function saveManualAccount() {
   if (editId) {
     const idx = state.manualAccounts.findIndex(a => a.id === editId);
     if (idx !== -1) {
-      state.manualAccounts[idx] = { ...state.manualAccounts[idx], name, institution, balance, currency: 'USD', accountType, address, linkedMortgageId, holdings, goldQty, goldUnit };
+      state.manualAccounts[idx] = { ...state.manualAccounts[idx], name, institution, balance, currency: 'USD', originalCurrency: currency, region, accountType, address, linkedMortgageId, holdings, goldQty, goldUnit };
     }
   } else {
     state.manualAccounts.push({
       id:          'manual_' + Date.now(),
-      name, institution, balance, currency: 'USD', accountType, address, linkedMortgageId, holdings, goldQty, goldUnit,
+      name, institution, balance, currency: 'USD', originalCurrency: currency, region, accountType, address, linkedMortgageId, holdings, goldQty, goldUnit,
       createdAt:   new Date().toISOString(),
     });
   }
@@ -4159,6 +4343,7 @@ async function saveManualAccount() {
   closeManualModal();
   renderSidebarAccounts();
   renderDashboard();
+  renderCash();
 }
 
 async function deleteManualAccount() {
@@ -4169,6 +4354,7 @@ async function deleteManualAccount() {
   closeManualModal();
   renderSidebarAccounts();
   renderDashboard();
+  renderCash();
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -4347,11 +4533,13 @@ function openCsvModal(editId) {
       document.getElementById('csvAccountName').value = acc.name || '';
       document.getElementById('csvInstitution').value  = acc.institution || '';
       setCsvBucket(acc.assetBucket || 'cash', false);
+      setCsvRegion(acc.region || 'usa');
     }
   } else {
     document.getElementById('csvAccountName').value = '';
     document.getElementById('csvInstitution').value  = '';
     setCsvBucket('cash', false);
+    setCsvRegion('usa');
   }
 
   document.getElementById('csvModal').classList.add('open');
@@ -4652,10 +4840,17 @@ function parseCsvToTransactions(rows, mapping, accountId, institutionName) {
   return txs;
 }
 
+function isCusipTicker(t) {
+  // CUSIPs are 9 alphanumeric chars; last char is always a digit (check digit)
+  return /^[A-Z0-9]{8}\d$/i.test(t);
+}
+
 function isOptionOrShort(ticker, name, qty) {
   if (qty != null && qty < 0) return true;
   const t = (ticker || '').trim();
   if (t.length > 12 && /\d{6}[CP]\d+/.test(t)) return true;
+  // CUSIPs are bonds — their descriptions can legitimately say "call" (make-whole call, callable)
+  if (isCusipTicker(t)) return false;
   if (/\b(call|put|option)\b/i.test(name || '')) return true;
   return false;
 }
@@ -4663,17 +4858,27 @@ function isOptionOrShort(ticker, name, qty) {
 function parseCsvToHoldings(rows, mapping, accountId, institutionName) {
   const holdings  = [];
   const securities = {};
-  const cleanNum  = s => parseFloat((s || '0').toString().replace(/[$,%\s]/g, '').replace(/\((.+)\)/, '-$1')) || 0;
+  // Returns null for empty/missing/invalid cells so callers can distinguish "not provided" from 0.
+  const cleanNum = s => {
+    const str = (s ?? '').toString().trim();
+    if (!str || str === '--') return null;
+    const n = parseFloat(str.replace(/[$,%\s]/g, '').replace(/\((.+)\)/, '-$1'));
+    return isNaN(n) ? null : n;
+  };
 
   rows.forEach((row, i) => {
-    const ticker = mapping.ticker ? (row[mapping.ticker] || '').trim() : '';
+    // Strip trailing footnote markers (e.g. Fidelity appends ** to money-market tickers)
+    const ticker = (mapping.ticker ? (row[mapping.ticker] || '').trim() : '').replace(/[^A-Za-z0-9.\-]+$/, '');
     const name   = mapping.name   ? (row[mapping.name]   || '').trim() : '';
     if (!ticker && !name) return;
     if (ticker.match(/^-+$|^total/i)) return; // skip header/total rows
 
     const secId  = `csv_sec_${ticker || name}_${accountId}`.replace(/\s+/g, '_');
+    const isBond = isCusipTicker(ticker);
     const qty    = mapping.qty   ? cleanNum(row[mapping.qty])   : null;
-    const price  = mapping.price ? cleanNum(row[mapping.price]) : null;
+    // Bond prices are quoted as % of face value — qty×price gives the wrong dollar amount.
+    // Always rely on the institution_value (Current Value column) for bonds.
+    const price  = isBond ? null : (mapping.price ? cleanNum(row[mapping.price]) : null);
     const value  = mapping.value ? cleanNum(row[mapping.value]) : (qty && price ? qty * price : null);
     const cost   = mapping.cost  ? cleanNum(row[mapping.cost])  : null;
 
@@ -4712,6 +4917,7 @@ async function confirmCsvUpload() {
   const institution = document.getElementById('csvInstitution').value.trim();
   const rawName     = document.getElementById('csvAccountName').value.trim();
   const editId      = document.getElementById('csvEditId').value;
+  const csvRegionVal = document.getElementById('csvRegion')?.value || 'usa';
 
   if (!institution) { document.getElementById('csvInstitution').focus(); return; }
   if (!csvState.rows.length) { alert('No CSV data loaded yet.'); return; }
@@ -4719,8 +4925,26 @@ async function confirmCsvUpload() {
   const effectiveType = csvState.bucket === 'investment' ? 'holdings' : 'transactions';
   const name = csvAutoName(institution, rawName, effectiveType);
 
-  const accountId = editId || ('csv_' + Date.now());
-  const LETTERS   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+  // For new uploads (no editId), find an existing account from the same institution+bucket to
+  // replace in place rather than always appending a duplicate.
+  let accountId = editId || ('csv_' + Date.now());
+  let existingToReplace = null;
+  if (!editId && !csvState.mapping.account) {
+    const candidates = state.csvAccounts.filter(a =>
+      a.id.split('_').length === 2 &&   // single account, not a sub-account
+      a.institution === institution &&
+      a.assetBucket === csvState.bucket &&
+      a.dataType === effectiveType
+    );
+    // Pick the most recently created (if duplicates exist, converge on newest)
+    if (candidates.length > 0) {
+      candidates.sort((a, b) => (parseInt(b.id.replace('csv_',''))||0) - (parseInt(a.id.replace('csv_',''))||0));
+      existingToReplace = candidates[0];
+      accountId = existingToReplace.id;
+    }
+  }
 
   let parsed = {};
   let balance = 0;
@@ -4747,18 +4971,42 @@ async function confirmCsvUpload() {
 
     const entries   = Object.values(grouped);
     const allGeneric = entries.every(e => isGenericAcctName(e.rawName));
-    const createdAt = editId
-      ? (state.csvAccounts.find(a => a.id === editId)?.createdAt || new Date().toISOString().split('T')[0])
+
+    // Determine the base ID to use for sub-account IDs:
+    // 1. Re-upload button (editId set): strip _N suffix to get parent base
+    // 2. New upload: find existing accounts from same institution+bucket and reuse their base
+    // 3. Fallback: use the new accountId
+    let baseId;
+    if (editId) {
+      baseId = editId.replace(/_\d+$/, '');
+    } else {
+      const existing = state.csvAccounts.filter(a =>
+        a.institution === institution && a.assetBucket === csvState.bucket && a.dataType === 'holdings'
+      );
+      const bases = [...new Set(existing.map(a => a.id.replace(/_\d+$/, '')))];
+      if (bases.length > 0) {
+        // Pick the most recently created base (largest timestamp in ID) so that if the user
+        // already has duplicates, subsequent uploads keep converging on a single set.
+        bases.sort((a, b) => (parseInt(b.replace('csv_', '')) || 0) - (parseInt(a.replace('csv_', '')) || 0));
+        baseId = bases[0];
+      } else {
+        baseId = accountId;
+      }
+    }
+
+    const createdAt = baseId !== accountId
+      ? (state.csvAccounts.find(a => a.id === baseId || a.id.startsWith(baseId + '_'))?.createdAt || new Date().toISOString().split('T')[0])
       : new Date().toISOString().split('T')[0];
 
-    if (editId) state.csvAccounts = state.csvAccounts.filter(a => !a.id.startsWith(accountId));
+    state.csvAccounts = state.csvAccounts.filter(a => a.id !== baseId && !a.id.startsWith(baseId + '_'));
 
     entries.forEach(({ rawName, rows: acctRows }, idx) => {
-      const subId      = `${accountId}_${idx}`;
+      const subId      = `${baseId}_${idx}`;
       const label      = allGeneric || isGenericAcctName(rawName)
         ? `${institution} ${LETTERS[idx] || (idx + 1)}`
         : rawName;
       const { holdings, securities } = parseCsvToHoldings(acctRows, csvState.mapping, subId, institution);
+      if (!holdings.length) return; // skip metadata/total groups with no valid holdings
       const subBalance = holdings.reduce((s, h) => s + (h.institution_value || 0), 0);
       state.csvAccounts.push({
         id:          subId,
@@ -4768,6 +5016,7 @@ async function confirmCsvUpload() {
         dataType:    'holdings',
         balance:     parseFloat(subBalance.toFixed(2)),
         currency:    'USD',
+        region:      csvRegionVal,
         filename:    csvState.filename,
         rowCount:    acctRows.length,
         createdAt,
@@ -4784,6 +5033,7 @@ async function confirmCsvUpload() {
     renderTransactions();
     renderSpending();
     renderInvestments();
+    renderCash();
     return;
   } else {
     const { holdings, securities } = parseCsvToHoldings(csvState.rows, csvState.mapping, accountId, institution);
@@ -4800,9 +5050,12 @@ async function confirmCsvUpload() {
     dataType:    effectiveType,
     balance:     parseFloat(balance.toFixed(2)),
     currency:    'USD',
+    region:      csvRegionVal,
     filename:    csvState.filename,
     rowCount:    csvState.rows.length,
-    createdAt:   editId ? (state.csvAccounts.find(a => a.id === editId)?.createdAt || new Date().toISOString().split('T')[0]) : new Date().toISOString().split('T')[0],
+    createdAt:   editId ? (state.csvAccounts.find(a => a.id === editId)?.createdAt || new Date().toISOString().split('T')[0])
+               : existingToReplace ? existingToReplace.createdAt
+               : new Date().toISOString().split('T')[0],
     updatedAt:   new Date().toISOString().split('T')[0],
     ...parsed,
   };
@@ -4811,6 +5064,9 @@ async function confirmCsvUpload() {
     const idx = state.csvAccounts.findIndex(a => a.id === editId);
     if (idx !== -1) state.csvAccounts[idx] = account;
     else state.csvAccounts.push(account);
+  } else if (existingToReplace) {
+    const idx = state.csvAccounts.indexOf(existingToReplace);
+    state.csvAccounts[idx] = account;
   } else {
     state.csvAccounts.push(account);
   }
@@ -4822,6 +5078,7 @@ async function confirmCsvUpload() {
   renderTransactions();
   renderSpending();
   renderInvestments();
+  renderCash();
 }
 
 async function deleteCsvAccount() {
@@ -4836,6 +5093,7 @@ async function deleteCsvAccount() {
   renderTransactions();
   renderSpending();
   renderInvestments();
+  renderCash();
 }
 
 async function quickDeleteCsv(id) {
@@ -4848,6 +5106,7 @@ async function quickDeleteCsv(id) {
   renderTransactions();
   renderSpending();
   renderInvestments();
+  renderCash();
 }
 
 // Remove tx overrides and spending exclusions for all transactions in a CSV account.
@@ -5083,7 +5342,7 @@ function renderNwChart() {
       },
       scales: {
         x: { grid: { display: false }, ticks: { color: themeColor('--t3'), font: { size: 11 } } },
-        y: { grid: { color: themeColor('--border') + '55' }, ticks: { color: themeColor('--t3'), font: { size: 11 }, callback: v => v >= 1e6 ? '$' + (v/1e6).toFixed(1) + 'M' : '$' + Math.round(v/1000) + 'K' } },
+        y: { grid: { color: themeColor('--border') + '55' }, ticks: { color: themeColor('--t3'), font: { size: 11 }, callback: v => { if (state.displayCurrency === 'inr' && state.fxRateInr) { const r = v * state.fxRateInr; return r >= 1e7 ? '₹' + (r/1e7).toFixed(1) + 'Cr' : '₹' + (r/1e5).toFixed(0) + 'L'; } return v >= 1e6 ? '$' + (v/1e6).toFixed(1) + 'M' : '$' + Math.round(v/1000) + 'K'; } } },
       },
     },
   });
@@ -5122,8 +5381,12 @@ function renderNwChart() {
 }
 
 function renderDashboard() {
-  const accts = allAccounts();
+  const accts = allAccounts().filter(isAccountInRegion);
   const { assets, liabilities, netWorth } = calcNetWorth(accts);
+
+  // Update hero label
+  const heroLabel = document.getElementById('heroLabel');
+  if (heroLabel) heroLabel.textContent = state.regionFilter === 'india' ? 'Net Worth · India' : state.regionFilter === 'usa' ? 'Net Worth · USA' : 'Total Net Worth';
 
   // Hero value
   document.getElementById('heroValue').textContent = fmt(netWorth);
@@ -5241,11 +5504,14 @@ function renderDashboard() {
       state.csvAccounts.filter(a => a.dataType === 'holdings')
         .flatMap(a => Object.entries(a.securities || {}))
     );
+    // filter holdings to region
+    const visibleHoldings = invHoldings.filter(isHoldingInRegion);
     const allSecurities = { ...csvSecurities, ...(state.investments.securities || {}) };
-    invHoldings.forEach(h => {
+    visibleHoldings.forEach(h => {
       const sec    = allSecurities[h.security_id] || {};
       const ticker = (sec.ticker_symbol || '').toUpperCase();
-      if (classifyHolding(h, sec) === 'cash') {
+      const hClass = classifyHolding(h, sec);
+      if (hClass === 'cash') {
         const val = effectiveValue(h, sec);
         bucketTotals['investment'] = Math.max(0, (bucketTotals['investment'] ?? 0) - val);
         bucketTotals['cash'] = (bucketTotals['cash'] ?? 0) + val;
@@ -5752,7 +6018,7 @@ async function fetchLivePrices() {
     ...allHoldings.map(h => {
       const sec = securities[h.security_id] || {};
       const t   = (sec.ticker_symbol || '').toUpperCase();
-      return (t && !t.startsWith('CUR:')) ? t : null;
+      return (t && !t.startsWith('CUR:') && !isCusipTicker(t)) ? t : null;
     }).filter(Boolean),
     ...manualHoldingTickers,
   ])];
@@ -5787,14 +6053,14 @@ async function fetchLivePrices() {
 // Effective price: use live Yahoo Finance price if available, else Plaid institution_price
 function effectivePrice(h, sec) {
   const ticker = (sec?.ticker_symbol || '').toUpperCase();
-  if (ticker && state.livePrices[ticker] != null) return state.livePrices[ticker];
+  if (ticker && state.livePrices[ticker] != null && !CASH_LIKE_TICKERS.has(ticker)) return state.livePrices[ticker];
   return h.institution_price ?? null;
 }
 
 // Effective value: live_price × qty when available, else institution_value
 function effectiveValue(h, sec) {
   const lp = effectivePrice(h, sec);
-  if (lp != null && h.quantity != null) return lp * h.quantity;
+  if (lp != null && lp !== 0 && h.quantity != null) return lp * h.quantity;
   return h.institution_value ?? 0;
 }
 
@@ -5917,9 +6183,10 @@ function invTickerRowHtml(a, portfolioTotal) {
   const weightPct = portfolioTotal > 0 ? (a.totalValue / portfolioTotal) * 100 : 0;
   const weightStr = weightPct > 0 ? weightPct.toFixed(1) + '%' : '—';
   const instTag = `<span style="font-size:10px;color:var(--t3);margin-left:4px">${esc(a.institutions.join(', ') || '')}</span>`;
-  const aTickerClass = !a.isCash && a.rawTicker ? 'inv-ticker clickable' : 'inv-ticker';
-  const aTickerClick = !a.isCash && a.rawTicker ? `onclick="openTickerLink('${a.rawTicker.replace(/'/g,"\\'")}')"` : '';
-  const aTickerTitle = a.isCash ? esc(a.name) : esc(a.name) + ' — click to look up';
+  const aLookupable  = !a.isCash && a.rawTicker && !isCusipTicker(a.rawTicker);
+  const aTickerClass = aLookupable ? 'inv-ticker clickable' : 'inv-ticker';
+  const aTickerClick = aLookupable ? `onclick="openTickerLink('${a.rawTicker.replace(/'/g,"\\'")}')"` : '';
+  const aTickerTitle = a.isCash ? esc(a.name) : esc(a.name) + (aLookupable ? ' — click to look up' : '');
   return invViewMode === 'compact' ? `
       <div class="inv-holding-row compact">
         <span class="${aTickerClass}" title="${aTickerTitle}" ${aTickerClick}>${esc(a.ticker)}</span>
@@ -5951,9 +6218,9 @@ function setInvCategoryGroup(checked) {
 
 function invHoldingRowHtml(h, sec, totalValueForWeight) {
   const rawTicker  = (sec.ticker_symbol || '').toUpperCase();
-  const isCash     = rawTicker.startsWith('CUR:') || sec.type === 'cash';
+  const isCash     = rawTicker.startsWith('CUR:') || sec.type === 'cash' || CASH_LIKE_TICKERS.has(rawTicker);
   const ticker     = isCash ? '💵' : (rawTicker || sec.name?.slice(0,6) || '—');
-  const name       = isCash ? `Cash (${rawTicker.replace('CUR:','')})` : securityName(sec);
+  const name       = isCash ? `Cash (${rawTicker.replace('CUR:','') || rawTicker})` : securityName(sec);
   const qty        = h.quantity != null ? (+h.quantity).toLocaleString('en-AU', { maximumFractionDigits: 4 }) : '—';
   const liveP      = rawTicker && !isCash ? state.livePrices[rawTicker] : null;
   const priceVal   = effectivePrice(h, sec);
@@ -5981,9 +6248,10 @@ function invHoldingRowHtml(h, sec, totalValueForWeight) {
   const dayClass   = dayChgPos == null ? '' : dayChgPos >= 0 ? 'pos' : 'neg';
   const weightPct  = totalValueForWeight > 0 && val != null ? (val / totalValueForWeight) * 100 : 0;
   const weightStr  = weightPct > 0 ? weightPct.toFixed(1) + '%' : '—';
-  const tickerClass = !isCash && rawTicker ? 'inv-ticker clickable' : 'inv-ticker';
-  const tickerClick = !isCash && rawTicker ? `onclick="openTickerLink('${rawTicker.replace(/'/g,"\\'")}')"` : '';
-  const tickerTitle = isCash ? esc(name) : esc(name) + ' — click to look up';
+  const isLookupable = !isCash && rawTicker && !isCusipTicker(rawTicker);
+  const tickerClass = isLookupable ? 'inv-ticker clickable' : 'inv-ticker';
+  const tickerClick = isLookupable ? `onclick="openTickerLink('${rawTicker.replace(/'/g,"\\'")}')"` : '';
+  const tickerTitle = isCash ? esc(name) : esc(name) + (isLookupable ? ' — click to look up' : '');
   return invViewMode === 'compact' ? `
       <div class="inv-holding-row compact">
         <span class="${tickerClass}" title="${tickerTitle}" ${tickerClick}>${ticker}</span>
@@ -6011,7 +6279,7 @@ function renderInvestments() {
   // Merge Plaid holdings with CSV-imported holdings
   const csvHoldingsFlat = state.csvAccounts
     .filter(a => a.dataType === 'holdings')
-    .flatMap(a => (a.holdings || []).map(h => ({ ...h, institution_name: h.institution_name || a.institution || 'CSV Import' })));
+    .flatMap(a => (a.holdings || []).map(h => ({ ...h, institution_name: h.institution_name || a.institution || 'CSV Import', _csvAccountId: a.id })));
 
   // Synthetic Plaid-like holdings from manual investment accounts that have stock tickers
   const manualHoldingsFlat = state.manualAccounts
@@ -6027,18 +6295,35 @@ function renderInvestments() {
         institution_price: price,
         institution_value: price != null ? price * (h.shares || 0) : null,
         cost_basis:        null,
+        _manualAccountId:  a.id,
       };
     }));
-  const manualSecurities = Object.fromEntries(
-    state.manualAccounts
+  // Balance-only manual investment accounts (no individual holdings — shown as a lump sum)
+  const manualBalHoldings = state.manualAccounts
+    .filter(a => a.accountType === 'investment' && !a.holdings?.length && parseFloat(a.balance) > 0)
+    .map(a => ({
+      account_id:        a.id,
+      security_id:       'manual_bal_' + a.id,
+      quantity:          null,
+      institution_name:  a.institution || 'Manual',
+      institution_price: null,
+      institution_value: parseFloat(a.balance) || 0,
+      cost_basis:        null,
+      _manualAccountId:  a.id,
+    }));
+  const manualSecurities = Object.fromEntries([
+    ...state.manualAccounts
       .filter(a => a.accountType === 'investment' && a.holdings?.length)
       .flatMap(a => (a.holdings || []).map(h => {
         const ticker = (h.ticker || '').toUpperCase();
         return ['manual_' + ticker, { ticker_symbol: ticker, name: ticker, type: 'equity' }];
-      }))
-  );
+      })),
+    ...state.manualAccounts
+      .filter(a => a.accountType === 'investment' && !a.holdings?.length && parseFloat(a.balance) > 0)
+      .map(a => ['manual_bal_' + a.id, { ticker_symbol: '', name: a.name, type: 'other' }]),
+  ]);
 
-  const allHoldings = [...(state.investments.holdings || []), ...csvHoldingsFlat, ...manualHoldingsFlat];
+  const allHoldings = [...(state.investments.holdings || []), ...csvHoldingsFlat, ...manualHoldingsFlat, ...manualBalHoldings];
   const csvSecurities  = Object.fromEntries(
     state.csvAccounts.filter(a => a.dataType === 'holdings')
       .flatMap(a => Object.entries(a.securities || {}))
@@ -6098,6 +6383,9 @@ function renderInvestments() {
     : allHoldings;
   if (activeAcctFilter) {
     holdings = holdings.filter(h => h.account_id === activeAcctFilter);
+  }
+  if (state.regionFilter !== 'all') {
+    holdings = holdings.filter(isHoldingInRegion);
   }
 
   // ── Live price age indicator ──────────────────────────────────────────────
@@ -6326,7 +6614,7 @@ function renderInvestments() {
     instHoldings.forEach(h => {
       const sec = securities[h.security_id] || {};
       const rawTicker = (sec.ticker_symbol || '').toUpperCase();
-      if (!rawTicker || rawTicker.startsWith('CUR:') || sec.type === 'cash') return;
+      if (!rawTicker || rawTicker.startsWith('CUR:') || sec.type === 'cash' || CASH_LIKE_TICKERS.has(rawTicker)) return;
       const detail = state.livePriceDetails[rawTicker];
       if (detail?.change == null || h.quantity == null) return;
       instTodayGain = (instTodayGain ?? 0) + detail.change * h.quantity;
@@ -6531,9 +6819,10 @@ function renderInvestmentsByTicker(holdings, securities, bannerHtml) {
   holdings.forEach(h => {
     const sec = securities[h.security_id] || {};
     const rawTicker = (sec.ticker_symbol || '').toUpperCase();
-    const isCash    = rawTicker.startsWith('CUR:') || sec.type === 'cash';
-    // Key: use ticker for real securities, security_id for cash/untickered (each stays separate)
-    const key = (!isCash && rawTicker) ? rawTicker : h.security_id;
+    const isCash    = rawTicker.startsWith('CUR:') || sec.type === 'cash' || CASH_LIKE_TICKERS.has(rawTicker);
+    // Key: group by ticker whenever one exists (even cash-like ETFs); fall back to security_id
+    // only for untickered holdings or CUR: currency entries (which have no meaningful symbol)
+    const key = (rawTicker && !rawTicker.startsWith('CUR:')) ? rawTicker : h.security_id;
     if (!byTicker[key]) byTicker[key] = { sec, rows: [] };
     byTicker[key].rows.push(h);
   });
@@ -6541,9 +6830,9 @@ function renderInvestmentsByTicker(holdings, securities, bannerHtml) {
   // Build flat list of aggregated holdings (using live prices + cost overrides where available)
   const aggregated = Object.values(byTicker).map(({ sec, rows }) => {
     const rawTicker  = (sec.ticker_symbol || '').toUpperCase();
-    const isCash     = rawTicker.startsWith('CUR:') || sec.type === 'cash';
+    const isCash     = rawTicker.startsWith('CUR:') || sec.type === 'cash' || CASH_LIKE_TICKERS.has(rawTicker);
     const ticker     = isCash ? '💵' : (rawTicker || '—');
-    const name       = isCash ? `Cash (${rawTicker.replace('CUR:','') || 'USD'})` : securityName(sec);
+    const name       = isCash ? `Cash (${rawTicker.replace('CUR:','') || rawTicker || 'USD'})` : securityName(sec);
     const type       = classifyHolding(rows[0], sec);
     const totalValue = rows.reduce((s, h) => s + effectiveValue(h, sec), 0);
     const totalQty   = rows.reduce((s, h) => s + (h.quantity ?? 0), 0);
@@ -7989,8 +8278,8 @@ function renderTransactions() {
 // ════════════════════════════════════════════════════════════════════════════
 //  TAB NAVIGATION
 // ════════════════════════════════════════════════════════════════════════════
-const TAB_TITLES = { dashboard: 'Dashboard', investments: 'Investments', spending: 'Spending', recurring: 'Recurring', transactions: 'Transactions', accounts: 'Accounts', settings: 'Settings' };
-const TAB_PATHS = { dashboard: '/dashboard', investments: '/investments', spending: '/spending', recurring: '/recurring', transactions: '/transactions', accounts: '/accounts', settings: '/settings' };
+const TAB_TITLES = { dashboard: 'Dashboard', investments: 'Investments', cash: 'Cash', spending: 'Spending', recurring: 'Recurring', transactions: 'Transactions', accounts: 'Accounts', settings: 'Settings' };
+const TAB_PATHS = { dashboard: '/dashboard', investments: '/investments', cash: '/cash', spending: '/spending', recurring: '/recurring', transactions: '/transactions', accounts: '/accounts', settings: '/settings' };
 const PATH_TABS = Object.fromEntries(Object.entries(TAB_PATHS).map(([tab, route]) => [route, tab]));
 
 function tabFromLocation() {
@@ -8043,7 +8332,7 @@ function buildAccountInvStats() {
     const b         = buckets[id];
     const sec       = securities[h.security_id] || {};
     const rawTicker = (sec.ticker_symbol || '').toUpperCase();
-    const isCash    = !rawTicker || rawTicker.startsWith('CUR:') || sec.type === 'cash';
+    const isCash    = !rawTicker || rawTicker.startsWith('CUR:') || sec.type === 'cash' || CASH_LIKE_TICKERS.has(rawTicker);
 
     // Today's P&L — same as investments tab line: detail.change * h.quantity
     if (!isCash) {
@@ -8272,6 +8561,214 @@ async function saveSettings() {
   }
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+//  CASH PAGE
+// ════════════════════════════════════════════════════════════════════════════
+function renderCash() {
+  const accts = allAccounts();
+  const bankAccts = accts.filter(a => {
+    const meta = getAccountMeta(a);
+    return (a.type || '').toLowerCase() === 'depository' && meta.isAsset && isAccountInRegion(a);
+  }).sort((a, b) => (b.balances?.current ?? 0) - (a.balances?.current ?? 0));
+
+  const { holdings: invHoldings } = allHoldings();
+  const csvSecurities = Object.fromEntries(
+    state.csvAccounts.filter(a => a.dataType === 'holdings')
+      .flatMap(a => Object.entries(a.securities || {}))
+  );
+  const allSec = { ...csvSecurities, ...(state.investments.securities || {}) };
+
+  const cashByKey = {};
+  invHoldings.filter(isHoldingInRegion).forEach(h => {
+    const sec = allSec[h.security_id] || {};
+    if (classifyHolding(h, sec) !== 'cash') return;
+    const rawTicker = (sec.ticker_symbol || '').toUpperCase();
+    const key = (rawTicker && !rawTicker.startsWith('CUR:')) ? rawTicker : h.security_id;
+    if (!cashByKey[key]) cashByKey[key] = { sec, rows: [] };
+    cashByKey[key].rows.push(h);
+  });
+
+  const invCashRows = Object.values(cashByKey).map(({ sec, rows }) => {
+    const rawTicker = (sec.ticker_symbol || '').toUpperCase();
+    const isCur     = rawTicker.startsWith('CUR:');
+    const ticker    = isCur ? '💵' : (rawTicker || '—');
+    const name      = isCur
+      ? `Uninvested Cash (${rawTicker.replace('CUR:', '') || 'USD'})`
+      : securityName(sec);
+    const totalValue  = rows.reduce((s, h) => s + effectiveValue(h, sec), 0);
+    const institutions = [...new Set(rows.map(h => h.institution_name).filter(Boolean))];
+    return { ticker, rawTicker, name, totalValue, institutions, isCur };
+  }).sort((a, b) => b.totalValue - a.totalValue);
+
+  const bankTotal    = bankAccts.reduce((s, a) => s + (a.balances?.current ?? 0), 0);
+  const invCashTotal = invCashRows.reduce((s, r) => s + r.totalValue, 0);
+  const totalCash    = bankTotal + invCashTotal;
+  const accountCount = bankAccts.length + Object.keys(cashByKey).length;
+
+  // Hero stats
+  const heroEl = document.getElementById('cashHeroTotal');
+  if (heroEl) heroEl.textContent = fmt(totalCash);
+  const bankStatEl = document.getElementById('cashStatBank');
+  if (bankStatEl) bankStatEl.textContent = fmt(bankTotal);
+  const invStatEl = document.getElementById('cashStatInv');
+  if (invStatEl) invStatEl.textContent = fmt(invCashTotal);
+  const countEl = document.getElementById('cashStatCount');
+  if (countEl) countEl.textContent = accountCount;
+
+  function subtypeLabel(a) {
+    const sub = (a.subtype || '').toLowerCase();
+    if (sub === 'checking')     return 'Checking';
+    if (sub === 'savings')      return 'Savings';
+    if (sub === 'money market') return 'Money Market';
+    if (sub === 'cd')           return 'CD';
+    if (sub === 'prepaid')      return 'Prepaid';
+    return sub ? sub.charAt(0).toUpperCase() + sub.slice(1) : 'Bank';
+  }
+
+  // Bank accounts section
+  let bankHtml = '';
+  if (bankAccts.length) {
+    bankHtml = bankAccts.map(a => {
+      const bal  = a.balances?.current ?? 0;
+      const pct  = totalCash > 0 ? (bal / totalCash * 100).toFixed(1) : '0.0';
+      const name = a.name || a.official_name || 'Account';
+      const inst = a.institution_name || a.manualData?.institution || '';
+      const sub  = subtypeLabel(a);
+      return `<div class="cash-row">
+        <div class="cash-row-icon">🏦</div>
+        <div>
+          <div class="cash-row-name">${esc(name)}</div>
+          <div class="cash-row-sub">${esc(inst)}${inst && sub ? ' · ' : ''}${sub ? `<span class="cash-subtype-pill">${esc(sub)}</span>` : ''}</div>
+        </div>
+        <div class="cash-row-right">
+          <div class="cash-row-val">${fmt(bal)}</div>
+          <div class="cash-row-pct">${pct}% of cash</div>
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    bankHtml = `<div style="padding:16px;color:var(--t3);font-size:13px">No bank accounts linked</div>`;
+  }
+
+  // Investment cash section
+  let invHtml = '';
+  if (invCashRows.length) {
+    invHtml = invCashRows.map(r => {
+      const pct  = totalCash > 0 ? (r.totalValue / totalCash * 100).toFixed(1) : '0.0';
+      const inst = r.institutions.join(', ');
+      return `<div class="cash-row">
+        <div class="cash-row-icon" style="font-size:13px;font-weight:700;color:var(--t2)">${r.isCur ? '💵' : esc(r.ticker)}</div>
+        <div>
+          <div class="cash-row-name">${esc(r.name)}</div>
+          ${inst ? `<div class="cash-row-sub">${esc(inst)}</div>` : ''}
+        </div>
+        <div class="cash-row-right">
+          <div class="cash-row-val">${fmt(r.totalValue)}</div>
+          <div class="cash-row-pct">${pct}% of cash</div>
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    invHtml = `<div style="padding:16px;color:var(--t3);font-size:13px">No brokerage cash or money market holdings</div>`;
+  }
+
+  const bankFmt  = bankTotal >= 1000 ? '$' + Math.round(bankTotal / 1000) + 'K' : fmt(bankTotal);
+  const invFmt   = invCashTotal >= 1000 ? '$' + Math.round(invCashTotal / 1000) + 'K' : fmt(invCashTotal);
+
+  document.getElementById('cashList').innerHTML = `
+    <div class="cash-section">
+      <div class="cash-section-header" onclick="toggleCashSection('cash-bank')">
+        <div class="cash-section-label">
+          <span>🏦</span>
+          <span style="color:#34d399">Bank Accounts</span>
+          <span style="color:var(--t3);font-weight:400;text-transform:none;letter-spacing:0">· ${bankAccts.length} account${bankAccts.length !== 1 ? 's' : ''}</span>
+        </div>
+        <div class="cash-section-meta">
+          <div class="cash-section-total">${bankFmt}</div>
+          <span style="color:var(--t3);font-size:11px" id="cash-bank-chevron">▲</span>
+        </div>
+      </div>
+      <div id="cash-bank">${bankHtml}</div>
+    </div>
+    <div class="cash-section">
+      <div class="cash-section-header" onclick="toggleCashSection('cash-inv')">
+        <div class="cash-section-label">
+          <span>📊</span>
+          <span style="color:#34d399">Brokerage Cash</span>
+          <span style="color:var(--t3);font-weight:400;text-transform:none;letter-spacing:0">· ${invCashRows.length} holding${invCashRows.length !== 1 ? 's' : ''}</span>
+        </div>
+        <div class="cash-section-meta">
+          <div class="cash-section-total">${invFmt}</div>
+          <span style="color:var(--t3);font-size:11px" id="cash-inv-chevron">▲</span>
+        </div>
+      </div>
+      <div id="cash-inv">${invHtml}</div>
+    </div>`;
+}
+
+async function setDisplayCurrency(cur) {
+  if (cur === 'inr' && !state.fxRateInr) {
+    const btn = document.getElementById('currencyBtnInr');
+    if (btn) { const prev = btn.textContent; btn.textContent = '…'; btn.disabled = true;
+      try { state.fxRateInr = await getFxRate('INR'); } catch { state.fxRateInr = null; } finally { btn.textContent = prev; btn.disabled = false; } }
+    else {
+      try { state.fxRateInr = await getFxRate('INR'); } catch { state.fxRateInr = null; }
+    }
+    if (!state.fxRateInr) { console.warn('Could not fetch INR rate'); return; }
+  }
+  state.displayCurrency = cur;
+  localStorage.setItem('wos_displayCurrency', cur);
+  syncCurrencyButtons();
+  renderDashboard();
+  renderInvestments();
+  renderCash();
+}
+
+function syncCurrencyButtons() {
+  const c = state.displayCurrency;
+  document.getElementById('currencyBtnUsd')?.classList.toggle('active', c === 'usd');
+  document.getElementById('currencyBtnInr')?.classList.toggle('active', c === 'inr');
+}
+
+function setManualRegion(r) {
+  document.getElementById('manualRegion').value = r;
+  document.getElementById('manualRegionBtnUsa')?.classList.toggle('active', r === 'usa');
+  document.getElementById('manualRegionBtnIndia')?.classList.toggle('active', r === 'india');
+}
+
+function setCsvRegion(r) {
+  document.getElementById('csvRegion').value = r;
+  document.getElementById('csvRegionBtnUsa')?.classList.toggle('active', r === 'usa');
+  document.getElementById('csvRegionBtnIndia')?.classList.toggle('active', r === 'india');
+}
+
+function setRegionFilter(filter) {
+  state.regionFilter = filter;
+  localStorage.setItem('wos_regionFilter', filter);
+  document.getElementById('regionBtnAll')?.classList.toggle('active', filter === 'all');
+  document.getElementById('regionBtnUsa')?.classList.toggle('active', filter === 'usa');
+  document.getElementById('regionBtnIndia')?.classList.toggle('active', filter === 'india');
+  renderDashboard();
+  renderInvestments();
+  renderCash();
+}
+
+function syncRegionButtons() {
+  const f = state.regionFilter;
+  document.getElementById('regionBtnAll')?.classList.toggle('active', f === 'all');
+  document.getElementById('regionBtnUsa')?.classList.toggle('active', f === 'usa');
+  document.getElementById('regionBtnIndia')?.classList.toggle('active', f === 'india');
+}
+
+function toggleCashSection(id) {
+  const body    = document.getElementById(id);
+  const chevron = document.getElementById(id + '-chevron');
+  if (!body) return;
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : '';
+  if (chevron) chevron.textContent = open ? '▼' : '▲';
+}
+
 function showTab(name, navEl, opts = {}) {
   if (!TAB_TITLES[name]) name = 'dashboard';
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -8284,6 +8781,7 @@ function showTab(name, navEl, opts = {}) {
   if (name === 'recurring')    renderRecurringTransactions();
   if (name === 'accounts')     renderAccountsPage();
   if (name === 'settings')     renderSettingsPage();
+  if (name === 'cash')         renderCash();
   if (name === 'investments' && !opts.keepInvFilter) {
     state.invInstitutionFilter = null;
     state.invAccountFilter     = null;
@@ -8336,12 +8834,20 @@ async function init() {
     loadAccounts(true), loadTransactions(true), loadInvestments(true),
   ]);
 
+  // Pre-fetch INR rate if user has INR selected from a previous session
+  if (state.displayCurrency === 'inr') {
+    try { state.fxRateInr = await getFxRate('INR'); } catch { state.displayCurrency = 'usd'; localStorage.setItem('wos_displayCurrency', 'usd'); }
+  }
+
   // Single render pass — all state is populated, no intermediate flicker
+  syncRegionButtons();
+  syncCurrencyButtons();
   renderSidebarAccounts();
   renderDashboard();
   renderTransactions();
   renderSpending();
   renderInvestments();
+  renderCash();
   renderSyncInfo();
   await fetchLivePrices();
   hidePageLoader();
@@ -8647,6 +9153,9 @@ function claudeOpenInWeb() {
 <div class="mobile-drawer-overlay" id="mobileDrawerOverlay" onclick="closeMobileMore()"></div>
 <div class="mobile-more-drawer" id="mobileMoreDrawer">
   <div class="mobile-drawer-handle"></div>
+  <button class="mobile-drawer-item" id="mndCash" onclick="mobileMoreNavTo('cash')">
+    <span class="mobile-drawer-item-icon">💵</span><span>Cash</span>
+  </button>
   <button class="mobile-drawer-item" id="mndRecurring" onclick="mobileMoreNavTo('recurring')">
     <span class="mobile-drawer-item-icon">🔁</span><span>Recurring</span>
   </button>

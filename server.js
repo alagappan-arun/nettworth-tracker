@@ -33,7 +33,7 @@ const {
 } = require('plaid');
 
 const app = express();
-app.use(cors({ origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://myfinance.local'] }));
+app.use(cors());
 app.use(express.json());
 app.use((req, res, next) => {
   if (req.path.endsWith('.html') || req.path === '/') {
