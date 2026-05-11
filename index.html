@@ -689,7 +689,7 @@
     .inv-hero-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 99px; font-size: 13px; font-weight: 600; margin-bottom: 22px; }
     .inv-hero-badge.pos { background: rgba(52,211,153,.15); color: var(--green); }
     .inv-hero-badge.neg { background: rgba(248,113,113,.15); color: var(--red); }
-    .inv-hero-stats { display: grid; grid-template-columns: 1fr 1px 1fr 1px 1fr; border-top: 1px solid var(--border); padding-top: 18px; }
+    .inv-hero-stats { display: grid; grid-template-columns: 1fr 1px 1fr 1px 1fr 1px 1fr; border-top: 1px solid var(--border); padding-top: 18px; }
     .inv-hstat-divider { background: var(--border); }
     .inv-hstat-block { padding: 0 16px; }
     .inv-hstat-block:first-child { padding-left: 0; }
@@ -1647,7 +1647,8 @@
       .hero-value { font-size: 32px; }
 
       /* ── Hero stat rows: drop visual dividers, all three stats fit ──────── */
-      .db-hero-stats, .inv-hero-stats, .rec-hero-stats, .cash-hero-stats { grid-template-columns: 1fr 1fr 1fr; }
+      .db-hero-stats, .rec-hero-stats, .cash-hero-stats { grid-template-columns: 1fr 1fr 1fr; }
+      .inv-hero-stats { grid-template-columns: 1fr 1fr; row-gap: 14px; }
       .db-hstat-divider, .inv-hstat-divider, .rec-hstat-divider, .cash-hstat-divider { display: none; }
       .db-hstat-block, .inv-hstat-block, .rec-hstat-block, .cash-hstat-block { padding: 0 6px; }
       .db-hstat-block:first-child,
@@ -2136,6 +2137,12 @@
             <div class="inv-hstat-block">
               <div class="inv-hstat-label">Cost Basis</div>
               <div class="inv-hstat-value" id="invCostBasisVal">—</div>
+            </div>
+            <div class="inv-hstat-divider"></div>
+            <div class="inv-hstat-block">
+              <div class="inv-hstat-label">Overall Gain</div>
+              <div class="inv-hstat-value" id="invOverallGain">—</div>
+              <div class="inv-hstat-sub" id="invOverallGainPct"></div>
             </div>
             <div class="inv-hstat-divider"></div>
             <div class="inv-hstat-block">
@@ -6436,6 +6443,27 @@ function renderInvestments() {
 
   const costBasisEl = document.getElementById('invCostBasisVal');
   if (costBasisEl) costBasisEl.textContent = totalCost != null ? fmt(totalCost) : '—';
+
+  // Overall gain stat
+  const overallGainEl    = document.getElementById('invOverallGain');
+  const overallGainPctEl = document.getElementById('invOverallGainPct');
+  if (overallGainEl) {
+    if (gainLoss != null) {
+      overallGainEl.textContent = (gainLoss >= 0 ? '+' : '') + fmt(gainLoss);
+      overallGainEl.style.color = gainLoss >= 0 ? 'var(--green)' : 'var(--red)';
+    } else {
+      overallGainEl.textContent = '—';
+      overallGainEl.style.color = '';
+    }
+  }
+  if (overallGainPctEl) {
+    if (gainPct != null) {
+      overallGainPctEl.textContent = (gainPct >= 0 ? '+' : '') + gainPct.toFixed(2) + '%';
+      overallGainPctEl.style.color = gainPct >= 0 ? 'var(--green)' : 'var(--red)';
+    } else {
+      overallGainPctEl.textContent = '';
+    }
+  }
 
   // Gain badge (all-time unrealised)
   const gainBadgeEl = document.getElementById('invGainBadge');
