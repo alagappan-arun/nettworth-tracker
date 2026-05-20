@@ -9290,8 +9290,10 @@ async function init() {
   renderSpending();
   renderInvestments();
   renderCash();
+  renderSalaryProjector();
   renderSyncInfo();
   await fetchLivePrices();
+  renderSalaryProjector();
   hidePageLoader();
 }
 
