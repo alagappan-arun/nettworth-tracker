@@ -1815,6 +1815,17 @@
     .sp-btn-sm:hover { color:var(--t1) }
     .sp-empty { color:var(--t3);font-size:13px;padding:20px;text-align:center }
     .sp-unknown-hint { font-size:10px;color:var(--t3);margin-top:2px }
+    .sp-qv-grid { display:grid;grid-template-columns:1fr 1px 1fr;gap:0 20px }
+    .sp-qv-divider { background:var(--border);width:1px }
+    .sp-qv-col-hdr { display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px }
+    .sp-qv-total { font-size:12px;font-weight:700;color:var(--t1);text-transform:none;letter-spacing:0 }
+    .sp-qv-row { display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid color-mix(in srgb,var(--border) 50%,transparent) }
+    .sp-qv-row:last-child { border-bottom:none }
+    .sp-qv-past { opacity:.6 }
+    .sp-qv-date { font-size:12px;font-weight:600;color:var(--t2);min-width:52px }
+    .sp-qv-detail { flex:1;display:flex;flex-direction:column;gap:1px }
+    .sp-qv-shares { font-size:12px;color:var(--t2) }
+    .sp-qv-val { font-size:13px;font-weight:600;color:var(--t1);font-variant-numeric:tabular-nums }
   </style>
 </head>
 
@@ -2500,10 +2511,7 @@
     <div id="tab-salary" class="tab-content">
       <div style="max-width:1100px">
         <div id="spSummary"></div>
-        <div class="card" style="margin-top:20px">
-          <div class="card-title">Configuration</div>
-          <div id="spSalaryConfig"></div>
-        </div>
+        <div id="spQuickView" style="margin-top:20px"></div>
         <div style="margin-top:24px">
           <div class="sp-section-header">
             <div class="sp-section-title">RSU Grants (SoFi Stock)</div>
@@ -8985,7 +8993,7 @@ function spProjectYear(year) {
   const currentPrice = spGetCurrentPrice();
   const syEntry = (salaryData.salaryYears || []).find(y => y.year === year);
   const basePay = syEntry?.basePay || 0;
-  const bonus   = basePay ? Math.round(basePay * (salaryData.bonusRate || 0.20)) : 0;
+  const bonus   = syEntry?.bonus ?? (basePay ? Math.round(basePay * (salaryData.bonusRate || 0.20)) : 0);
 
   let rsuShares = 0, rsuValue = 0, rsuMissingCount = 0;
   for (const grant of salaryData.rsuGrants || []) {
@@ -9022,11 +9030,11 @@ function renderSalaryProjector() {
 
   // ── Summary table ──
   const rows = [
-    { label: 'Base Salary',  key: 'basePay',   baseOnly: true },
-    { label: `Bonus (${Math.round((salaryData.bonusRate || 0.20) * 100)}%)`, key: 'bonus', baseOnly: true },
-    { label: 'RSU Value',    key: 'rsuValue',   baseOnly: false },
-    { label: 'LTI Cash',     key: 'ltiCash',    baseOnly: false },
-    { label: 'Total',        key: 'total',       baseOnly: true, isTotal: true },
+    { label: 'Base Salary', key: 'basePay',  baseOnly: true },
+    { label: 'Bonus',       key: 'bonus',    baseOnly: true },
+    { label: 'RSU Value',   key: 'rsuValue', baseOnly: false },
+    { label: 'LTI Cash',    key: 'ltiCash',  baseOnly: false },
+    { label: 'Total',       key: 'total',    baseOnly: true, isTotal: true },
   ];
 
   const priceAge = state.pricesFetchedAt
@@ -9070,7 +9078,7 @@ function renderSalaryProjector() {
       </div>
     </div>`;
 
-  renderSpSalaryConfig();
+  renderSpVestingQuickView(currentPrice);
   renderSpRsuSchedule(currentPrice);
   renderSpCashSchedule();
 }
@@ -9089,57 +9097,88 @@ async function spRefreshPrice() {
   renderSalaryProjector();
 }
 
-function renderSpSalaryConfig() {
-  const sy = salaryData.salaryYears || [];
-  const bonusPct = Math.round((salaryData.bonusRate || 0.20) * 100);
-  document.getElementById('spSalaryConfig').innerHTML = `
-    <div class="sp-config-row">
-      <label class="sp-config-label">Bonus Rate</label>
-      <div style="display:flex;align-items:center;gap:6px">
-        <input type="number" class="sp-input" value="${bonusPct}" min="0" max="200" step="1" style="width:72px"
-          onchange="spSaveBonusRate(this.value)"> %
-      </div>
-    </div>
-    <div style="margin-top:14px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <div style="font-size:13px;font-weight:600;color:var(--t1)">Base Salary by Year</div>
-        <button class="sp-btn" onclick="spAddSalaryYear()">+ Add Year</button>
-      </div>
-      <table class="sp-config-table">
-        <thead><tr><th>Year</th><th>Base Salary</th><th></th></tr></thead>
-        <tbody>
-          ${sy.map((y, i) => `
-            <tr>
-              <td style="width:100px"><input type="number" class="sp-input" value="${y.year}" min="2020" max="2040"
-                onchange="spUpdateSalaryYear(${i},'year',this.value)"></td>
-              <td><input type="text" class="sp-input" value="${y.basePay}"
-                onchange="spUpdateSalaryYear(${i},'basePay',this.value)" placeholder="e.g. 288392"></td>
-              <td style="width:36px"><button class="sp-btn-del" onclick="spDeleteSalaryYear(${i})">✕</button></td>
-            </tr>`).join('')}
-        </tbody>
-      </table>
-    </div>`;
-}
+function renderSpVestingQuickView(currentPrice) {
+  const today = new Date().toISOString().slice(0, 10);
+  const past3  = new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10);
+  const next3  = new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10);
 
-function spSaveBonusRate(val) {
-  salaryData.bonusRate = Math.max(0, parseFloat(val) / 100) || 0.20;
-  saveSalaryData(); renderSalaryProjector();
-}
-function spAddSalaryYear() {
-  const sy = salaryData.salaryYears || [];
-  const next = sy.length ? Math.max(...sy.map(y => y.year)) + 1 : new Date().getFullYear() + 1;
-  salaryData.salaryYears = [...sy, { year: next, basePay: 0 }];
-  saveSalaryData(); renderSalaryProjector();
-}
-function spUpdateSalaryYear(idx, field, val) {
-  const entry = (salaryData.salaryYears || [])[idx];
-  if (!entry) return;
-  entry[field] = field === 'basePay' ? parseFloat(String(val).replace(/[^0-9.]/g, '')) || 0 : parseInt(val) || 0;
-  saveSalaryData(); renderSalaryProjector();
-}
-function spDeleteSalaryYear(idx) {
-  salaryData.salaryYears.splice(idx, 1);
-  saveSalaryData(); renderSalaryProjector();
+  // Collect all events (RSU + cash) keyed by date
+  const byDate = {};
+  const add = (date, patch) => {
+    if (!byDate[date]) byDate[date] = { rsuShares: 0, rsuValue: 0, cashAmount: 0, isPast: date <= today };
+    const e = byDate[date];
+    e.rsuShares  += patch.rsuShares  || 0;
+    e.rsuValue   += patch.rsuValue   || 0;
+    e.cashAmount += patch.cashAmount || 0;
+  };
+
+  for (const g of salaryData.rsuGrants || []) {
+    for (const lot of g.lots) {
+      if (lot.vestDate < past3 || lot.vestDate > next3) continue;
+      const { price } = spPriceForDate(lot.vestDate);
+      add(lot.vestDate, {
+        rsuShares: lot.shares,
+        rsuValue:  price != null ? lot.shares * price : 0,
+      });
+    }
+  }
+  for (const g of salaryData.lticashGrants || []) {
+    for (const lot of g.lots) {
+      if (lot.vestDate < past3 || lot.vestDate > next3) continue;
+      add(lot.vestDate, { cashAmount: lot.amount });
+    }
+  }
+
+  const pastEvents   = Object.entries(byDate).filter(([d]) => d <= today).sort(([a],[b]) => a.localeCompare(b));
+  const futureEvents = Object.entries(byDate).filter(([d]) => d >  today).sort(([a],[b]) => a.localeCompare(b));
+
+  const formatDate = d => {
+    const dt = new Date(d + 'T12:00:00');
+    return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  const eventRow = ([date, ev]) => {
+    const lines = [];
+    if (ev.rsuShares) lines.push(
+      `<div class="sp-qv-shares">${ev.rsuShares.toLocaleString()} shares</div>` +
+      `<div class="sp-qv-val">${ev.rsuValue ? spFmt(ev.rsuValue) : '—'}</div>`
+    );
+    if (ev.cashAmount) lines.push(
+      `<div class="sp-qv-shares">LTI Cash</div>` +
+      `<div class="sp-qv-val">${spFmt(ev.cashAmount)}</div>`
+    );
+    return `<div class="sp-qv-row ${ev.isPast ? 'sp-qv-past' : 'sp-qv-future'}">
+      <div class="sp-qv-date">${formatDate(date)}</div>
+      <div class="sp-qv-detail">${lines.join('')}</div>
+    </div>`;
+  };
+
+  const totalPast   = pastEvents.reduce((s,[,e])   => s + (e.rsuValue||0) + e.cashAmount, 0);
+  const totalFuture = futureEvents.reduce((s,[,e]) => s + (e.rsuValue||0) + e.cashAmount, 0);
+
+  const emptyMsg = '<div style="color:var(--t3);font-size:12px;padding:8px 0">None</div>';
+
+  document.getElementById('spQuickView').innerHTML = `
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px">Recent &amp; Upcoming Vesting <span style="font-size:11px;color:var(--t3);font-weight:400">(±3 months)</span></div>
+      <div class="sp-qv-grid">
+        <div class="sp-qv-col">
+          <div class="sp-qv-col-hdr">
+            <span>Last 3 months</span>
+            ${totalPast ? `<span class="sp-qv-total">${spFmt(totalPast)}</span>` : ''}
+          </div>
+          ${pastEvents.length ? pastEvents.map(eventRow).join('') : emptyMsg}
+        </div>
+        <div class="sp-qv-divider"></div>
+        <div class="sp-qv-col">
+          <div class="sp-qv-col-hdr">
+            <span>Next 3 months</span>
+            ${totalFuture ? `<span class="sp-qv-total">${spFmt(totalFuture)}</span>` : ''}
+          </div>
+          ${futureEvents.length ? futureEvents.map(eventRow).join('') : emptyMsg}
+        </div>
+      </div>
+    </div>`;
 }
 
 function renderSpRsuSchedule(currentPrice) {
