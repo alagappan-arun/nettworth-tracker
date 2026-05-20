@@ -196,7 +196,7 @@ const SALARY_PROJECTOR_SEED = {
         { vestDate: '2025-02-14', shares: 9224 },  { vestDate: '2025-05-14', shares: 9224 },
         { vestDate: '2025-08-14', shares: 9225 },  { vestDate: '2025-11-14', shares: 9224 },
         { vestDate: '2026-02-14', shares: 9224 },  { vestDate: '2026-05-14', shares: 9224 },
-        { vestDate: '2026-08-14', shares: 9226 },
+        { vestDate: '2026-08-14', shares: 9224 },
       ],
     },
     {
@@ -208,6 +208,8 @@ const SALARY_PROJECTOR_SEED = {
         { vestDate: '2025-12-14', shares: 756 }, { vestDate: '2026-03-14', shares: 757 },
         { vestDate: '2026-06-14', shares: 756 }, { vestDate: '2026-09-14', shares: 757 },
         { vestDate: '2026-12-14', shares: 756 }, { vestDate: '2027-03-14', shares: 757 },
+        { vestDate: '2027-06-14', shares: 756 }, { vestDate: '2027-09-14', shares: 757 },
+        { vestDate: '2027-12-14', shares: 756 },
       ],
     },
     {
