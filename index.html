@@ -1792,11 +1792,14 @@
     .sp-lot-past { opacity:.55 }
     .sp-lot-future { }
     .sp-lot-date { color:var(--t2);font-size:12px }
-    .sp-lot-shares,.sp-lot-value,.sp-lot-price,.sp-lot-status { text-align:right }
-    .sp-lot-price-live { color:var(--t3);font-size:12px }
+    .sp-lot-shares,.sp-lot-value,.sp-lot-price,.sp-lot-status { text-align:right;white-space:nowrap }
+    .sp-lot-price { width:90px }
+    .sp-lot-price-live { display:block;text-align:right;color:var(--t3);font-size:12px;font-variant-numeric:tabular-nums }
     .sp-lot-value-cell { color:var(--t1);font-variant-numeric:tabular-nums;font-weight:500 }
-    .sp-price-input { width:76px;background:var(--hover);border:1px solid var(--border);border-radius:4px;color:var(--t1);padding:2px 6px;font-size:12px;text-align:right }
+    .sp-price-input { display:block;margin-left:auto;width:72px;background:var(--hover);border:1px solid var(--border);border-radius:4px;color:var(--t1);padding:2px 6px;font-size:12px;text-align:right;font-variant-numeric:tabular-nums }
     .sp-price-input:focus { outline:none;border-color:var(--accent2) }
+    .sp-price-input::-webkit-outer-spin-button,.sp-price-input::-webkit-inner-spin-button { -webkit-appearance:none;margin:0 }
+    .sp-price-input[type=number] { -moz-appearance:textfield }
     .sp-badge-dist { font-size:10px;color:var(--t3);background:var(--hover);border-radius:4px;padding:2px 6px }
     .sp-badge-unv { font-size:10px;color:var(--accent2);background:rgba(124,106,247,.15);border-radius:4px;padding:2px 6px }
     .sp-config-row { display:flex;align-items:center;gap:12px;margin-bottom:12px }
