@@ -8905,7 +8905,10 @@ function showTab(name, navEl, opts = {}) {
   if (name === 'accounts')     renderAccountsPage();
   if (name === 'settings')     renderSettingsPage();
   if (name === 'cash')         renderCash();
-  if (name === 'salary')       renderSalaryProjector();
+  if (name === 'salary') {
+    if (!salaryData) loadSalaryProjector().then(() => spRefreshPrice());
+    else renderSalaryProjector();
+  }
   if (name === 'investments' && !opts.keepInvFilter) {
     state.invInstitutionFilter = null;
     state.invAccountFilter     = null;
@@ -9315,7 +9318,6 @@ async function init() {
     loadManualAccounts(), loadCsvAccounts(), loadHistory(), loadManualTransactions(),
     loadTxOverrides(), loadMerchantCatRules(), loadCustomCategories(), loadCostBasisOverrides(), loadSpendingExclusions(),
     loadAccounts(true), loadTransactions(true), loadInvestments(true),
-    loadSalaryProjector(),
   ]);
 
   // Pre-fetch INR rate if user has INR selected from a previous session
@@ -9332,10 +9334,8 @@ async function init() {
   renderSpending();
   renderInvestments();
   renderCash();
-  renderSalaryProjector();
   renderSyncInfo();
   await fetchLivePrices();
-  renderSalaryProjector();
   hidePageLoader();
 }
 
