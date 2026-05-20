@@ -1759,6 +1759,62 @@
       .mobile-more-drawer,
       .mobile-drawer-overlay { display: none !important; }
     }
+
+    /* ── Salary Projector ────────────────────────────────────────────────────── */
+    .sp-summary-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px }
+    .sp-price-badge { display:flex;align-items:center;gap:8px;background:var(--hover);border-radius:8px;padding:6px 12px }
+    .sp-price-ticker { font-size:12px;font-weight:600;color:var(--t2) }
+    .sp-price-val { font-size:15px;font-weight:700;color:var(--t1) }
+    .sp-price-stale { font-size:11px;color:var(--t3) }
+    .sp-table-wrap { overflow-x:auto }
+    .sp-table { width:100%;border-collapse:collapse;font-size:13px }
+    .sp-table th { text-align:right;padding:6px 12px;font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);white-space:nowrap }
+    .sp-th-label { text-align:left }
+    .sp-th-year { min-width:110px }
+    .sp-tr td { border-bottom:1px solid var(--border) }
+    .sp-tr-total td { border-top:2px solid var(--border) }
+    .sp-td { text-align:right;padding:8px 12px;color:var(--t1);font-variant-numeric:tabular-nums }
+    .sp-td-label { text-align:left;color:var(--t2);font-weight:500 }
+    .sp-td-total { font-weight:700;color:var(--accent2) }
+    .sp-td-empty { text-align:right;color:var(--t3) }
+    .sp-section-header { margin-bottom:12px }
+    .sp-section-title { font-size:15px;font-weight:700;color:var(--t1);margin-bottom:2px }
+    .sp-section-sub { font-size:12px;color:var(--t3) }
+    .sp-grant-card { margin-bottom:12px }
+    .sp-grant-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px }
+    .sp-grant-label { font-weight:700;color:var(--t1);font-size:13px;margin-right:8px }
+    .sp-grant-date { font-size:11px;color:var(--t3) }
+    .sp-grant-total { font-size:13px;font-weight:600;color:var(--t2) }
+    .sp-lot-table { width:100%;border-collapse:collapse;font-size:12px }
+    .sp-lot-table th { text-align:right;padding:4px 10px;font-size:10px;color:var(--t3);font-weight:600;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.4px }
+    .sp-lot-table th:first-child { text-align:left }
+    .sp-lot-table td { padding:5px 10px;border-bottom:1px solid color-mix(in srgb,var(--border) 40%,transparent) }
+    .sp-lot-past { opacity:.55 }
+    .sp-lot-future { }
+    .sp-lot-date { color:var(--t2);font-size:12px }
+    .sp-lot-shares,.sp-lot-value,.sp-lot-price,.sp-lot-status { text-align:right }
+    .sp-lot-price-live { color:var(--t3);font-size:12px }
+    .sp-lot-value-cell { color:var(--t1);font-variant-numeric:tabular-nums;font-weight:500 }
+    .sp-price-input { width:76px;background:var(--hover);border:1px solid var(--border);border-radius:4px;color:var(--t1);padding:2px 6px;font-size:12px;text-align:right }
+    .sp-price-input:focus { outline:none;border-color:var(--accent2) }
+    .sp-badge-dist { font-size:10px;color:var(--t3);background:var(--hover);border-radius:4px;padding:2px 6px }
+    .sp-badge-unv { font-size:10px;color:var(--accent2);background:rgba(124,106,247,.15);border-radius:4px;padding:2px 6px }
+    .sp-config-row { display:flex;align-items:center;gap:12px;margin-bottom:12px }
+    .sp-config-label { font-size:13px;color:var(--t2);font-weight:500;min-width:100px }
+    .sp-input { background:var(--hover);border:1px solid var(--border);border-radius:6px;color:var(--t1);padding:5px 10px;font-size:13px }
+    .sp-input:focus { outline:none;border-color:var(--accent2) }
+    .sp-config-table { width:100%;border-collapse:collapse;font-size:13px }
+    .sp-config-table th { text-align:left;padding:4px 8px;font-size:10px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border) }
+    .sp-config-table td { padding:4px 8px }
+    .sp-config-table .sp-input { width:100% }
+    .sp-btn { background:var(--accent2);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;font-weight:600 }
+    .sp-btn:hover { opacity:.85 }
+    .sp-btn-del { background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px }
+    .sp-btn-del:hover { background:var(--hover);color:var(--t1) }
+    .sp-btn-sm { background:var(--hover);border:1px solid var(--border);color:var(--t2);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer }
+    .sp-btn-sm:hover { color:var(--t1) }
+    .sp-empty { color:var(--t3);font-size:13px;padding:20px;text-align:center }
+    .sp-unknown-hint { font-size:10px;color:var(--t3);margin-top:2px }
   </style>
 </head>
 
@@ -1968,6 +2024,9 @@
     </div>
     <div class="nav-item" data-tab="transactions" onclick="showTab('transactions',this)">
       <span class="nav-icon">📋</span> Transactions
+    </div>
+    <div class="nav-item" data-tab="salary" onclick="showTab('salary',this)">
+      <span class="nav-icon">💼</span> Salary
     </div>
     <div style="border-top:1px solid var(--border);margin:8px 10px;"></div>
     <div class="nav-item" data-tab="accounts" onclick="showTab('accounts',this)">
@@ -2436,6 +2495,31 @@
 
       </div>
     </div><!-- /accounts -->
+
+    <!-- ═══════════ SALARY PROJECTOR TAB ═══════════ -->
+    <div id="tab-salary" class="tab-content">
+      <div style="max-width:1100px">
+        <div id="spSummary"></div>
+        <div class="card" style="margin-top:20px">
+          <div class="card-title">Configuration</div>
+          <div id="spSalaryConfig"></div>
+        </div>
+        <div style="margin-top:24px">
+          <div class="sp-section-header">
+            <div class="sp-section-title">RSU Grants (SoFi Stock)</div>
+            <div class="sp-section-sub">Future lots use current price · Past lots use your historical price (editable below)</div>
+          </div>
+          <div id="spRsuGrants"></div>
+        </div>
+        <div style="margin-top:24px;margin-bottom:40px">
+          <div class="sp-section-header">
+            <div class="sp-section-title">Cash Plan (LTI Cash)</div>
+            <div class="sp-section-sub">Cash amounts distributed quarterly — not dependent on stock price</div>
+          </div>
+          <div id="spCashGrants"></div>
+        </div>
+      </div>
+    </div>
 
     <!-- ═══════════ SETTINGS TAB ═══════════ -->
     <div id="tab-settings" class="tab-content">
@@ -8306,8 +8390,8 @@ function renderTransactions() {
 // ════════════════════════════════════════════════════════════════════════════
 //  TAB NAVIGATION
 // ════════════════════════════════════════════════════════════════════════════
-const TAB_TITLES = { dashboard: 'Dashboard', investments: 'Investments', cash: 'Cash', spending: 'Spending', recurring: 'Recurring', transactions: 'Transactions', accounts: 'Accounts', settings: 'Settings' };
-const TAB_PATHS = { dashboard: '/dashboard', investments: '/investments', cash: '/cash', spending: '/spending', recurring: '/recurring', transactions: '/transactions', accounts: '/accounts', settings: '/settings' };
+const TAB_TITLES = { dashboard: 'Dashboard', investments: 'Investments', cash: 'Cash', spending: 'Spending', recurring: 'Recurring', transactions: 'Transactions', salary: 'Salary Projector', accounts: 'Accounts', settings: 'Settings' };
+const TAB_PATHS = { dashboard: '/dashboard', investments: '/investments', cash: '/cash', spending: '/spending', recurring: '/recurring', transactions: '/transactions', salary: '/salary', accounts: '/accounts', settings: '/settings' };
 const PATH_TABS = Object.fromEntries(Object.entries(TAB_PATHS).map(([tab, route]) => [route, tab]));
 
 function tabFromLocation() {
@@ -8810,6 +8894,7 @@ function showTab(name, navEl, opts = {}) {
   if (name === 'accounts')     renderAccountsPage();
   if (name === 'settings')     renderSettingsPage();
   if (name === 'cash')         renderCash();
+  if (name === 'salary')       renderSalaryProjector();
   if (name === 'investments' && !opts.keepInvFilter) {
     state.invInstitutionFilter = null;
     state.invAccountFilter     = null;
@@ -8843,6 +8928,334 @@ window.addEventListener('resize', () => {
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeManualModal(); });
 
 // ════════════════════════════════════════════════════════════════════════════
+//  SALARY PROJECTOR
+// ════════════════════════════════════════════════════════════════════════════
+
+let salaryData = null;
+
+async function loadSalaryProjector() {
+  try {
+    const r = await fetch('/api/salary-projector');
+    const j = await r.json();
+    salaryData = j.data;
+  } catch (e) {
+    console.warn('salary projector load failed', e);
+    salaryData = { salaryYears: [], bonusRate: 0.20, stockTicker: 'SOFI', rsuGrants: [], lticashGrants: [], historicalPrices: {} };
+  }
+}
+
+async function saveSalaryData() {
+  try {
+    await fetch('/api/salary-projector', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: salaryData }),
+    });
+  } catch (e) {
+    console.error('salary projector save failed', e);
+  }
+}
+
+function spGetCurrentPrice() {
+  const ticker = (salaryData?.stockTicker || 'SOFI').toUpperCase();
+  return state.livePrices?.[ticker] ?? null;
+}
+
+function spPriceForDate(vestDate) {
+  const today = new Date().toISOString().slice(0, 10);
+  if (vestDate <= today) {
+    return { price: salaryData.historicalPrices?.[vestDate] ?? null, isPast: true };
+  }
+  return { price: spGetCurrentPrice(), isPast: false };
+}
+
+function spComputeYears() {
+  const years = new Set();
+  const cy = new Date().getFullYear();
+  years.add(cy); years.add(cy + 1);
+  for (const sy of salaryData?.salaryYears || []) years.add(sy.year);
+  for (const g of salaryData?.rsuGrants || [])
+    for (const l of g.lots) years.add(new Date(l.vestDate + 'T12:00:00').getFullYear());
+  for (const g of salaryData?.lticashGrants || [])
+    for (const l of g.lots) years.add(new Date(l.vestDate + 'T12:00:00').getFullYear());
+  return [...years].sort((a, b) => a - b);
+}
+
+function spProjectYear(year) {
+  const currentPrice = spGetCurrentPrice();
+  const syEntry = (salaryData.salaryYears || []).find(y => y.year === year);
+  const basePay = syEntry?.basePay || 0;
+  const bonus   = basePay ? Math.round(basePay * (salaryData.bonusRate || 0.20)) : 0;
+
+  let rsuShares = 0, rsuValue = 0, rsuMissingCount = 0;
+  for (const grant of salaryData.rsuGrants || []) {
+    for (const lot of grant.lots) {
+      if (new Date(lot.vestDate + 'T12:00:00').getFullYear() !== year) continue;
+      const { price, isPast } = spPriceForDate(lot.vestDate);
+      if (price != null) { rsuShares += lot.shares; rsuValue += lot.shares * price; }
+      else if (isPast)   { rsuMissingCount++; }
+    }
+  }
+
+  let ltiCash = 0;
+  for (const grant of salaryData.lticashGrants || []) {
+    for (const lot of grant.lots) {
+      if (new Date(lot.vestDate + 'T12:00:00').getFullYear() !== year) continue;
+      ltiCash += lot.amount;
+    }
+  }
+
+  const total = basePay + bonus + rsuValue + ltiCash;
+  return { year, basePay, bonus, rsuShares, rsuValue, rsuMissingCount, ltiCash, total, hasBase: !!syEntry };
+}
+
+function spFmt(n) {
+  return '$' + Math.round(n).toLocaleString('en-US');
+}
+
+function renderSalaryProjector() {
+  if (!salaryData) return;
+  const currentPrice = spGetCurrentPrice();
+  const ticker = salaryData.stockTicker || 'SOFI';
+  const years  = spComputeYears();
+  const projs  = years.map(y => spProjectYear(y));
+
+  // ── Summary table ──
+  const rows = [
+    { label: 'Base Salary',  key: 'basePay',   baseOnly: true },
+    { label: `Bonus (${Math.round((salaryData.bonusRate || 0.20) * 100)}%)`, key: 'bonus', baseOnly: true },
+    { label: 'RSU Value',    key: 'rsuValue',   baseOnly: false },
+    { label: 'LTI Cash',     key: 'ltiCash',    baseOnly: false },
+    { label: 'Total',        key: 'total',       baseOnly: true, isTotal: true },
+  ];
+
+  const priceAge = state.pricesFetchedAt
+    ? Math.round((Date.now() - new Date(state.pricesFetchedAt)) / 60000) + 'm ago'
+    : null;
+
+  document.getElementById('spSummary').innerHTML = `
+    <div class="card">
+      <div class="sp-summary-header">
+        <div class="card-title" style="margin:0">Year-by-Year Projection</div>
+        <div class="sp-price-badge">
+          <span class="sp-price-ticker">${esc(ticker)}</span>
+          <span class="sp-price-val">${currentPrice != null ? '$' + currentPrice.toFixed(2) : 'Price unavailable'}</span>
+          ${priceAge ? `<span class="sp-price-stale">${priceAge}</span>` : ''}
+          <button class="sp-btn-sm" onclick="spRefreshPrice()">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="sp-table-wrap">
+        <table class="sp-table">
+          <thead>
+            <tr>
+              <th class="sp-th-label">Component</th>
+              ${years.map(y => `<th class="sp-th-year">${y}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(row => `
+              <tr class="${row.isTotal ? 'sp-tr-total' : 'sp-tr'}">
+                <td class="sp-td-label ${row.isTotal ? 'sp-td-total' : ''}">${esc(row.label)}</td>
+                ${projs.map(p => {
+                  const val = p[row.key];
+                  const skip = row.baseOnly && !p.hasBase && row.key !== 'rsuValue' && row.key !== 'ltiCash';
+                  if (skip) return `<td class="sp-td sp-td-empty">—</td>`;
+                  const suffix = row.key === 'rsuValue' && p.rsuMissingCount > 0
+                    ? `<div class="sp-unknown-hint">(${p.rsuMissingCount} lot${p.rsuMissingCount > 1 ? 's' : ''} missing price)</div>` : '';
+                  return `<td class="sp-td ${row.isTotal ? 'sp-td-total' : ''}">${val > 0 ? spFmt(val) : '—'}${suffix}</td>`;
+                }).join('')}
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+  renderSpSalaryConfig();
+  renderSpRsuSchedule(currentPrice);
+  renderSpCashSchedule();
+}
+
+async function spRefreshPrice() {
+  const ticker = (salaryData?.stockTicker || 'SOFI').toUpperCase();
+  try {
+    const r = await fetch(`/api/prices?tickers=${encodeURIComponent(ticker)}`);
+    const j = await r.json();
+    Object.assign(state.livePrices ||= {}, j.prices || {});
+    Object.assign(state.livePriceDetails ||= {}, j.details || {});
+    if (j.fetched_at) state.pricesFetchedAt = j.fetched_at;
+  } catch (e) {
+    console.warn('spRefreshPrice failed', e);
+  }
+  renderSalaryProjector();
+}
+
+function renderSpSalaryConfig() {
+  const sy = salaryData.salaryYears || [];
+  const bonusPct = Math.round((salaryData.bonusRate || 0.20) * 100);
+  document.getElementById('spSalaryConfig').innerHTML = `
+    <div class="sp-config-row">
+      <label class="sp-config-label">Bonus Rate</label>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input type="number" class="sp-input" value="${bonusPct}" min="0" max="200" step="1" style="width:72px"
+          onchange="spSaveBonusRate(this.value)"> %
+      </div>
+    </div>
+    <div style="margin-top:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:13px;font-weight:600;color:var(--t1)">Base Salary by Year</div>
+        <button class="sp-btn" onclick="spAddSalaryYear()">+ Add Year</button>
+      </div>
+      <table class="sp-config-table">
+        <thead><tr><th>Year</th><th>Base Salary</th><th></th></tr></thead>
+        <tbody>
+          ${sy.map((y, i) => `
+            <tr>
+              <td style="width:100px"><input type="number" class="sp-input" value="${y.year}" min="2020" max="2040"
+                onchange="spUpdateSalaryYear(${i},'year',this.value)"></td>
+              <td><input type="text" class="sp-input" value="${y.basePay}"
+                onchange="spUpdateSalaryYear(${i},'basePay',this.value)" placeholder="e.g. 288392"></td>
+              <td style="width:36px"><button class="sp-btn-del" onclick="spDeleteSalaryYear(${i})">✕</button></td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function spSaveBonusRate(val) {
+  salaryData.bonusRate = Math.max(0, parseFloat(val) / 100) || 0.20;
+  saveSalaryData(); renderSalaryProjector();
+}
+function spAddSalaryYear() {
+  const sy = salaryData.salaryYears || [];
+  const next = sy.length ? Math.max(...sy.map(y => y.year)) + 1 : new Date().getFullYear() + 1;
+  salaryData.salaryYears = [...sy, { year: next, basePay: 0 }];
+  saveSalaryData(); renderSalaryProjector();
+}
+function spUpdateSalaryYear(idx, field, val) {
+  const entry = (salaryData.salaryYears || [])[idx];
+  if (!entry) return;
+  entry[field] = field === 'basePay' ? parseFloat(String(val).replace(/[^0-9.]/g, '')) || 0 : parseInt(val) || 0;
+  saveSalaryData(); renderSalaryProjector();
+}
+function spDeleteSalaryYear(idx) {
+  salaryData.salaryYears.splice(idx, 1);
+  saveSalaryData(); renderSalaryProjector();
+}
+
+function renderSpRsuSchedule(currentPrice) {
+  const today  = new Date().toISOString().slice(0, 10);
+  const grants = salaryData.rsuGrants || [];
+  let html = '';
+  for (const grant of grants) {
+    const total = grant.lots.reduce((s, l) => s + l.shares, 0);
+    html += `
+      <div class="sp-grant-card card">
+        <div class="sp-grant-header">
+          <div>
+            <span class="sp-grant-label">${esc(grant.label)}</span>
+            <span class="sp-grant-date">Granted ${esc(grant.grantDate)}</span>
+          </div>
+          <div class="sp-grant-total">${total.toLocaleString()} shares total</div>
+        </div>
+        <table class="sp-lot-table">
+          <thead><tr><th>Vest Date</th><th>Shares</th><th>Price</th><th>Value</th><th>Status</th></tr></thead>
+          <tbody>
+            ${grant.lots.map(lot => {
+              const isPast  = lot.vestDate <= today;
+              const hist    = salaryData.historicalPrices?.[lot.vestDate];
+              const effPrice = isPast ? hist : currentPrice;
+              const value    = effPrice != null ? lot.shares * effPrice : null;
+              const priceCell = isPast
+                ? `<input type="number" class="sp-price-input" value="${hist ?? ''}" placeholder="Set price"
+                     step="0.01" min="0" title="Historical price on ${lot.vestDate}"
+                     onchange="spSetHistPrice('${lot.vestDate}',this.value)">`
+                : `<span class="sp-lot-price-live">${currentPrice != null ? '$' + currentPrice.toFixed(2) : '—'}</span>`;
+              return `<tr class="${isPast ? 'sp-lot-past' : 'sp-lot-future'}">
+                <td class="sp-lot-date">${lot.vestDate}</td>
+                <td class="sp-lot-shares">${lot.shares.toLocaleString()}</td>
+                <td class="sp-lot-price">${priceCell}</td>
+                <td class="sp-lot-value sp-lot-value-cell">${value != null ? spFmt(value) : '—'}</td>
+                <td class="sp-lot-status">${isPast
+                  ? '<span class="sp-badge-dist">Distributed</span>'
+                  : '<span class="sp-badge-unv">Unvested</span>'}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }
+  document.getElementById('spRsuGrants').innerHTML = html || '<div class="sp-empty">No RSU grants configured</div>';
+}
+
+function renderSpCashSchedule() {
+  const today  = new Date().toISOString().slice(0, 10);
+  const grants = salaryData.lticashGrants || [];
+  let html = '';
+  for (const grant of grants) {
+    const total = grant.lots.reduce((s, l) => s + l.amount, 0);
+    html += `
+      <div class="sp-grant-card card">
+        <div class="sp-grant-header">
+          <div>
+            <span class="sp-grant-label">${esc(grant.label)}</span>
+            <span class="sp-grant-date">Granted ${esc(grant.grantDate)}</span>
+          </div>
+          <div class="sp-grant-total">${spFmt(total)} total</div>
+        </div>
+        <table class="sp-lot-table">
+          <thead><tr><th>Vest Date</th><th>Amount</th><th>Status</th></tr></thead>
+          <tbody>
+            ${grant.lots.map(lot => {
+              const isPast = lot.vestDate <= today;
+              return `<tr class="${isPast ? 'sp-lot-past' : 'sp-lot-future'}">
+                <td class="sp-lot-date">${lot.vestDate}</td>
+                <td class="sp-lot-value sp-lot-value-cell">${spFmt(lot.amount)}</td>
+                <td class="sp-lot-status">${isPast
+                  ? '<span class="sp-badge-dist">Distributed</span>'
+                  : '<span class="sp-badge-unv">Unvested</span>'}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }
+  document.getElementById('spCashGrants').innerHTML = html || '<div class="sp-empty">No cash grants configured</div>';
+}
+
+function spSetHistPrice(date, value) {
+  const price = parseFloat(value);
+  if (!salaryData.historicalPrices) salaryData.historicalPrices = {};
+  if (isNaN(price) || price <= 0) delete salaryData.historicalPrices[date];
+  else salaryData.historicalPrices[date] = price;
+  saveSalaryData();
+  // Re-render just the summary so the price input doesn't lose focus
+  const currentPrice = spGetCurrentPrice();
+  const years  = spComputeYears();
+  const projs  = years.map(y => spProjectYear(y));
+  const rows = [
+    { label: 'Base Salary', key: 'basePay', baseOnly: true },
+    { label: `Bonus (${Math.round((salaryData.bonusRate || 0.20) * 100)}%)`, key: 'bonus', baseOnly: true },
+    { label: 'RSU Value',   key: 'rsuValue', baseOnly: false },
+    { label: 'LTI Cash',    key: 'ltiCash',  baseOnly: false },
+    { label: 'Total',       key: 'total',    baseOnly: true, isTotal: true },
+  ];
+  const tbody = document.querySelector('#spSummary .sp-table tbody');
+  if (!tbody) return;
+  tbody.innerHTML = rows.map(row => `
+    <tr class="${row.isTotal ? 'sp-tr-total' : 'sp-tr'}">
+      <td class="sp-td-label ${row.isTotal ? 'sp-td-total' : ''}">${esc(row.label)}</td>
+      ${projs.map(p => {
+        const val  = p[row.key];
+        const skip = row.baseOnly && !p.hasBase && row.key !== 'rsuValue' && row.key !== 'ltiCash';
+        if (skip) return `<td class="sp-td sp-td-empty">—</td>`;
+        const suffix = row.key === 'rsuValue' && p.rsuMissingCount > 0
+          ? `<div class="sp-unknown-hint">(${p.rsuMissingCount} lot${p.rsuMissingCount > 1 ? 's' : ''} missing price)</div>` : '';
+        return `<td class="sp-td ${row.isTotal ? 'sp-td-total' : ''}">${val > 0 ? spFmt(val) : '—'}${suffix}</td>`;
+      }).join('')}
+    </tr>`).join('');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
 //  INIT
 // ════════════════════════════════════════════════════════════════════════════
 async function init() {
@@ -8860,6 +9273,7 @@ async function init() {
     loadManualAccounts(), loadCsvAccounts(), loadHistory(), loadManualTransactions(),
     loadTxOverrides(), loadMerchantCatRules(), loadCustomCategories(), loadCostBasisOverrides(), loadSpendingExclusions(),
     loadAccounts(true), loadTransactions(true), loadInvestments(true),
+    loadSalaryProjector(),
   ]);
 
   // Pre-fetch INR rate if user has INR selected from a previous session

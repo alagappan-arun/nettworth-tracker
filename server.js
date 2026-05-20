@@ -49,7 +49,7 @@ app.use((req, res, next) => {
   }
   next();
 });
-app.get(['/', '/dashboard', '/investments', '/spending', '/transactions', '/recurring', '/accounts', '/settings'], (_req, res) => {
+app.get(['/', '/dashboard', '/investments', '/spending', '/transactions', '/recurring', '/accounts', '/settings', '/salary'], (_req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 app.use(express.static(path.join(__dirname)));
@@ -175,6 +175,119 @@ try {
   if (!demoMode && fs.existsSync(COST_BASIS_FILE)) costBasisDb = JSON.parse(fs.readFileSync(COST_BASIS_FILE, 'utf8'));
 } catch (_) { costBasisDb = {}; }
 function persistCostBasis() { fs.writeFileSync(COST_BASIS_FILE, JSON.stringify(costBasisDb, null, 2)); }
+
+// ── Salary projector (persisted on disk) ──────────────────────────────────────
+const SALARY_PROJECTOR_FILE = path.join(dataDir, 'salary_projector.json');
+const SALARY_PROJECTOR_SEED = {
+  salaryYears: [
+    { year: 2026, basePay: 288392 },
+    { year: 2027, basePay: 297621 },
+  ],
+  bonusRate: 0.20,
+  stockTicker: 'SOFI',
+  rsuGrants: [
+    {
+      id: 'rsu-oct-2022', label: 'RSU21', grantDate: '2022-10-04', totalShares: 147590,
+      lots: [
+        { vestDate: '2023-02-14', shares: 18448 }, { vestDate: '2023-05-14', shares: 9224 },
+        { vestDate: '2023-08-14', shares: 9225 },  { vestDate: '2023-11-14', shares: 9224 },
+        { vestDate: '2024-02-14', shares: 9224 },  { vestDate: '2024-05-14', shares: 9224 },
+        { vestDate: '2024-08-14', shares: 9225 },  { vestDate: '2024-11-14', shares: 9224 },
+        { vestDate: '2025-02-14', shares: 9224 },  { vestDate: '2025-05-14', shares: 9224 },
+        { vestDate: '2025-08-14', shares: 9225 },  { vestDate: '2025-11-14', shares: 9224 },
+        { vestDate: '2026-02-14', shares: 9224 },  { vestDate: '2026-05-14', shares: 9224 },
+        { vestDate: '2026-08-14', shares: 9226 },
+      ],
+    },
+    {
+      id: 'rsu-mar-2024', label: 'RSU21', grantDate: '2024-03-14', totalShares: 9078,
+      lots: [
+        { vestDate: '2024-06-14', shares: 756 }, { vestDate: '2024-09-14', shares: 757 },
+        { vestDate: '2024-12-14', shares: 756 }, { vestDate: '2025-03-14', shares: 757 },
+        { vestDate: '2025-06-14', shares: 756 }, { vestDate: '2025-09-14', shares: 757 },
+        { vestDate: '2025-12-14', shares: 756 }, { vestDate: '2026-03-14', shares: 757 },
+        { vestDate: '2026-06-14', shares: 756 }, { vestDate: '2026-09-14', shares: 757 },
+        { vestDate: '2026-12-14', shares: 756 }, { vestDate: '2027-03-14', shares: 757 },
+      ],
+    },
+    {
+      id: 'rsu-mar-2025', label: 'RSU21', grantDate: '2025-03-17', totalShares: 5228,
+      lots: [
+        { vestDate: '2025-06-14', shares: 435 }, { vestDate: '2025-09-14', shares: 436 },
+        { vestDate: '2025-12-14', shares: 436 }, { vestDate: '2026-03-14', shares: 435 },
+        { vestDate: '2026-06-14', shares: 436 }, { vestDate: '2026-09-14', shares: 435 },
+        { vestDate: '2026-12-14', shares: 436 }, { vestDate: '2027-03-14', shares: 436 },
+        { vestDate: '2027-06-14', shares: 435 }, { vestDate: '2027-09-14', shares: 436 },
+        { vestDate: '2027-12-14', shares: 436 }, { vestDate: '2028-03-14', shares: 436 },
+      ],
+    },
+    {
+      id: 'rsu-mar-2026', label: 'RSU21', grantDate: '2026-03-16', totalShares: 5844,
+      lots: [
+        { vestDate: '2026-06-14', shares: 487 }, { vestDate: '2026-09-14', shares: 487 },
+        { vestDate: '2026-12-14', shares: 487 }, { vestDate: '2027-03-14', shares: 487 },
+        { vestDate: '2027-06-14', shares: 487 }, { vestDate: '2027-09-14', shares: 487 },
+        { vestDate: '2027-12-14', shares: 487 }, { vestDate: '2028-03-14', shares: 487 },
+        { vestDate: '2028-06-14', shares: 487 }, { vestDate: '2028-09-14', shares: 487 },
+        { vestDate: '2028-12-14', shares: 487 }, { vestDate: '2029-03-14', shares: 487 },
+      ],
+    },
+  ],
+  lticashGrants: [
+    {
+      id: 'lticash-mar-2024', label: 'LTICASH', grantDate: '2024-03-14', totalAmount: 25000,
+      lots: [
+        { vestDate: '2025-06-14', amount: 2083 }, { vestDate: '2025-09-14', amount: 2083 },
+        { vestDate: '2025-12-14', amount: 2084 }, { vestDate: '2026-03-14', amount: 2083 },
+        { vestDate: '2026-06-14', amount: 2083 }, { vestDate: '2026-09-14', amount: 2084 },
+        { vestDate: '2026-12-14', amount: 2083 }, { vestDate: '2027-03-14', amount: 2083 },
+        { vestDate: '2027-06-14', amount: 2084 }, { vestDate: '2027-09-14', amount: 2083 },
+        { vestDate: '2027-12-14', amount: 2083 }, { vestDate: '2028-03-14', amount: 2084 },
+      ],
+    },
+    {
+      id: 'lticash-mar-2025', label: 'LTICASH', grantDate: '2025-03-17', totalAmount: 25000,
+      lots: [
+        { vestDate: '2025-06-14', amount: 2083 }, { vestDate: '2025-09-14', amount: 2083 },
+        { vestDate: '2025-12-14', amount: 2084 }, { vestDate: '2026-03-14', amount: 2083 },
+        { vestDate: '2026-06-14', amount: 2083 }, { vestDate: '2026-09-14', amount: 2084 },
+        { vestDate: '2026-12-14', amount: 2083 }, { vestDate: '2027-03-14', amount: 2083 },
+        { vestDate: '2027-06-14', amount: 2084 }, { vestDate: '2027-09-14', amount: 2083 },
+        { vestDate: '2027-12-14', amount: 2083 }, { vestDate: '2028-03-14', amount: 2084 },
+      ],
+    },
+    {
+      id: 'lticash-mar-2026', label: 'LTICASH', grantDate: '2026-03-16', totalAmount: 37500,
+      lots: [
+        { vestDate: '2026-06-14', amount: 3125 }, { vestDate: '2026-09-14', amount: 3125 },
+        { vestDate: '2026-12-14', amount: 3125 }, { vestDate: '2027-03-14', amount: 3125 },
+        { vestDate: '2027-06-14', amount: 3125 }, { vestDate: '2027-09-14', amount: 3125 },
+        { vestDate: '2027-12-14', amount: 3125 }, { vestDate: '2028-03-14', amount: 3125 },
+        { vestDate: '2028-06-14', amount: 3125 }, { vestDate: '2028-09-14', amount: 3125 },
+        { vestDate: '2028-12-14', amount: 3125 }, { vestDate: '2029-03-14', amount: 3125 },
+      ],
+    },
+  ],
+  historicalPrices: {
+    '2026-02-14': 19.61,
+    '2026-03-14': 17.76,
+    '2026-05-14': 15.31,
+  },
+};
+let salaryProjectorDb = {};
+try {
+  if (!demoMode && fs.existsSync(SALARY_PROJECTOR_FILE)) {
+    salaryProjectorDb = JSON.parse(fs.readFileSync(SALARY_PROJECTOR_FILE, 'utf8'));
+  } else if (!demoMode) {
+    salaryProjectorDb = SALARY_PROJECTOR_SEED;
+    fs.writeFileSync(SALARY_PROJECTOR_FILE, JSON.stringify(salaryProjectorDb, null, 2));
+  } else {
+    salaryProjectorDb = SALARY_PROJECTOR_SEED;
+  }
+} catch (_) { salaryProjectorDb = SALARY_PROJECTOR_SEED; }
+function persistSalaryProjector() {
+  if (!demoMode) fs.writeFileSync(SALARY_PROJECTOR_FILE, JSON.stringify(salaryProjectorDb, null, 2));
+}
 
 // ── Manual (cash) transactions (persisted on disk) ────────────────────────────
 // Format: [{ transaction_id, date, name, amount, account_name, institution_name, is_manual, ... }]
@@ -647,6 +760,18 @@ app.put('/api/cost-basis', (req, res) => {
   if (demoMode) return res.json({ success: true, demo_mode: true });
   costBasisDb = req.body.overrides || {};
   persistCostBasis();
+  res.json({ success: true });
+});
+
+// ── Salary projector endpoints ────────────────────────────────────────────────
+app.get('/api/salary-projector', (_req, res) => {
+  res.json({ data: salaryProjectorDb });
+});
+app.put('/api/salary-projector', (req, res) => {
+  if (demoMode) return res.json({ success: true, demo_mode: true });
+  if (!req.body.data) return res.status(400).json({ error: 'Missing data' });
+  salaryProjectorDb = req.body.data;
+  persistSalaryProjector();
   res.json({ success: true });
 });
 
